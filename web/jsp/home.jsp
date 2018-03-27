@@ -13,5 +13,14 @@
     </div>
 
     <h1>Welcome to online bartender!</h1>
+
+    <form action="controller">
+        <input type="hidden" name="command" value="register"/>
+        <input type="text" name="name" autofocus required placeholder="Your Name"></br>
+        <input type="text" name="email" required placeholder="Your Email"></br>
+        <input type="text" name="password" required placeholder="Your Password"></br>
+        <input type="submit" value="submit">
+    </form>
+<p>${reg_result}</p>
 </body>
 </html>

@@ -7,28 +7,49 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
-    private static final String ADD_USER = "INSERT INTO user(us_name, us_, phone ) VALUES(?,?,?)";
+    private static final String ADD_USER = "INSERT INTO `bartender`.`user`\n" +
+            "(`us_name`,\n" +
+            " `us_email`,\n" +
+            " `us_password`)\n" +
+            "VALUES\n" + " (?,?,?);";
     private static final String REMOVE_USER = "";
     private static final String UPDATE_USER = "";
     private ConnectionPool pool = ConnectionPool.getInstance();
     private Logger logger = LogManager.getLogger();
 
-    void addUser(User account){
+    public boolean addUser(String name, String email, String password){
+        boolean result = false;
         try {
             Connection con = pool.getConnection();
+            PreparedStatement ps = con.prepareStatement(ADD_USER);
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, password);
+            int res = ps.executeUpdate();
+
+            if(res == 1){
+                result = true;
+            }
         } catch (InterruptedException e) {
             logger.catching(e);
+        } catch (SQLException e) {
+            logger.catching(e);
         }
+        return result;
     }
-    void removeUser(User account){
-
+    public boolean removeUser(User account){
+        boolean result = false;
+        return result;
     }
-    void updateUser(User account){
-
+    public boolean updateUser(User account){
+        boolean result = false;
+        return result;
     }
 
     List<User> query(Specification specification){

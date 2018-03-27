@@ -16,10 +16,10 @@ public final class ConnectionPool {
     private static final List<ProxyConnection> idleConnections = new ArrayList<>();
     private static final List<ProxyConnection> activeConnections = new ArrayList<>();
     private static final int NUMBER_OF_CONNECTIONS = 10;
-    private static final String URL = "jdbc:mysql://localhost:3306/bartender/?useSSL=false";
+    private static final String URL = "jdbc:mysql://localhost:3306/bartender";
     private static final String USER = "root";
     private static final String PASSWORD = "admin";
-    private Logger logger = LogManager.getLogger();
+    private static Logger logger = LogManager.getLogger();
 
     private ConnectionPool() {
         if (instance != null) {
@@ -32,7 +32,11 @@ public final class ConnectionPool {
         try {
             if (instance == null) {
                 instance = new ConnectionPool();
+                Class.forName("com.mysql.jdbc.Driver");
             }
+
+        } catch (ClassNotFoundException e) {
+            logger.debug(e);
         } finally {
             lock.unlock();
         }

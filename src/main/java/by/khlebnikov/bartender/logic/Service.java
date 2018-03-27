@@ -16,8 +16,6 @@ public class Service {
     }
 
     public boolean registerUser(String name, String email, String password){
-
-
-        return true;
+        return repo.addUser(name, email, password);
     }
 }
