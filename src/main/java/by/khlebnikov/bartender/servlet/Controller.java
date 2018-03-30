@@ -41,7 +41,6 @@ public class Controller extends HttpServlet {
         if (page != null) {
             request.getRequestDispatcher(page).forward(request, response);
         } else {
-            logger.debug("Page was not found (null), redirecting to index page");
             page = PropertyManager.getConfigProperty("path.page.index");
             response.sendRedirect(request.getContextPath() + page);
         }

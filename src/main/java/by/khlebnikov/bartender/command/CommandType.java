@@ -5,7 +5,8 @@ public enum CommandType {
     LOGOUT(new LogoutCommand()),
     REGISTER(new RegisterCommand()),
     CONFIRM(new ConfirmEmailCommand()),
-    REMIND(new ReminderCommand());
+    REMIND(new ReminderCommand()),
+    LOCALE(new LocaleCommand());
 
     private Command command;
 

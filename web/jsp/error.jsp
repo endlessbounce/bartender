@@ -1,6 +1,13 @@
 <%@ include file="../WEB-INF/jspf/header.jspf"%>
 <title><fmt:message key="content.page.title.error"/></title>
-<%@ include file="../WEB-INF/jspf/navigation.jspf"%>
+<c:choose>
+    <c:when test="${userName != null}">
+        <%@ include file="../WEB-INF/jspf/loggedinnav.jspf" %>
+    </c:when>
+    <c:otherwise>
+        <%@ include file="../WEB-INF/jspf/navigation.jspf" %>
+    </c:otherwise>
+</c:choose>
 <div class="container">
 
     <div class="row center-block">

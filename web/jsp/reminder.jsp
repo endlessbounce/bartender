@@ -18,7 +18,10 @@
                                name="email"
                                placeholder="jamesbond@wmail.com"
                                value="${email}"
-                               required></br></br>
+                               required>
+                        <div class="help-block"></br></div>
+                    </div>
+                    <div class="form-group">
                         <ctg:message type="${MessageType}"/>
                         <button type="submit" class="btn btn-primary"><fmt:message
                                 key="content.page.button.submit"/></button>

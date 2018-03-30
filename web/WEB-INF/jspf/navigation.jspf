@@ -29,8 +29,8 @@
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">${ChosenLocale}
                     <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="jsp/controller?command=locale&locale=en_EN"><fmt:message key="content.language.eng"/></a></li>
-                    <li><a href="jsp/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a></li>
+                    <li><a href="/jsp/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a></li>
+                    <li><a href="/jsp/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a></li>
                 </ul>
             </li>
         </ul>

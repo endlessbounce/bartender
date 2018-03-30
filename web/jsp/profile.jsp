@@ -1,5 +1,5 @@
 <%@ include file="../WEB-INF/jspf/header.jspf" %>
-<title><fmt:message key="content.page.title.home"/></title>
+<title><fmt:message key="content.page.title.profile"/></title>
 <c:choose>
     <c:when test="${userName != null}">
         <%@ include file="../WEB-INF/jspf/loggedinnav.jspf" %>
@@ -11,7 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h1><fmt:message key="message.welcome"/></h1>
+            <%--<h1><fmt:message key="message.welcome"/></h1>--%>
         </div>
     </div>
 </div>
