@@ -3,7 +3,9 @@ package by.khlebnikov.bartender.command;
 public enum CommandType {
     LOGIN(new LoginCommand()),
     LOGOUT(new LogoutCommand()),
-    REGISTER(new RegisterCommand());
+    REGISTER(new RegisterCommand()),
+    CONFIRM(new ConfirmEmailCommand()),
+    REMIND(new ReminderCommand());
 
     private Command command;
 

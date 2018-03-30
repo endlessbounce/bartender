@@ -1,16 +1,12 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: IEC
-  Date: 27.03.2018
-  Time: 15:45
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Catalog</title>
-</head>
-<body>
-    <h1>How Many Cocktails we have!</h1>
+<%@ include file="../WEB-INF/jspf/header.jspf" %>
+<title><fmt:message key="content.page.title.catalog"/></title>
+<%@ include file="../WEB-INF/jspf/navigation.jspf" %>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1><fmt:message key="message.catalogwelcome"/></h1>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -1,15 +1,18 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.manager.MessageManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 public class CommandFactory {
-    public Optional<Command> defineCommand(HttpServletRequest request){
-        Optional<Command> current = Optional.of(new DefaultCommand());
+    private Logger logger = LogManager.getLogger();
 
+    public Optional<Command> defineCommand(HttpServletRequest request){
+        Optional<Command> current = Optional.empty();
         String action = request.getParameter("command");
+
         if (action == null || action.isEmpty()) {
             return current;
         }
@@ -18,9 +21,9 @@ public class CommandFactory {
             CommandType currentEnum = CommandType.valueOf(action.toUpperCase());
             current = Optional.of(currentEnum.getCommand());
         } catch (IllegalArgumentException e) {
-            request.setAttribute("wrongAction", action
-                    + MessageManager.getProperty("message.wrongaction"));
+            logger.catching(e);
         }
+
         return current;
     }
 }
