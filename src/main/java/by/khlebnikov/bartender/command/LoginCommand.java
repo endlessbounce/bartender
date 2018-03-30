@@ -28,6 +28,7 @@ public class LoginCommand implements Command {
 
             if(userOpt.isPresent()){
                 request.getSession().setAttribute("userName", userOpt.get().getName());
+
                 return PropertyManager.getConfigProperty("path.page.home");
             } else {
                 request.setAttribute("MessageType", MessageType.INCORRECT_EMAIL_OR_PASSWORD);

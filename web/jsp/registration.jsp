@@ -15,10 +15,12 @@
                                class="form-control"
                                id="inputName"
                                name="name"
-                               placeholder="James Bond"
+                               placeholder="<fmt:message
+                                key="content.placeholder.name"/>"
                                value="${name}"
                                autofocus
-                               required>
+                        <%--required--%>
+                        >
                     </div>
 
                     <div class="form-group">
@@ -28,9 +30,11 @@
                                class="form-control"
                                id="inputEmail"
                                name="email"
-                               placeholder="jamesbond@wmail.com"
+                               placeholder="<fmt:message
+                                key="content.placeholder.email"/>"
                                value="${email}"
-                               required></br>
+                               <%--required--%>
+                        ></br>
                     </div>
 
                     <div class="form-group">
@@ -40,22 +44,26 @@
                             <div class="form-group col-sm-6">
                                 <input type="password"
                                        class="form-control"
-                                       minlength="7"
-                                       maxlength="32"
+                                       <%--minlength="7"--%>
+                                       <%--maxlength="32"--%>
                                        name="password"
                                        id="password"
-                                       placeholder="Your Password"
+                                       placeholder="<fmt:message
+                                key="content.placeholder.password"/>"
                                        value="${password}"
-                                       required>
+                                       <%--required--%>
+                                >
                                 <div class="help-block"><fmt:message key="content.page.registration.min"/></div>
                             </div>
                             <div class="form-group col-sm-6">
                                 <input type="password"
                                        class="form-control"
                                        name="confirmation"
-                                       placeholder="Confirm Password"
+                                       placeholder="<fmt:message
+                                key="content.placeholder.confirmpassword"/>"
                                        value="${confirmation}"
-                                       required>
+                                       <%--required--%>
+                                >
                             </div>
                         </div>
                     </div>

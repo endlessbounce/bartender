@@ -16,10 +16,12 @@
                                id="inputEmail"
                                size="30"
                                name="email"
-                               placeholder="jamesbond@wmail.com"
+                               placeholder="<fmt:message
+                                key="content.placeholder.email"/>"
                                value="${email}"
-                               required>
-                        <div class="help-block"></br></div>
+                               <%--required--%>
+                        >
+                        <div class="help-block"><br/></div>
                     </div>
                     <div class="form-group">
                         <ctg:message type="${MessageType}"/>
@@ -27,7 +29,6 @@
                                 key="content.page.button.submit"/></button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>

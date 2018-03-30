@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.manager.PropertyManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -21,6 +22,6 @@ public class LocaleCommand implements Command {
                 session.setAttribute("ChosenLocale", Constant.RU);
         }
 
-        return null;
+        return PropertyManager.getConfigProperty("path.page.index");
     }
 }

@@ -16,9 +16,11 @@
                                id="inputEmail"
                                size="30"
                                name="email"
-                               placeholder="jamesbond@wmail.com"
+                               placeholder="<fmt:message
+                                key="content.placeholder.email"/>"
                                value="${email}"
-                               required></br>
+                               <%--required--%>
+                        ></br>
                         <label for="password" class="control-label"><fmt:message
                                 key="content.page.registration.password"/></label>
                         <input type="password"
@@ -26,9 +28,11 @@
                                name="password"
                                id="password"
                                size="30"
-                               placeholder="Your Password"
+                               placeholder="<fmt:message
+                                key="content.placeholder.password"/>"
                                value="${password}"
-                               required>
+                               <%--required--%>
+                        >
                     </div>
                     <p>
                         <small>
