@@ -4,9 +4,9 @@ import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.logic.UserService;
 import by.khlebnikov.bartender.mail.Mailer;
-import by.khlebnikov.bartender.manager.PropertyManager;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
-import by.khlebnikov.bartender.utility.ApplicationUtility;
+import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,19 +21,22 @@ public class ConfirmEmailCommand implements Command {
     private Logger logger = LogManager.getLogger();
     private UserService service;
 
+    public ConfirmEmailCommand() {
+        this.service = new UserService();
+    }
+
     @Override
     public String execute(HttpServletRequest request) {
-        String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
-        String queryPropertyPath = request.getServletContext().getRealPath(Constant.QUERY_PROPERTY_PATH);
-        service = new UserService(queryPropertyPath);
-
         String name = request.getParameter(Constant.NAME);
         String email = request.getParameter(Constant.EMAIL);
         String password = request.getParameter(Constant.PASSWORD);
         String confirmation = request.getParameter(Constant.CONFIRMATION);
-        long code = ApplicationUtility.generateCode();
-        String subject = PropertyManager.getMessageProperty("message.lettersubject");
-        String message = PropertyManager.getMessageProperty("message.confirmation") +
+        long code = Utility.generateCode();
+
+        String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
+        String locale = (String) request.getSession().getAttribute(Constant.LOCALE);
+        String subject = PropertyReader.getMessageProperty("message.lettersubject", locale);
+        String message = PropertyReader.getMessageProperty("message.confirmation", locale) +
                 Constant.EMAIL_PARAM + email +
                 Constant.CODE_PARAM + code;
 
@@ -44,7 +47,11 @@ public class ConfirmEmailCommand implements Command {
 
         /*if user is not registered yet and not awaiting confirmation and all input data is correct*/
         if (correctInput && !alreadyRegistered && !awaitingConfirmation) {
-            service.registerProspectUser(new ProspectUser(name, email, password, ApplicationUtility.expirationTime(), code));
+            service.registerProspectUser(new ProspectUser(name,
+                                                          email,
+                                                          password,
+                                                          Utility.expirationTime(),
+                                                          code));
 
             try {
                 /*send to user a letter with a confirmation link*/
@@ -56,19 +63,19 @@ public class ConfirmEmailCommand implements Command {
                 logger.catching(e);
             }
 
-            request.setAttribute("MessageType", MessageType.EMAIL_SENT);
-            return PropertyManager.getConfigProperty("path.page.result");
+            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.EMAIL_SENT);
+            return PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
         } else if(alreadyRegistered){
-            request.setAttribute("MessageType", MessageType.ALREADY_REGISTERED);
+            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.ALREADY_REGISTERED);
         } else if(awaitingConfirmation){
-            request.setAttribute("MessageType", MessageType.AWAITING_CONFIRMATION);
+            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.AWAITING_CONFIRMATION);
         }
 
-        request.setAttribute("name", name);
-        request.setAttribute("email", email);
-        request.setAttribute("password", password);
-        request.setAttribute("confirmation", confirmation);
+        request.setAttribute(Constant.NAME, name);
+        request.setAttribute(Constant.EMAIL, email);
+        request.setAttribute(Constant.PASSWORD, password);
+        request.setAttribute(Constant.CONFIRMATION, confirmation);
 
-        return PropertyManager.getConfigProperty("path.page.registration");
+        return PropertyReader.getConfigProperty(Constant.PAGE_REGISTRATION);
     }
 }

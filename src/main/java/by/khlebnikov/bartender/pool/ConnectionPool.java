@@ -1,5 +1,7 @@
 package by.khlebnikov.bartender.pool;
 
+import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,9 +20,10 @@ public final class ConnectionPool {
     private static ReentrantLock lock = new ReentrantLock();
     private static final List<ProxyConnection> idleConnections = new ArrayList<>();
     private static final List<ProxyConnection> activeConnections = new ArrayList<>();
-    private static final String URL = "jdbc:mysql://localhost:3306/bartender";
-    private static final String USER = "root";
-    private static final String PASSWORD = "admin";
+    private static final String URL = PropertyReader.getConfigProperty(Constant.DB_URL);
+    private static final String USER = PropertyReader.getConfigProperty(Constant.DB_LOGIN);
+    private static final String PASSWORD = PropertyReader.getConfigProperty(Constant.DB_PASSWORD);
+    private static final String DRIVER = PropertyReader.getConfigProperty(Constant.DB_DRIVER);
     private static final int POOL_SIZE = 10;
     private static AtomicBoolean poolCreated = new AtomicBoolean(false);
 
@@ -29,7 +32,7 @@ public final class ConnectionPool {
             throw new RuntimeException("Already initialized.");
         }
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
             logger.catching(e);
         }
@@ -96,13 +99,10 @@ public final class ConnectionPool {
 
     public void closeAll() {
         lock.lock();
-        System.out.println("activeConnections: " + activeConnections.size() +
-                "\nidleConnections: " + idleConnections.size());
         try {
             closeAllInList(activeConnections);
             closeAllInList(idleConnections);
         } finally {
-            System.out.println("All connections have been forcefully closed/removed.");
             lock.unlock();
         }
     }

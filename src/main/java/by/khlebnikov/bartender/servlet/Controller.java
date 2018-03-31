@@ -3,7 +3,9 @@ package by.khlebnikov.bartender.servlet;
 import by.khlebnikov.bartender.command.Command;
 import by.khlebnikov.bartender.command.CommandFactory;
 import by.khlebnikov.bartender.command.DefaultCommand;
-import by.khlebnikov.bartender.manager.PropertyManager;
+import by.khlebnikov.bartender.command.LoginCommand;
+import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,11 +31,17 @@ public class Controller extends HttpServlet {
         Logger logger = LogManager.getLogger();
         String page;
 
-        logger.debug("chosen command: " + request.getParameter("command"));
+        logger.debug("chosen command: " + request.getParameter(Constant.COMMAND));
 
         CommandFactory client = new CommandFactory();
         Optional<Command> commandOpt = client.defineCommand(request);
         Command command = commandOpt.orElse(new DefaultCommand());
+
+        /*We need http response to attach cookie while logging in*/
+        if(command instanceof LoginCommand){
+            ((LoginCommand) command).setResponse(response);
+        }
+
         page = command.execute(request);
 
         logger.debug("respond page : " + page);
@@ -41,7 +49,7 @@ public class Controller extends HttpServlet {
         if (page != null) {
             request.getRequestDispatcher(page).forward(request, response);
         } else {
-            page = PropertyManager.getConfigProperty("path.page.index");
+            page = PropertyReader.getConfigProperty(Constant.PAGE_INDEX);
             response.sendRedirect(request.getContextPath() + page);
         }
     }

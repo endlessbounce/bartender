@@ -1,5 +1,6 @@
 package by.khlebnikov.bartender.mail;
 
+import by.khlebnikov.bartender.constant.Constant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,8 +18,8 @@ public class Mailer {
                                  String message,
                                  Properties properties) throws MessagingException {
 
-        String userName = properties.getProperty("user");
-        String password = properties.getProperty("password");
+        String userName = properties.getProperty(Constant.USER);
+        String password = properties.getProperty(Constant.PASSWORD);
 
         // creates a new session with an authenticator
         Authenticator auth = new Authenticator() {

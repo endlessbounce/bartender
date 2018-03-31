@@ -3,12 +3,13 @@ package by.khlebnikov.bartender.entity;
 public class User {
     private String name;
     private String email;
-    private String pasword;
+    private String password;
+    private String uniqueCookie;
 
-    public User(String name, String email, String pasword) {
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
-        this.pasword = pasword;
+        this.password = password;
     }
 
     public String getName() {
@@ -27,12 +28,20 @@ public class User {
         this.email = email;
     }
 
-    public String getPasword() {
-        return pasword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasword(String pasword) {
-        this.pasword = pasword;
+    public void setPassword(String pasword) {
+        this.password = pasword;
+    }
+
+    public String getUniqueCookie() {
+        return uniqueCookie;
+    }
+
+    public void setUniqueCookie(String uniqueCookie) {
+        this.uniqueCookie = uniqueCookie;
     }
 
     @Override
@@ -44,14 +53,14 @@ public class User {
 
         if (name != null ? !name.equals(user.name) : user.name != null) return false;
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        return pasword != null ? pasword.equals(user.pasword) : user.pasword == null;
+        return password != null ? password.equals(user.password) : user.password == null;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (pasword != null ? pasword.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
     }
 
@@ -60,7 +69,7 @@ public class User {
         return "User{" +
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", pasword='" + pasword + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

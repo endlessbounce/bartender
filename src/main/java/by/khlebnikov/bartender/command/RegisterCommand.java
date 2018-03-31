@@ -3,7 +3,7 @@ package by.khlebnikov.bartender.command;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.logic.UserService;
-import by.khlebnikov.bartender.manager.PropertyManager;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,11 +15,12 @@ public class RegisterCommand implements Command {
     private Logger logger = LogManager.getLogger();
     private UserService service;
 
+    public RegisterCommand() {
+        this.service = new UserService();
+    }
+
     @Override
     public String execute(HttpServletRequest request) {
-        String queryPropertyPath = request.getServletContext().getRealPath(Constant.QUERY_PROPERTY_PATH);
-        service = new UserService(queryPropertyPath);
-
         Optional<User> userOpt;
         MessageType messageType;
         boolean success = false;
@@ -40,8 +41,8 @@ public class RegisterCommand implements Command {
         }
 
         service.deleteProspectUser(email);
-        request.setAttribute("MessageType", messageType);
+        request.setAttribute(Constant.MESSAGE_TYPE, messageType);
         logger.debug("message: " + messageType);
-        return PropertyManager.getConfigProperty("path.page.result");
+        return PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
     }
 }

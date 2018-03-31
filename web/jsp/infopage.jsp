@@ -11,7 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <ctg:message type="${MessageType}"/>
+            <ctg:message type="${MessageType}" locale="${locale}"/>
             <form action="home.jsp">
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>

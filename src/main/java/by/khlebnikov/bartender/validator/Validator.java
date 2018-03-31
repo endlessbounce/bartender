@@ -6,13 +6,6 @@ import by.khlebnikov.bartender.tag.MessageType;
 import javax.servlet.http.HttpServletRequest;
 
 public class Validator {
-    //todo verify if email exists or not
-    //if exists return values for input
-
-    //todo verify email - send link to a page with certain parameters
-    //todo confirm registration - send login and password to specified email
-
-
     public static boolean checkString(String string) {
         return string != null && !string.isEmpty();
     }
@@ -46,7 +39,7 @@ public class Validator {
             valid = false;
         }
 
-        request.setAttribute("MessageType", message);
+        request.setAttribute(Constant.MESSAGE_TYPE, message);
         return valid;
     }
 
@@ -62,7 +55,7 @@ public class Validator {
             valid = false;
         }
 
-        request.setAttribute("MessageType", message);
+        request.setAttribute(Constant.MESSAGE_TYPE, message);
         return valid;
     }
 }

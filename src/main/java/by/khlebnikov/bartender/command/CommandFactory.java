@@ -1,5 +1,6 @@
 package by.khlebnikov.bartender.command;
 
+import by.khlebnikov.bartender.constant.Constant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,7 +12,7 @@ public class CommandFactory {
 
     public Optional<Command> defineCommand(HttpServletRequest request){
         Optional<Command> current = Optional.empty();
-        String action = request.getParameter("command");
+        String action = request.getParameter(Constant.COMMAND);
 
         if (action == null || action.isEmpty()) {
             return current;

@@ -2,32 +2,34 @@ package by.khlebnikov.bartender.logic;
 
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
-import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.utility.ApplicationUtility;
+import by.khlebnikov.bartender.repository.UserRepository;
+import by.khlebnikov.bartender.specification.ByCookie;
+import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
 
+import java.util.List;
 import java.util.Optional;
 
 public class UserService {
-    private UserDao userDao;
+    private UserRepository userRepository;
     private ProspectUserDao prospectUserDao;
 
-    public UserService(String queryPropertyPath) {
-        this.userDao = new UserDao(queryPropertyPath);
-        this.prospectUserDao = new ProspectUserDao(queryPropertyPath);
+    public UserService() {
+        this.userRepository = new UserRepository();
+        this.prospectUserDao = new ProspectUserDao();
     }
 
     public Optional<User> findUser(String email) {
-        return userDao.find(email);
+        return userRepository.find(email);
     }
 
     public Optional<User> checkUser(String email, String password) {
-        Optional<User> userOpt = userDao.find(email);
+        Optional<User> userOpt = userRepository.find(email);
 
         if(userOpt.isPresent()){
             User user = userOpt.get();
-            boolean correctPassword = user.getPasword().equals(password);
+            boolean correctPassword = user.getPassword().equals(password);
 
             if(!correctPassword){
                 userOpt = Optional.empty();
@@ -35,6 +37,10 @@ public class UserService {
         }
 
         return userOpt;
+    }
+
+    public List<User> findUserByCookie(String cookieId){
+        return userRepository.query(new ByCookie(cookieId));
     }
 
     public Optional<User> checkProspectUser(String email, String confirmationCode) {
@@ -50,7 +56,7 @@ public class UserService {
         if (userOpt.isPresent()) {
             ProspectUser user = userOpt.get();
             String code = String.valueOf(user.getCode());
-            long currentTime = ApplicationUtility.currentTime();
+            long currentTime = Utility.currentTime();
 
             if(confirmationCode.equals(code) && user.getExpiration() > currentTime){
                 result = Optional.of(new User(user.getName(), user.getEmail(), user.getPassword()));
@@ -61,7 +67,7 @@ public class UserService {
     }
 
     public boolean registerUser(User user) {
-        return userDao.save(user);
+        return userRepository.save(user);
     }
 
     public boolean registerProspectUser(ProspectUser prospectUser) {
@@ -69,7 +75,7 @@ public class UserService {
     }
 
     public boolean isUserRegistered(String email){
-        Optional<User> userOpt = userDao.find(email);
+        Optional<User> userOpt = userRepository.find(email);
         return userOpt.isPresent();
     }
 
@@ -82,4 +88,7 @@ public class UserService {
         return prospectUserDao.delete(email);
     }
 
+    public boolean updateUser(User user){
+        return userRepository.update(user);
+    }
 }

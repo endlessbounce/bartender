@@ -1,12 +1,13 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.manager.PropertyManager;
+import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class DefaultCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {
-        return PropertyManager.getConfigProperty("path.page.home");
+        return PropertyReader.getConfigProperty(Constant.PAGE_HOME);
     }
 }

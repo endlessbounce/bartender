@@ -1,5 +1,7 @@
 package by.khlebnikov.bartender.filter;
 
+import by.khlebnikov.bartender.constant.Constant;
+
 import javax.servlet.*;
 import java.io.IOException;
 
@@ -8,7 +10,7 @@ public class CharsetFilter implements Filter {
 
     public void init(FilterConfig config) throws ServletException {
         encoding = config.getInitParameter("requestEncoding");
-        if (encoding == null) encoding = "UTF-8";
+        if (encoding == null) encoding = Constant.UTF8;
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
@@ -21,7 +23,7 @@ public class CharsetFilter implements Filter {
 
         // Set the default response content type and encoding
         response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(Constant.UTF8);
 
         next.doFilter(request, response);
     }
