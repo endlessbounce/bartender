@@ -53,6 +53,7 @@ public class LoginActionCommand implements Command {
 
                     Cookie cookie = Utility.persistingCookie(id);
                     response.addCookie(cookie);
+                    response.addCookie(new Cookie(Constant.OLD_SESSION, Constant.TRUE));
                 }
 
                 return PropertyReader.getConfigProperty(Constant.PAGE_HOME);

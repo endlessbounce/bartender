@@ -22,25 +22,37 @@ public class LoggedCookieFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
             throws IOException, ServletException {
-        HttpServletRequest req = ((HttpServletRequest) request);
-        HttpServletResponse resp = ((HttpServletResponse) response);
+        HttpServletRequest httpRequest = ((HttpServletRequest) request);
+        HttpServletResponse httpResponse = ((HttpServletResponse) response);
 
-        Cookie[] cookieArr = req.getCookies();
+        Cookie[] cookieArr = httpRequest.getCookies();
 
         if (cookieArr != null) {
             Optional<Cookie> loggedCookieOpt = Utility.getCookie(cookieArr, Constant.STAY_LOGGED);
             Optional<Cookie> oldSessionCookieOpt = Utility.getCookie(cookieArr, Constant.OLD_SESSION);
 
-            //if user is logged and he visits the app for the first time - fetch data from the database
-            if (loggedCookieOpt.isPresent() && !oldSessionCookieOpt.isPresent()) {
+            /* If logged in user restarts browser Old Session Cookie will be dead
+             * and the data will be reloaded from the DB.*/
+            boolean userLoggedIn = loggedCookieOpt.isPresent();
+            boolean browserRestarted = !oldSessionCookieOpt.isPresent();
+            /* In case if a user was logged in and didn't close his browser,
+             * and the server restarted at this moment, the 2 cookies will persist in browser,
+             * so we need to keep track if the session has info about user*/
+            boolean serverRestarted = httpRequest.getSession().getAttribute(Constant.USER_NAME) == null;
+
+            boolean case1 = userLoggedIn && browserRestarted;
+            boolean case2 = userLoggedIn && !browserRestarted && serverRestarted;
+
+            if (case1 || case2) {
                 List<User> userList = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 
                 if (!userList.isEmpty()) {
                     String name = userList.get(0).getName();
-                    req.getSession().setAttribute(Constant.USER_NAME, name);
+                    httpRequest.getSession().setAttribute(Constant.USER_NAME, name);
                 }
 
-                resp.addCookie(new Cookie(Constant.OLD_SESSION, Constant.TRUE));
+                /*The cookie to mark new session*/
+                httpResponse.addCookie(new Cookie(Constant.OLD_SESSION, Constant.TRUE));
             }
         }
 
