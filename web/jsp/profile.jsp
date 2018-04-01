@@ -11,7 +11,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <%--<h1><fmt:message key="message.welcome"/></h1>--%>
+            <h1><fmt:message key="message.profile"/></h1>
         </div>
     </div>
 </div>

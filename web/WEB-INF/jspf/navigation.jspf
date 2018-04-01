@@ -12,8 +12,8 @@
             <a class="navbar-brand">Bartender</a>
         </div>
         <ul class="nav navbar-nav">
-            <li><a href="/jsp/home.jsp"><fmt:message key="content.page.home"/></a></li>
-            <li><a href="/jsp/catalog.jsp"><fmt:message key="content.page.catalog"/></a></li>
+            <li><a href="/controller"><fmt:message key="content.page.home"/></a></li>
+            <li><a href="/controller?command=catalog"><fmt:message key="content.page.catalog"/></a></li>
         </ul>
         <form class="navbar-form navbar-left" action="controller">
             <div class="form-group">
@@ -23,14 +23,14 @@
             <button type="submit" class="btn btn-default"><fmt:message key="content.page.search"/></button>
         </form>
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/jsp/registration.jsp"><span class="glyphicon glyphicon-user"></span><fmt:message key="content.page.signup"/></a></li>
-            <li><a href="/jsp/login.jsp"><span class="glyphicon glyphicon-log-in"></span><fmt:message key="content.page.login"/></a></li>
+            <li><a href="/controller?command=register"><span class="glyphicon glyphicon-user"></span><fmt:message key="content.page.signup"/></a></li>
+            <li><a href="/controller?command=login"><span class="glyphicon glyphicon-log-in"></span><fmt:message key="content.page.login"/></a></li>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">${ChosenLocale}
                     <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="/jsp/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a></li>
-                    <li><a href="/jsp/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a></li>
+                    <li><a href="/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a></li>
+                    <li><a href="/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a></li>
                 </ul>
             </li>
         </ul>

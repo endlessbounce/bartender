@@ -3,10 +3,12 @@ package by.khlebnikov.bartender.filter;
 import by.khlebnikov.bartender.constant.Constant;
 
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+@WebFilter(urlPatterns = { "/*" })
 public class LocaleFilter implements Filter {
 
     public void init(FilterConfig config) throws ServletException {

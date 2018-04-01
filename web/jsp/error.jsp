@@ -12,7 +12,7 @@
 
     <div class="row center-block">
         <h3><fmt:message key="content.error.message"/></h3>
-        <form action="/jsp/home.jsp">
+        <form action="/controller">
             <div class="form-group">
                 <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
             </div>

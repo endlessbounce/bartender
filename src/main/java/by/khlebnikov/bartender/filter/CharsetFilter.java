@@ -3,13 +3,18 @@ package by.khlebnikov.bartender.filter;
 import by.khlebnikov.bartender.constant.Constant;
 
 import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
 import java.io.IOException;
 
+@WebFilter(urlPatterns = { "/*" },
+           initParams = {@WebInitParam(name = Constant.ENCODING,
+                                       value = Constant.UTF8) })
 public class CharsetFilter implements Filter {
     private String encoding;
 
     public void init(FilterConfig config) throws ServletException {
-        encoding = config.getInitParameter("requestEncoding");
+        encoding = config.getInitParameter(Constant.ENCODING);
         if (encoding == null) encoding = Constant.UTF8;
     }
 
@@ -22,7 +27,7 @@ public class CharsetFilter implements Filter {
         }
 
         // Set the default response content type and encoding
-        response.setContentType("text/html; charset=UTF-8");
+        response.setContentType(Constant.CONTENT_TYPE);
         response.setCharacterEncoding(Constant.UTF8);
 
         next.doFilter(request, response);

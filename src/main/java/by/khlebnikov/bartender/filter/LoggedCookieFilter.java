@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@WebFilter("/*")
+@WebFilter(urlPatterns = { "/*" })
 public class LoggedCookieFilter implements Filter {
 
     public void init(FilterConfig config) throws ServletException {

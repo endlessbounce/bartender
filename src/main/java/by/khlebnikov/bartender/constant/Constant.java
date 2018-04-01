@@ -23,6 +23,8 @@ public class Constant {
     public static final String USER = "user";
     public static final String USER_NAME = "userName";
     public static final String UTF8 = "UTF-8";
+    public static final String ENCODING = "requestEncoding";
+    public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
 
     //Request constants
     public static final String CODE_PARAM = "&code=";
@@ -52,6 +54,9 @@ public class Constant {
     public static final String PAGE_REMINDER = "path.page.reminder";
     public static final String PAGE_RESULT = "path.page.result";
     public static final String PAGE_REGISTRATION = "path.page.registration";
+    public static final String PAGE_CATALOG = "path.page.catalog";
+    public static final String PAGE_SETTINGS = "path.page.settings";
+    public static final String PAGE_PROFILE = "path.page.profile";
     public static final String DB_DRIVER = "database.driver";
     public static final String DB_LOGIN = "database.login";
     public static final String DB_PASSWORD = "database.password";
