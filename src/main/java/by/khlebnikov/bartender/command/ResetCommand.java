@@ -5,9 +5,9 @@ import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class ReminderCommand implements Command {
+public class ResetCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {
-        return PropertyReader.getConfigProperty(Constant.PAGE_REMINDER);
+        return PropertyReader.getConfigProperty(Constant.PAGE_RESET);
     }
 }

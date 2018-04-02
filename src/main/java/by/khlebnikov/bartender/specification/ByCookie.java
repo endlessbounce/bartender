@@ -7,10 +7,8 @@ import by.khlebnikov.bartender.pool.ConnectionPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +35,18 @@ public class ByCookie implements UserSpecification {
 
             try (ResultSet resSet = prepStatement.executeQuery()) {
                 while (resSet.next()) {
-                    user = new User(resSet.getString(Constant.DB_USER_NAME),
-                                    resSet.getString(Constant.DB_USER_EMAIL),
-                                    resSet.getString(Constant.DB_USER_PASSWORD));
+                    String dbName = resSet.getString(Constant.DB_USER_NAME);
+                    String dbEmail = resSet.getString(Constant.DB_USER_EMAIL);
+
+                    Blob hashBlob = resSet.getBlob(Constant.DB_USER_HASH);
+                    int hashLength = (int)hashBlob.length();
+                    byte [] dbHash = hashBlob.getBytes(1, hashLength);
+
+                    Blob saltBlob = resSet.getBlob(Constant.DB_USER_SALT);
+                    int saltLength = (int)saltBlob.length();
+                    byte [] dbSalt = saltBlob.getBytes(1, saltLength);
+
+                    user = new User(dbName, dbEmail, dbHash, dbSalt);
                     userList.add(user);
                 }
             }

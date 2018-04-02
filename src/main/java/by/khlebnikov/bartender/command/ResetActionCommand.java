@@ -1,11 +1,13 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.logic.UserService;
 import by.khlebnikov.bartender.mail.Mailer;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
+import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,11 +19,15 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
 
-public class ReminderActionCommand implements Command {
+/**
+ * Receives email and validates it, then sends to user's email
+ * link for changing password
+ */
+public class ResetActionCommand implements Command {
     private Logger logger = LogManager.getLogger();
     private UserService service;
 
-    public ReminderActionCommand() {
+    public ResetActionCommand() {
         this.service = new UserService();
     }
 
@@ -29,6 +35,9 @@ public class ReminderActionCommand implements Command {
     public String execute(HttpServletRequest request) {
         String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
         String email = request.getParameter(Constant.EMAIL);
+        String page = PropertyReader.getConfigProperty(Constant.PAGE_RESET);
+        long code = Utility.generateCode();
+
         boolean correctInput = Validator.checkString(email);
 
         if (correctInput) {
@@ -36,20 +45,33 @@ public class ReminderActionCommand implements Command {
 
             if (userOpt.isPresent()) {
                 try {
+                    User user = userOpt.get();
+
+                    /*make a record to subsequently be able to check the code in the link*/
+                    service.registerProspectUser(new ProspectUser(user.getName(),
+                            email,
+                            user.getHashKey(),
+                            user.getSalt(),
+                            Utility.expirationTime(),
+                            code));
+
                     Properties properties = new Properties();
                     properties.load(new FileInputStream(emailPropertyPath));
 
                     String locale = (String) request.getSession().getAttribute(Constant.LOCALE);
                     String subject = PropertyReader.getMessageProperty("message.lettersubjectpassword", locale);
-                    String message = PropertyReader.getMessageProperty("message.password", locale) + userOpt.get().getPassword();
+                    String message = PropertyReader.getMessageProperty("message.linktochangepassword", locale) +
+                            Constant.EMAIL_PARAM + email +
+                            Constant.CODE_PARAM + code;
 
                     Mailer.sendEmail(email, subject, message, properties);
+                    request.setAttribute(Constant.MESSAGE_TYPE, MessageType.RESET_LINK_SENT);
                 } catch (MessagingException | IOException e) {
                     logger.catching(e);
+                    request.setAttribute(Constant.MESSAGE_TYPE, MessageType.MAIL_ERROR);
                 }
 
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.PASSWORD_SENT);
-                return PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
+                page = PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
             } else {
                 request.setAttribute(Constant.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
             }
@@ -59,6 +81,6 @@ public class ReminderActionCommand implements Command {
 
         request.setAttribute(Constant.EMAIL, email);
 
-        return PropertyReader.getConfigProperty(Constant.PAGE_REMINDER);
+        return page;
     }
 }

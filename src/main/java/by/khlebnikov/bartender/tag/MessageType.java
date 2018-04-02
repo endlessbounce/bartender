@@ -14,7 +14,11 @@ public enum MessageType {
     ALREADY_REGISTERED("message.alreadyregistered"),
     AWAITING_CONFIRMATION("message.awaitingconfirmation"),
     USER_NOT_REGISTERED("message.invalidemail"),
-    PASSWORD_SENT("message.passwordsent");
+    RESET_LINK_SENT("message.resetlinksent"),
+    MAIL_ERROR("message.mailerror"),
+    HASH_ERROR("message.hasherror"),
+    INCORRECT_USER("message.incorrectuser"),
+    PASSWORD_CHANGED("message.passwordchanged");
 
     private String messageKey;
 

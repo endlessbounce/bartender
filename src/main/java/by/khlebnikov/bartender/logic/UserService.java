@@ -5,6 +5,7 @@ import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.repository.UserRepository;
 import by.khlebnikov.bartender.specification.ByCookie;
+import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
 
@@ -14,10 +15,12 @@ import java.util.Optional;
 public class UserService {
     private UserRepository userRepository;
     private ProspectUserDao prospectUserDao;
+    private Password passwordGenerator;
 
     public UserService() {
         this.userRepository = new UserRepository();
         this.prospectUserDao = new ProspectUserDao();
+        this.passwordGenerator = new Password();
     }
 
     public Optional<User> findUser(String email) {
@@ -29,9 +32,11 @@ public class UserService {
 
         if(userOpt.isPresent()){
             User user = userOpt.get();
-            boolean correctPassword = user.getPassword().equals(password);
+            boolean hashMatch = passwordGenerator.isExpectedPassword(password.toCharArray(),
+                    user.getSalt(),
+                    user.getHashKey());
 
-            if(!correctPassword){
+            if(!hashMatch){
                 userOpt = Optional.empty();
             }
         }
@@ -59,11 +64,31 @@ public class UserService {
             long currentTime = Utility.currentTime();
 
             if(confirmationCode.equals(code) && user.getExpiration() > currentTime){
-                result = Optional.of(new User(user.getName(), user.getEmail(), user.getPassword()));
+                result = Optional.of(new User(user.getName(),
+                        user.getEmail(),
+                        user.getHashKey(),
+                        user.getSalt()));
             }
         }
 
         return result;
+    }
+
+    public boolean changingPasswordUser(String email, String confirmationCode) {
+        String dbCode = "";
+
+        if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
+            return false;
+        }
+
+        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
+
+        if (userOpt.isPresent()) {
+            ProspectUser user = userOpt.get();
+            dbCode = String.valueOf(user.getCode());
+        }
+
+        return confirmationCode.equals(dbCode);
     }
 
     public boolean registerUser(User user) {

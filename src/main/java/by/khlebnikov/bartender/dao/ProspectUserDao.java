@@ -7,10 +7,8 @@ import by.khlebnikov.bartender.pool.ConnectionPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.*;
 import java.util.Optional;
 
 public class ProspectUserDao {
@@ -26,9 +24,10 @@ public class ProspectUserDao {
         ){
             prepStatement.setString(1, prospectUser.getName());
             prepStatement.setString(2, prospectUser.getEmail());
-            prepStatement.setString(3, prospectUser.getPassword());
-            prepStatement.setLong(4, prospectUser.getExpiration());
-            prepStatement.setLong(5, prospectUser.getCode());
+            prepStatement.setBlob(3, new SerialBlob(prospectUser.getHashKey()));
+            prepStatement.setBlob(4, new SerialBlob(prospectUser.getSalt()));
+            prepStatement.setLong(5, prospectUser.getExpiration());
+            prepStatement.setLong(6, prospectUser.getCode());
             int res = prepStatement.executeUpdate();
 
             if(res == 1){
@@ -54,10 +53,18 @@ public class ProspectUserDao {
             if(rs.next()){
                 String dbName = rs.getString(Constant.DB_PROSPECT_NAME);
                 String dbEmail = rs.getString(Constant.DB_PROSPECT_EMAIL);
-                String dbPassword = rs.getString(Constant.DB_PROSPECT_PASSWORD);
+
+                Blob hashBlob = rs.getBlob(Constant.DB_PROSPECT_HASH);
+                int lentghHash = (int)hashBlob.length();
+                byte[] dbHash = hashBlob.getBytes(1, lentghHash);
+
+                Blob hashSalt = rs.getBlob(Constant.DB_PROSPECT_SALT);
+                int lentghSalt = (int)hashSalt.length();
+                byte[] dbSalt = hashSalt.getBytes(1, lentghSalt);
+
                 long dbExpiration = rs.getLong(Constant.DB_PROSPECT_EXPIRATION);
                 long dbCode = rs.getLong(Constant.DB_PROSPECT_CODE);
-                result = Optional.of(new ProspectUser(dbName, dbEmail, dbPassword, dbExpiration, dbCode));
+                result = Optional.of(new ProspectUser(dbName, dbEmail, dbHash, dbSalt, dbExpiration, dbCode));
             }
 
         } catch (SQLException | InterruptedException e) {

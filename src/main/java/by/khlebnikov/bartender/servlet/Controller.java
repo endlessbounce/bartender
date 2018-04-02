@@ -1,9 +1,6 @@
 package by.khlebnikov.bartender.servlet;
 
-import by.khlebnikov.bartender.command.Command;
-import by.khlebnikov.bartender.command.CommandFactory;
-import by.khlebnikov.bartender.command.DefaultCommand;
-import by.khlebnikov.bartender.command.LoginActionCommand;
+import by.khlebnikov.bartender.command.*;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +26,15 @@ public class Controller extends HttpServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Logger logger = LogManager.getLogger();
-        String page;
+        String page = PropertyReader.getConfigProperty(Constant.PAGE_INDEX);
+
+        /*LoggedUserRedirectFilter restricts access for logged users to such commands as
+        * login, registration, etc.*/
+        String prohibitedRequest = (String)request.getAttribute(Constant.PROHIBITED);
+        if(prohibitedRequest != null){
+            response.sendRedirect(request.getContextPath() + page);
+            return;
+        }
 
         logger.debug("chosen command: " + request.getParameter(Constant.COMMAND));
 
@@ -38,8 +43,9 @@ public class Controller extends HttpServlet {
         Command command = commandOpt.orElse(new DefaultCommand());
 
         /*We need http response to attach cookie while logging in*/
-        if(command instanceof LoginActionCommand){
-            ((LoginActionCommand) command).setResponse(response);
+        if(command instanceof LoginActionCommand ||
+                command instanceof LogoutCommand){
+            ((CommandWithResponse) command).setResponse(response);
         }
 
         page = command.execute(request);

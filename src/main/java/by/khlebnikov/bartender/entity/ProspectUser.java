@@ -1,16 +1,20 @@
 package by.khlebnikov.bartender.entity;
 
+import java.util.Arrays;
+
 public class ProspectUser {
     private String name;
     private String email;
-    private String password;
+    private byte [] hashKey;
+    private byte [] salt;
     private long expiration;
     private long code;
 
-    public ProspectUser(String name, String email, String password, long expiration, long code) {
+    public ProspectUser(String name, String email, byte[] hashKey, byte[] salt, long expiration, long code) {
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.hashKey = hashKey;
+        this.salt = salt;
         this.expiration = expiration;
         this.code = code;
     }
@@ -31,12 +35,20 @@ public class ProspectUser {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public byte[] getHashKey() {
+        return hashKey;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setHashKey(byte[] hashKey) {
+        this.hashKey = hashKey;
+    }
+
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
     }
 
     public long getExpiration() {
@@ -66,14 +78,16 @@ public class ProspectUser {
         if (code != that.code) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        return password != null ? password.equals(that.password) : that.password == null;
+        if (!Arrays.equals(hashKey, that.hashKey)) return false;
+        return Arrays.equals(salt, that.salt);
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(hashKey);
+        result = 31 * result + Arrays.hashCode(salt);
         result = 31 * result + (int) (expiration ^ (expiration >>> 32));
         result = 31 * result + (int) (code ^ (code >>> 32));
         return result;
@@ -84,9 +98,10 @@ public class ProspectUser {
         return "ProspectUser{" +
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", hashKey=" + Arrays.toString(hashKey) +
+                ", salt=" + Arrays.toString(salt) +
                 ", expiration=" + expiration +
-                ", code='" + code + '\'' +
+                ", code=" + code +
                 '}';
     }
 }

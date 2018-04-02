@@ -1,10 +1,12 @@
 package by.khlebnikov.bartender.utility;
 
+import by.khlebnikov.bartender.command.CommandType;
 import by.khlebnikov.bartender.constant.Constant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,5 +46,11 @@ public class Utility {
         }
 
         return cookieOpt;
+    }
+
+    public static boolean isLoggedUser(HttpServletRequest request){
+        Cookie[] cookieArr = request.getCookies();
+        Optional<Cookie> loggedCookieOpt = getCookie(cookieArr, Constant.STAY_LOGGED);
+        return loggedCookieOpt.isPresent();
     }
 }

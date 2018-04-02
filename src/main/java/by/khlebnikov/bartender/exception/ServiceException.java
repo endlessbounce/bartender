@@ -1,5 +1,8 @@
 package by.khlebnikov.bartender.exception;
 
-public class ServiceException {
-    //TODO for every layer its own exception
+public class ServiceException extends Exception{
+    public ServiceException() { super(); }
+    public ServiceException(String message) { super(message); }
+    public ServiceException(String message, Throwable cause) { super(message, cause); }
+    public ServiceException(Throwable cause) { super(cause); }
 }

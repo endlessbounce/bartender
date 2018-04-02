@@ -9,6 +9,7 @@ public class LoginCommand implements Command{
 
     @Override
     public String execute(HttpServletRequest request) {
+
         return PropertyReader.getConfigProperty(Constant.PAGE_LOGIN);
     }
 }

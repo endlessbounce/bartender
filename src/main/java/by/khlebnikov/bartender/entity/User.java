@@ -1,15 +1,21 @@
 package by.khlebnikov.bartender.entity;
 
+import java.util.Arrays;
+import java.util.Date;
+
 public class User {
     private String name;
     private String email;
-    private String password;
+    private byte[] hashKey;
+    private byte[] salt;
+    private Date reistrationDate;
     private String uniqueCookie;
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, byte[] hashKey, byte[] salt) {
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.hashKey = hashKey;
+        this.salt = salt;
     }
 
     public String getName() {
@@ -28,12 +34,28 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public byte[] getHashKey() {
+        return hashKey;
     }
 
-    public void setPassword(String pasword) {
-        this.password = pasword;
+    public void setHashKey(byte[] hashKey) {
+        this.hashKey = hashKey;
+    }
+
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
+    }
+
+    public Date getReistrationDate() {
+        return reistrationDate;
+    }
+
+    public void setReistrationDate(Date reistrationDate) {
+        this.reistrationDate = reistrationDate;
     }
 
     public String getUniqueCookie() {
@@ -53,14 +75,18 @@ public class User {
 
         if (name != null ? !name.equals(user.name) : user.name != null) return false;
         if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        return password != null ? password.equals(user.password) : user.password == null;
+        if (!Arrays.equals(hashKey, user.hashKey)) return false;
+        if (!Arrays.equals(salt, user.salt)) return false;
+        return uniqueCookie != null ? uniqueCookie.equals(user.uniqueCookie) : user.uniqueCookie == null;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(hashKey);
+        result = 31 * result + Arrays.hashCode(salt);
+        result = 31 * result + (uniqueCookie != null ? uniqueCookie.hashCode() : 0);
         return result;
     }
 
@@ -69,7 +95,9 @@ public class User {
         return "User{" +
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", hashKey=" + Arrays.toString(hashKey) +
+                ", salt=" + Arrays.toString(salt) +
+                ", uniqueCookie='" + uniqueCookie + '\'' +
                 '}';
     }
 }

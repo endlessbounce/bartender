@@ -4,10 +4,10 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h4><fmt:message key="message.reminderemail"/></h4>
+            <h4><fmt:message key="message.resetpassword"/></h4>
             <div class="input-group">
                 <form action="controller" method="post">
-                    <input class="form-control" type="hidden" name="command" value="remind_action"/>
+                    <input class="form-control" type="hidden" name="command" value="reset_action"/>
                     <div class="form-group">
                         <label for="inputEmail" class="control-label"><fmt:message
                                 key="content.page.registration.email"/></label>

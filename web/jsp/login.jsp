@@ -45,8 +45,8 @@
                         </small>
                         <br/>
                         <small class="form-text text-muted">
-                            <fmt:message key="message.forgor"/><a href="/controller?command=remind"><fmt:message
-                                key="message.remindme"/></a>
+                            <fmt:message key="message.forgot"/><a href="/controller?command=reset"><fmt:message
+                                key="message.reset"/></a>
                         </small>
                     </div>
 

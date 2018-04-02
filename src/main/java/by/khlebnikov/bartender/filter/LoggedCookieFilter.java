@@ -4,6 +4,8 @@ import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.logic.UserService;
 import by.khlebnikov.bartender.utility.Utility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 @WebFilter(urlPatterns = { "/*" })
 public class LoggedCookieFilter implements Filter {
+    private Logger logger = LogManager.getLogger();
 
     public void init(FilterConfig config) throws ServletException {
     }
@@ -31,6 +34,9 @@ public class LoggedCookieFilter implements Filter {
             Optional<Cookie> loggedCookieOpt = Utility.getCookie(cookieArr, Constant.STAY_LOGGED);
             Optional<Cookie> oldSessionCookieOpt = Utility.getCookie(cookieArr, Constant.OLD_SESSION);
 
+            logger.debug("loggedCookieOpt: " + loggedCookieOpt.isPresent());
+            logger.debug("oldSessionCookieOpt: " + oldSessionCookieOpt.isPresent());
+
             /* If logged in user restarts browser Old Session Cookie will be dead
              * and the data will be reloaded from the DB.*/
             boolean userLoggedIn = loggedCookieOpt.isPresent();
@@ -43,6 +49,9 @@ public class LoggedCookieFilter implements Filter {
             boolean case1 = userLoggedIn && browserRestarted;
             boolean case2 = userLoggedIn && !browserRestarted && serverRestarted;
 
+            logger.debug("case1: " + case1);
+            logger.debug("case2: " + case2);
+
             if (case1 || case2) {
                 List<User> userList = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 
@@ -52,7 +61,9 @@ public class LoggedCookieFilter implements Filter {
                 }
 
                 /*The cookie to mark new session*/
-                httpResponse.addCookie(new Cookie(Constant.OLD_SESSION, Constant.TRUE));
+                Cookie oldSession = new Cookie(Constant.OLD_SESSION, Constant.TRUE);
+                oldSession.setMaxAge(-1);
+                httpResponse.addCookie(oldSession);
             }
         }
 

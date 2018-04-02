@@ -58,4 +58,5 @@ public class Validator {
         request.setAttribute(Constant.MESSAGE_TYPE, message);
         return valid;
     }
+
 }

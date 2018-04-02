@@ -25,6 +25,7 @@ public class Constant {
     public static final String UTF8 = "UTF-8";
     public static final String ENCODING = "requestEncoding";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
+    public static final String PROHIBITED = "prohibited";
 
     //Request constants
     public static final String CODE_PARAM = "&code=";
@@ -46,12 +47,15 @@ public class Constant {
     public static final int TIME_TO_CONFIRM = 120;//2 minutes
     public static final int TO_SECONDS = 1000;
     public static final int YEAR = 60*60*24*365;
+    public static final int ITERATIONS = 10000;
+    public static final int KEY_LENGTH = 256;
 
     //Config property keys constants
     public static final String PAGE_HOME = "path.page.home";
     public static final String PAGE_INDEX = "path.page.index";
     public static final String PAGE_LOGIN = "path.page.login";
-    public static final String PAGE_REMINDER = "path.page.reminder";
+    public static final String PAGE_RESET = "path.page.reset";
+    public static final String PAGE_SET_PASSWORD = "path.page.setnewpassword";
     public static final String PAGE_RESULT = "path.page.result";
     public static final String PAGE_REGISTRATION = "path.page.registration";
     public static final String PAGE_CATALOG = "path.page.catalog";
@@ -74,11 +78,15 @@ public class Constant {
     //Tables
     public static final String DB_USER_NAME = "us_name";
     public static final String DB_USER_EMAIL = "us_email";
-    public static final String DB_USER_PASSWORD = "us_password";
+    public static final String DB_USER_HASH = "us_password";
+    public static final String DB_USER_SALT = "us_salt";
+    public static final String DB_USER_DATE = "us_registration_date";
+    public static final String DB_USER_COOKIE = "us_cookie";
 
     public static final String DB_PROSPECT_NAME = "pr_name";
     public static final String DB_PROSPECT_EMAIL = "pr_email";
-    public static final String DB_PROSPECT_PASSWORD = "pr_password";
+    public static final String DB_PROSPECT_HASH = "pr_password";
+    public static final String DB_PROSPECT_SALT = "pr_salt";
     public static final String DB_PROSPECT_EXPIRATION = "pr_expiration";
     public static final String DB_PROSPECT_CODE = "pr_code";
 }

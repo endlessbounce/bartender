@@ -15,14 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
-public class LoginActionCommand implements Command {
+public class LoginActionCommand implements Command, CommandWithResponse {
     private Logger logger = LogManager.getLogger();
     private UserService service;
     private HttpServletResponse response;
 
-    public void setResponse(HttpServletResponse response) {
-        this.response = response;
-    }
 
     public LoginActionCommand() {
         this.service = new UserService();
@@ -34,7 +31,7 @@ public class LoginActionCommand implements Command {
         String password = request.getParameter(Constant.PASSWORD);
         String logged = request.getParameter(Constant.STAY_LOGGED);
 
-        logger.debug("is logged: " + logged);
+        logger.debug("stay logged: " + logged);
 
         boolean correctInput = Validator.checkLoginData(email, password, request);
 
@@ -53,7 +50,12 @@ public class LoginActionCommand implements Command {
 
                     Cookie cookie = Utility.persistingCookie(id);
                     response.addCookie(cookie);
-                    response.addCookie(new Cookie(Constant.OLD_SESSION, Constant.TRUE));
+
+                    Cookie oldSession = new Cookie(Constant.OLD_SESSION, Constant.TRUE);
+                    oldSession.setMaxAge(-1);
+                    response.addCookie(oldSession);
+
+                    logger.debug("singed in: " + id);
                 }
 
                 return PropertyReader.getConfigProperty(Constant.PAGE_HOME);
@@ -65,5 +67,10 @@ public class LoginActionCommand implements Command {
         request.setAttribute(Constant.EMAIL, email);
         request.setAttribute(Constant.PASSWORD, password);
         return PropertyReader.getConfigProperty(Constant.PAGE_LOGIN);
+    }
+
+    @Override
+    public void setResponse(HttpServletResponse response) {
+        this.response = response;
     }
 }
