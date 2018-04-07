@@ -1,7 +1,9 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.constant.Constant;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstPage;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
 import org.apache.logging.log4j.LogManager;
@@ -25,18 +27,18 @@ public class SetPasswordCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest request) {
-        String page = PropertyReader.getConfigProperty(Constant.PAGE_SET_PASSWORD);
-        String confirmationCode = request.getParameter(Constant.CODE);
-        String email = request.getParameter(Constant.EMAIL);
+        String page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
+        String confirmationCode = request.getParameter(ConstParameter.CODE);
+        String email = request.getParameter(ConstParameter.EMAIL);
 
         /*if user was really trying to change his password,
         let him do it and send him the form for it*/
         boolean correctUser = service.changingPasswordUser(email, confirmationCode);
-        request.getSession().setAttribute(Constant.EMAIL, email);
+        request.getSession().setAttribute(ConstParameter.EMAIL, email);
 
         if(!correctUser){
-            page = PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
-            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.INCORRECT_USER);
+            page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
             logger.debug("attempt to change password from email " + email + " providing incorrect code");
         }
 

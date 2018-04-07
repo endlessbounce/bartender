@@ -44,7 +44,10 @@ public enum CommandType {
 
     /* BUTTON: sends password and its confirmation to server
     * and updates record with new password*/
-    SET_NEW_ACTION(new SetPasswordActionCommand());
+    SET_NEW_ACTION(new SetPasswordActionCommand()),
+
+    /*Returns glossary page*/
+    GLOSSARY(new GlossaryCommand());
 
     private Command command;
 

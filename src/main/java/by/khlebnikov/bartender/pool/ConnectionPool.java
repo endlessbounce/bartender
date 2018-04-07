@@ -1,6 +1,6 @@
 package by.khlebnikov.bartender.pool;
 
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstDatabase;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,10 +20,10 @@ public final class ConnectionPool {
     private static ReentrantLock lock = new ReentrantLock();
     private static final List<ProxyConnection> idleConnections = new ArrayList<>();
     private static final List<ProxyConnection> activeConnections = new ArrayList<>();
-    private static final String URL = PropertyReader.getConfigProperty(Constant.DB_URL);
-    private static final String USER = PropertyReader.getConfigProperty(Constant.DB_LOGIN);
-    private static final String PASSWORD = PropertyReader.getConfigProperty(Constant.DB_PASSWORD);
-    private static final String DRIVER = PropertyReader.getConfigProperty(Constant.DB_DRIVER);
+    private static final String URL = PropertyReader.getConfigProperty(ConstDatabase.URL);
+    private static final String USER = PropertyReader.getConfigProperty(ConstDatabase.LOGIN);
+    private static final String PASSWORD = PropertyReader.getConfigProperty(ConstDatabase.PASSWORD);
+    private static final String DRIVER = PropertyReader.getConfigProperty(ConstDatabase.DRIVER);
     private static final int POOL_SIZE = 10;
     private static AtomicBoolean poolCreated = new AtomicBoolean(false);
 

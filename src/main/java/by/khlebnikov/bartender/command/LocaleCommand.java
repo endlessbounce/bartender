@@ -1,6 +1,8 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstLocale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -9,16 +11,16 @@ public class LocaleCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        String chosenLocale = request.getParameter(Constant.LOCALE);
+        String chosenLocale = request.getParameter(ConstParameter.LOCALE);
 
         switch (chosenLocale){
-            case Constant.EN_US:
-                session.setAttribute(Constant.LOCALE, Constant.EN_US);
-                session.setAttribute(Constant.CHOSEN_LOCALE, Constant.EN);
+            case ConstLocale.EN_US:
+                session.setAttribute(ConstParameter.LOCALE, ConstLocale.EN_US);
+                session.setAttribute(ConstAttribute.CHOSEN_LANGUAGE, ConstLocale.EN);
                 break;
-            case Constant.RU_RU:
-                session.setAttribute(Constant.LOCALE, Constant.RU_RU);
-                session.setAttribute(Constant.CHOSEN_LOCALE, Constant.RU);
+            case ConstLocale.RU_RU:
+                session.setAttribute(ConstParameter.LOCALE, ConstLocale.RU_RU);
+                session.setAttribute(ConstAttribute.CHOSEN_LANGUAGE, ConstLocale.RU);
         }
 
         return null;

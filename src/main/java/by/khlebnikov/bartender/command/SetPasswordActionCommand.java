@@ -1,8 +1,10 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
 import by.khlebnikov.bartender.utility.Password;
@@ -30,12 +32,12 @@ public class SetPasswordActionCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest request) {
-        String page = PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
-        String email = (String) request.getSession().getAttribute(Constant.EMAIL);
-        String password = request.getParameter(Constant.PASSWORD);
-        String confirmation = request.getParameter(Constant.CONFIRMATION);
+        String page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+        String email = (String) request.getSession().getAttribute(ConstParameter.EMAIL);
+        String password = request.getParameter(ConstParameter.PASSWORD);
+        String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
 
-        boolean correctInput = Validator.checkRegistrationData(Constant.USER, email, password, confirmation, request);
+        boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, email, password, confirmation, request);
         Optional<User> userOpt = service.findUser(email);
 
         if (correctInput && userOpt.isPresent()) {
@@ -43,7 +45,7 @@ public class SetPasswordActionCommand implements Command {
             Optional<byte []> hashOpt = passwordGenerator.hash(password.toCharArray(), salt);
 
             if(!hashOpt.isPresent()){
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.HASH_ERROR);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);
                 return page;
             }
 
@@ -55,16 +57,16 @@ public class SetPasswordActionCommand implements Command {
             user.setSalt(salt);
             service.updateUser(user);
 
-            request.getSession().removeAttribute(Constant.EMAIL);
-            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
+            request.getSession().removeAttribute(ConstParameter.EMAIL);
+            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
 
         } else {
-            page = PropertyReader.getConfigProperty(Constant.PAGE_SET_PASSWORD);
-            request.setAttribute(Constant.PASSWORD, password);
-            request.setAttribute(Constant.CONFIRMATION, confirmation);
+            page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
+            request.setAttribute(ConstParameter.PASSWORD, password);
+            request.setAttribute(ConstParameter.CONFIRMATION, confirmation);
 
             if(!userOpt.isPresent()){
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
             }
         }
 

@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.repository;
 
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstQueryUser;
+import by.khlebnikov.bartender.constant.ConstTableUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
@@ -10,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +20,7 @@ public class UserRepository {
 
     public boolean save(User user) {
         boolean result = false;
-        String query = PropertyReader.getQueryProperty(Constant.USER_REP_ADD);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
 
         try(Connection connection = pool.getConnection();
             PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -45,7 +45,7 @@ public class UserRepository {
 
     public Optional<User> find(String email){
         Optional<User> result = Optional.empty();
-        String query = PropertyReader.getQueryProperty(Constant.USER_REP_FIND);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
 
         try(Connection connection = pool.getConnection();
             PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -54,14 +54,14 @@ public class UserRepository {
             ResultSet rs = prepStatement.executeQuery();
 
             if(rs.next()){
-                String dbName = rs.getString(Constant.DB_USER_NAME);
-                String dbEmail = rs.getString(Constant.DB_USER_EMAIL);
+                String dbName = rs.getString(ConstTableUser.NAME);
+                String dbEmail = rs.getString(ConstTableUser.EMAIL);
 
-                Blob hashBlob = rs.getBlob(Constant.DB_USER_HASH);
+                Blob hashBlob = rs.getBlob(ConstTableUser.HASH);
                 int hashLength = (int)hashBlob.length();
                 byte [] dbHash = hashBlob.getBytes(1, hashLength);
 
-                Blob saltBlob = rs.getBlob(Constant.DB_USER_SALT);
+                Blob saltBlob = rs.getBlob(ConstTableUser.SALT);
                 int saltLength = (int)saltBlob.length();
                 byte [] dbSalt = saltBlob.getBytes(1, saltLength);
 
@@ -80,7 +80,7 @@ public class UserRepository {
 
     public boolean update(User user) {
         boolean result = false;
-        String query = PropertyReader.getQueryProperty(Constant.USER_REP_UPDATE);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
 
         try(Connection connection = pool.getConnection();
             PreparedStatement prepStatement = connection.prepareStatement(query)

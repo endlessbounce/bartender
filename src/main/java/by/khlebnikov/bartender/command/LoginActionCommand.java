@@ -1,8 +1,11 @@
 package by.khlebnikov.bartender.command;
 
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
 import by.khlebnikov.bartender.utility.Utility;
@@ -27,9 +30,9 @@ public class LoginActionCommand implements Command, CommandWithResponse {
 
     @Override
     public String execute(HttpServletRequest request) {
-        String email = request.getParameter(Constant.EMAIL);
-        String password = request.getParameter(Constant.PASSWORD);
-        String logged = request.getParameter(Constant.STAY_LOGGED);
+        String email = request.getParameter(ConstParameter.EMAIL);
+        String password = request.getParameter(ConstParameter.PASSWORD);
+        String logged = request.getParameter(ConstParameter.STAY_LOGGED);
 
         logger.debug("stay logged: " + logged);
 
@@ -40,10 +43,10 @@ public class LoginActionCommand implements Command, CommandWithResponse {
 
             if(userOpt.isPresent()){
                 User user = userOpt.get();
-                request.getSession().setAttribute(Constant.USER_NAME, user.getName());
+                request.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
 
                 //checking stay logged in checkbox
-                if(Constant.TRUE.equals(logged)){
+                if(ConstParameter.TRUE.equals(logged)){
                     String id = Utility.uniqueId();
                     user.setUniqueCookie(id);
                     service.updateUser(user);
@@ -51,22 +54,22 @@ public class LoginActionCommand implements Command, CommandWithResponse {
                     Cookie cookie = Utility.persistingCookie(id);
                     response.addCookie(cookie);
 
-                    Cookie oldSession = new Cookie(Constant.OLD_SESSION, Constant.TRUE);
+                    Cookie oldSession = new Cookie(Constant.OLD_SESSION, ConstParameter.TRUE);
                     oldSession.setMaxAge(-1);
                     response.addCookie(oldSession);
 
                     logger.debug("singed in: " + id);
                 }
 
-                return PropertyReader.getConfigProperty(Constant.PAGE_HOME);
+                return PropertyReader.getConfigProperty(ConstPage.HOME);
             } else {
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.INCORRECT_EMAIL_OR_PASSWORD);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_EMAIL_OR_PASSWORD);
             }
         }
 
-        request.setAttribute(Constant.EMAIL, email);
-        request.setAttribute(Constant.PASSWORD, password);
-        return PropertyReader.getConfigProperty(Constant.PAGE_LOGIN);
+        request.setAttribute(ConstParameter.EMAIL, email);
+        request.setAttribute(ConstParameter.PASSWORD, password);
+        return PropertyReader.getConfigProperty(ConstPage.LOGIN);
     }
 
     @Override

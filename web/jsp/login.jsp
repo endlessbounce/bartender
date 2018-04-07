@@ -1,7 +1,18 @@
-<%@ include file="../WEB-INF/jspf/header.jspf" %>
-<title><fmt:message key="content.page.title.singin"/></title>
+<%@ include file="../WEB-INF/jspf/imports.jspf" %>
+<html>
+<head>
+    <title><fmt:message key="content.page.title.singin"/></title>
+    <%@ include file="../WEB-INF/jspf/headcontent.jspf" %>
+</head>
+<body>
 <%@ include file="../WEB-INF/jspf/navigation.jspf" %>
-<div class="container">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/controller"><fmt:message key="crumb.bartender"/></a></li>
+        <li class="breadcrumb-item active" aria-current="page"><fmt:message key="crumb.login"/></li>
+    </ol>
+</nav>
+<div class="container mt-3">
     <div class="row">
         <div class="col">
             <h4><fmt:message key="message.login"/></h4>
@@ -16,6 +27,7 @@
                                id="inputEmail"
                                size="30"
                                name="email"
+                               autofocus
                                placeholder="<fmt:message
                                 key="content.placeholder.email"/>"
                                value="${email}"
@@ -36,19 +48,14 @@
                                value="${password}"
                         <%--required--%>
                         >
-                    </div>
-
-                    <div class="form-group">
-                        <small class="form-text text-muted">
+                        <small id="passwordHelpBlock" class="form-text text-muted">
                             <fmt:message key="message.notsignedup"/><a href="/controller?command=register"><fmt:message
-                                key="message.signup"/></a>
-                        </small>
-                        <br/>
-                        <small class="form-text text-muted">
+                                key="message.signup"/></a><br/>
                             <fmt:message key="message.forgot"/><a href="/controller?command=reset"><fmt:message
                                 key="message.reset"/></a>
                         </small>
                     </div>
+
 
                     <div class="form-check">
                         <input type="checkbox"
@@ -71,5 +78,6 @@
         </div>
     </div>
 </div>
+<%@ include file="../WEB-INF/jspf/footer.jspf" %>
 </body>
 </html>

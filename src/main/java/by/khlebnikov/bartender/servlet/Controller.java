@@ -1,7 +1,9 @@
 package by.khlebnikov.bartender.servlet;
 
 import by.khlebnikov.bartender.command.*;
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,17 +28,17 @@ public class Controller extends HttpServlet {
 
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Logger logger = LogManager.getLogger();
-        String page = PropertyReader.getConfigProperty(Constant.PAGE_INDEX);
+        String page = PropertyReader.getConfigProperty(ConstPage.INDEX);
 
         /*LoggedUserRedirectFilter restricts access for logged users to such commands as
         * login, registration, etc.*/
-        String prohibitedRequest = (String)request.getAttribute(Constant.PROHIBITED);
+        String prohibitedRequest = (String)request.getAttribute(ConstAttribute.PROHIBITED);
         if(prohibitedRequest != null){
             response.sendRedirect(request.getContextPath() + page);
             return;
         }
 
-        logger.debug("chosen command: " + request.getParameter(Constant.COMMAND));
+        logger.debug("chosen command: " + request.getParameter(ConstParameter.COMMAND));
 
         CommandFactory client = new CommandFactory();
         Optional<Command> commandOpt = client.defineCommand(request);
@@ -55,7 +57,7 @@ public class Controller extends HttpServlet {
         if (page != null) {
             request.getRequestDispatcher(page).forward(request, response);
         } else {
-            page = PropertyReader.getConfigProperty(Constant.PAGE_INDEX);
+            page = PropertyReader.getConfigProperty(ConstPage.INDEX);
             response.sendRedirect(request.getContextPath() + page);
         }
     }

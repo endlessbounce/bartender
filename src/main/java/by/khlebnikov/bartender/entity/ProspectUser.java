@@ -1,7 +1,9 @@
 package by.khlebnikov.bartender.entity;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 
+@XmlRootElement
 public class ProspectUser {
     private String name;
     private String email;
@@ -9,6 +11,9 @@ public class ProspectUser {
     private byte [] salt;
     private long expiration;
     private long code;
+
+    /*no-arg constructor is used by Jesrsey, etc.*/
+    public ProspectUser() { }
 
     public ProspectUser(String name, String email, byte[] hashKey, byte[] salt, long expiration, long code) {
         this.name = name;

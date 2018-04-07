@@ -1,5 +1,6 @@
 package by.khlebnikov.bartender.validator;
 
+import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.tag.MessageType;
 
@@ -39,7 +40,7 @@ public class Validator {
             valid = false;
         }
 
-        request.setAttribute(Constant.MESSAGE_TYPE, message);
+        request.setAttribute(ConstAttribute.MESSAGE_TYPE, message);
         return valid;
     }
 
@@ -55,7 +56,7 @@ public class Validator {
             valid = false;
         }
 
-        request.setAttribute(Constant.MESSAGE_TYPE, message);
+        request.setAttribute(ConstAttribute.MESSAGE_TYPE, message);
         return valid;
     }
 

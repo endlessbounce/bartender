@@ -1,8 +1,10 @@
 package by.khlebnikov.bartender.entity;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Date;
 
+@XmlRootElement
 public class User {
     private String name;
     private String email;
@@ -10,6 +12,9 @@ public class User {
     private byte[] salt;
     private Date reistrationDate;
     private String uniqueCookie;
+
+    /*no-arg constructor is used by Jesrsey, etc.*/
+    public User() { }
 
     public User(String name, String email, byte[] hashKey, byte[] salt) {
         this.name = name;

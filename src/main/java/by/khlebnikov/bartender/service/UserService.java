@@ -1,10 +1,10 @@
-package by.khlebnikov.bartender.logic;
+package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.repository.UserRepository;
-import by.khlebnikov.bartender.specification.ByCookie;
+import by.khlebnikov.bartender.specification.FindByCookie;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
@@ -45,7 +45,7 @@ public class UserService {
     }
 
     public List<User> findUserByCookie(String cookieId){
-        return userRepository.query(new ByCookie(cookieId));
+        return userRepository.query(new FindByCookie(cookieId));
     }
 
     public Optional<User> checkProspectUser(String email, String confirmationCode) {

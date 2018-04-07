@@ -1,8 +1,10 @@
 package by.khlebnikov.bartender.filter;
 
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.utility.Utility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +33,7 @@ public class LoggedCookieFilter implements Filter {
         Cookie[] cookieArr = httpRequest.getCookies();
 
         if (cookieArr != null) {
-            Optional<Cookie> loggedCookieOpt = Utility.getCookie(cookieArr, Constant.STAY_LOGGED);
+            Optional<Cookie> loggedCookieOpt = Utility.getCookie(cookieArr, ConstParameter.STAY_LOGGED);
             Optional<Cookie> oldSessionCookieOpt = Utility.getCookie(cookieArr, Constant.OLD_SESSION);
 
             logger.debug("loggedCookieOpt: " + loggedCookieOpt.isPresent());
@@ -44,7 +46,7 @@ public class LoggedCookieFilter implements Filter {
             /* In case if a user was logged in and didn't close his browser,
              * and the server restarted at this moment, the 2 cookies will persist in browser,
              * so we need to keep track if the session has info about user*/
-            boolean serverRestarted = httpRequest.getSession().getAttribute(Constant.USER_NAME) == null;
+            boolean serverRestarted = httpRequest.getSession().getAttribute(ConstAttribute.USER_NAME) == null;
 
             boolean case1 = userLoggedIn && browserRestarted;
             boolean case2 = userLoggedIn && !browserRestarted && serverRestarted;
@@ -57,11 +59,11 @@ public class LoggedCookieFilter implements Filter {
 
                 if (!userList.isEmpty()) {
                     String name = userList.get(0).getName();
-                    httpRequest.getSession().setAttribute(Constant.USER_NAME, name);
+                    httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, name);
                 }
 
                 /*The cookie to mark new session*/
-                Cookie oldSession = new Cookie(Constant.OLD_SESSION, Constant.TRUE);
+                Cookie oldSession = new Cookie(Constant.OLD_SESSION, ConstParameter.TRUE);
                 oldSession.setMaxAge(-1);
                 httpResponse.addCookie(oldSession);
             }

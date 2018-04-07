@@ -1,7 +1,8 @@
 package by.khlebnikov.bartender.filter;
 
 import by.khlebnikov.bartender.command.CommandType;
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.utility.Utility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,14 +27,14 @@ public class LoggedUserRedirectFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         boolean persistentUser = Utility.isLoggedUser(httpRequest);
-        boolean inSession = ((HttpServletRequest) request).getSession().getAttribute(Constant.USER_NAME) != null;
+        boolean inSession = ((HttpServletRequest) request).getSession().getAttribute(ConstAttribute.USER_NAME) != null;
         boolean prohibitedRequest;
 
-        logger.debug("persistentUser: " + persistentUser);
-        logger.debug("inSession user: " + inSession);
+        logger.debug("persistent user: " + persistentUser);
+        logger.debug("in-session user: " + inSession);
 
         if (persistentUser || inSession) {
-            String action = request.getParameter(Constant.COMMAND);
+            String action = request.getParameter(ConstParameter.COMMAND);
             if (action != null && !action.isEmpty()) {
                 try {
                     CommandType commandType = CommandType.valueOf(action.toUpperCase());
@@ -69,7 +70,7 @@ public class LoggedUserRedirectFilter implements Filter {
                     }
 
                     if (prohibitedRequest) {
-                        httpRequest.setAttribute(Constant.PROHIBITED, Constant.TRUE);
+                        httpRequest.setAttribute(ConstAttribute.PROHIBITED, ConstParameter.TRUE);
                     }
 
                 } catch (IllegalArgumentException e) {

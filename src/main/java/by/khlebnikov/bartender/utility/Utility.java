@@ -1,6 +1,6 @@
 package by.khlebnikov.bartender.utility;
 
-import by.khlebnikov.bartender.command.CommandType;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +25,7 @@ public class Utility {
     }
 
     public static Cookie persistingCookie(String id) {
-        Cookie cookie = new Cookie(Constant.STAY_LOGGED, id);
+        Cookie cookie = new Cookie(ConstParameter.STAY_LOGGED, id);
         cookie.setMaxAge(Constant.YEAR);
         return cookie;
     }
@@ -50,7 +50,7 @@ public class Utility {
 
     public static boolean isLoggedUser(HttpServletRequest request){
         Cookie[] cookieArr = request.getCookies();
-        Optional<Cookie> loggedCookieOpt = getCookie(cookieArr, Constant.STAY_LOGGED);
+        Optional<Cookie> loggedCookieOpt = getCookie(cookieArr, ConstParameter.STAY_LOGGED);
         return loggedCookieOpt.isPresent();
     }
 }

@@ -4,6 +4,5 @@
 <%@ taglib prefix="ctg" uri="customtags" %>
 <fmt:setLocale value="${locale}" scope="session" />
 <fmt:setBundle basename="messages"/>
-<html>
-<head>
+<!doctype html>
 

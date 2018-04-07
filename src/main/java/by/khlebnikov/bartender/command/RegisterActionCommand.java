@@ -1,8 +1,10 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
 import org.apache.logging.log4j.LogManager;
@@ -25,8 +27,8 @@ public class RegisterActionCommand implements Command {
         MessageType messageType;
         boolean success = false;
 
-        String confirmationCode = request.getParameter(Constant.CODE);
-        String email = request.getParameter(Constant.EMAIL);
+        String confirmationCode = request.getParameter(ConstParameter.CODE);
+        String email = request.getParameter(ConstParameter.EMAIL);
 
         /*if user was trying to register, get his data and register him*/
         userOpt = service.checkProspectUser(email, confirmationCode);
@@ -41,8 +43,8 @@ public class RegisterActionCommand implements Command {
         }
 
         service.deleteProspectUser(email);
-        request.setAttribute(Constant.MESSAGE_TYPE, messageType);
+        request.setAttribute(ConstAttribute.MESSAGE_TYPE, messageType);
         logger.debug("message: " + messageType);
-        return PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
+        return PropertyReader.getConfigProperty(ConstPage.RESULT);
     }
 }

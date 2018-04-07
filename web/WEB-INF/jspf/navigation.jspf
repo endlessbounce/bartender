@@ -1,38 +1,50 @@
-<meta charset="utf-8"/>
-<link href="../css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="../jquery/jquery.min.js"></script>
-<script src="../js/bootstrap.min.js"></script>
-<script src="../js/app.js"></script>
-</head>
-<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        <fmt:message key="header.name"/>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand">Bartender</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li><a href="/controller"><fmt:message key="content.page.home"/></a></li>
-            <li><a href="/controller?command=catalog"><fmt:message key="content.page.catalog"/></a></li>
-        </ul>
-        <form class="navbar-form navbar-left" action="controller">
-            <div class="form-group">
-                <input type="hidden" class="form-control" name="command" value="search"/>
-                <input type="text" class="form-control" name="search" placeholder="<fmt:message key="content.page.searchbar"/>">
-            </div>
-            <button type="submit" class="btn btn-default"><fmt:message key="content.page.search"/></button>
-        </form>
-        <ul class="nav navbar-nav navbar-right">
-            <li><a href="/controller?command=register"><span class="glyphicon glyphicon-user"></span><fmt:message key="content.page.signup"/></a></li>
-            <li><a href="/controller?command=login"><span class="glyphicon glyphicon-log-in"></span><fmt:message key="content.page.login"/></a></li>
-            <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">${ChosenLocale}
-                    <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a></li>
-                    <li><a href="/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a></li>
-                </ul>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/controller"><fmt:message key="content.page.home"/> <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/controller?command=catalog"><fmt:message key="content.page.catalog"/></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/controller?command=glossary"><fmt:message key="content.page.glossary"/></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/controller?command=register"><fmt:message key="content.page.signup"/></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/controller?command=login"><fmt:message key="content.page.login"/></a>
+            </li>
+
+            <%--change language--%>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    ${ChosenLocale}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a>
+                    <a class="dropdown-item" href="/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a>
+                </div>
             </li>
         </ul>
+
+        <%--search form--%>
+        <form class="form-inline my-2 my-lg-0" action="controller">
+            <input type="hidden" name="command" value="search">
+            <input class="form-control mr-sm-2" type="search" name="quicksearch" placeholder="<fmt:message key="content.page.searchbar"/>" aria-label="Search">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit"><fmt:message
+                    key="content.page.search"/></button>
+        </form>
     </div>
 </nav>

@@ -1,9 +1,11 @@
 package by.khlebnikov.bartender.command;
 
+import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.ConstPage;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.entity.ProspectUser;
-import by.khlebnikov.bartender.exception.ControllerException;
-import by.khlebnikov.bartender.logic.UserService;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.mail.Mailer;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
@@ -36,19 +38,19 @@ public class ConfirmEmailCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest request) {
-        String name = request.getParameter(Constant.NAME);
-        String email = request.getParameter(Constant.EMAIL);
-        String password = request.getParameter(Constant.PASSWORD);
-        String confirmation = request.getParameter(Constant.CONFIRMATION);
+        String name = request.getParameter(ConstParameter.NAME);
+        String email = request.getParameter(ConstParameter.EMAIL);
+        String password = request.getParameter(ConstParameter.PASSWORD);
+        String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
         long code = Utility.generateCode();
 
-        String page = PropertyReader.getConfigProperty(Constant.PAGE_RESULT);
+        String page = PropertyReader.getConfigProperty(ConstPage.RESULT);
         String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
-        String locale = (String) request.getSession().getAttribute(Constant.LOCALE);
+        String locale = (String) request.getSession().getAttribute(ConstParameter.LOCALE);
         String subject = PropertyReader.getMessageProperty("message.lettersubject", locale);
         String message = PropertyReader.getMessageProperty("message.confirmation", locale) +
-                Constant.EMAIL_PARAM + email +
-                Constant.CODE_PARAM + code;
+                ConstParameter.EMAIL_REQ + email +
+                ConstParameter.CODE_REQ + code;
 
         /*check if registration data is valid in case front end doesn't check it*/
         boolean correctInput = Validator.checkRegistrationData(name, email, password, confirmation, request);
@@ -64,7 +66,7 @@ public class ConfirmEmailCommand implements Command {
                 Optional<byte []> hashOpt = passwordGenerator.hash(password.toCharArray(), salt);
 
                 if(!hashOpt.isPresent()){
-                    request.setAttribute(Constant.MESSAGE_TYPE, MessageType.HASH_ERROR);
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);
                     return page;
                 }
 
@@ -83,25 +85,25 @@ public class ConfirmEmailCommand implements Command {
                 properties.load(new FileInputStream(emailPropertyPath));
 
                 Mailer.sendEmail(email, subject, message, properties);
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.EMAIL_SENT);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.EMAIL_SENT);
             } catch (IOException | MessagingException e) {
                 logger.catching(e);
-                request.setAttribute(Constant.MESSAGE_TYPE, MessageType.MAIL_ERROR);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.MAIL_ERROR);
             }
 
             return page;
         } else if(alreadyRegistered){
-            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.ALREADY_REGISTERED);
+            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.ALREADY_REGISTERED);
         } else if(awaitingConfirmation){
-            request.setAttribute(Constant.MESSAGE_TYPE, MessageType.AWAITING_CONFIRMATION);
+            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.AWAITING_CONFIRMATION);
         }
 
-        request.setAttribute(Constant.NAME, name);
-        request.setAttribute(Constant.EMAIL, email);
-        request.setAttribute(Constant.PASSWORD, password);
-        request.setAttribute(Constant.CONFIRMATION, confirmation);
+        request.setAttribute(ConstParameter.NAME, name);
+        request.setAttribute(ConstParameter.EMAIL, email);
+        request.setAttribute(ConstParameter.PASSWORD, password);
+        request.setAttribute(ConstParameter.CONFIRMATION, confirmation);
 
-        page = PropertyReader.getConfigProperty(Constant.PAGE_REGISTRATION);
+        page = PropertyReader.getConfigProperty(ConstPage.REGISTRATION);
         return page;
     }
 }
