@@ -2,7 +2,7 @@
     <div class="col">
         <h1>App</h1>
 
-        <div ng-controller="viewController as ctrl">
+        <div ng-controller="CatalogController as ctrl">
 
             <div>
 
