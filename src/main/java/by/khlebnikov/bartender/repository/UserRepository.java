@@ -107,6 +107,7 @@ public class UserRepository {
     public boolean delete(User user) {
         boolean result = false;
         return result;
+        //TODO something here
     }
 
     public List<User> query(UserSpecification spec){
