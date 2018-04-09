@@ -58,25 +58,26 @@
                     key="content.pagination.show"/></label><br>
             <div class="btn-toolbar" id="btngroup" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button type="button" class="btn btn-secondary" ng-click="cat.displayNumber(12)">12</button>
-                    <button type="button" class="btn btn-secondary" ng-click="cat.displayNumber(24)">24</button>
-                    <button type="button" class="btn btn-secondary" ng-click="cat.displayNumber(48)">48</button>
+                    <button type="button" class="btn btn-secondary" ng-click="cat.changeDisplayNumber(12)">12</button>
+                    <button type="button" class="btn btn-secondary" ng-click="cat.changeDisplayNumber(24)">24</button>
+                    <button type="button" class="btn btn-secondary" ng-click="cat.changeDisplayNumber(48)">48</button>
                 </div>
             </div>
         </div>
+
         <div class="col-md-9">
             <div class="row">
 
                 <%--cocktail card--%>
                 <div class="card float-left m-2" style="width: 16rem;"
-                     dir-paginate="card in cat.todos | itemsPerPage: cat.showPages track by $index">
-                    <img class="card-img-top" src="../img/cocktail.jpg" alt="Card image cap">
+                     dir-paginate="card in cat.cocktails | itemsPerPage: cat.showPages track by $index">
+                    <img class="card-img-top" src="{{card.uri}}" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title" ng-bind="card">{{card}}</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                            the
-                            card's content.</p>
-                        <a href="#" class="btn btn-primary"><fmt:message key="content.pagination.view"/></a>
+                        <h6 class="card-title text-truncate" ng-bind="card.name"></h6>
+                        <p class="card-text" style="height: 50px; overflow: auto;">
+                            <span ng-repeat="portion in card.ingredientList">{{portion.ingredientName}}<span ng-if="!$last">, </span></span>
+                        </p>
+                        <a href="/controller?command=cocktail&id={{card.id}}" class="btn btn-primary"><fmt:message key="content.pagination.view"/></a>
                     </div>
                 </div>
             </div>
@@ -85,6 +86,7 @@
 
                     <%--paginaton. change default template classes to bootstrap 4--%>
                     <dir-pagination-controls boundary-links="true"
+                                             on-page-change="getNextBatchOfCocktails(newPageNumber, oldPageNumber)"
                                              template-url="../js/dirPagination.tpl.html"></dir-pagination-controls>
                 </div>
             </div>

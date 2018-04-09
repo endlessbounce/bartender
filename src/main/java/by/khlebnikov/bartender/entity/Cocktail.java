@@ -32,6 +32,14 @@ public class Cocktail {
         this.ingredientList = ingredientList;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }

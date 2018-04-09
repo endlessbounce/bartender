@@ -1,24 +1,32 @@
 package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.entity.Cocktail;
-import by.khlebnikov.bartender.entity.Portion;
+import by.khlebnikov.bartender.repository.CocktailDao;
+import by.khlebnikov.bartender.specification.FindCocktailBatch;
+import by.khlebnikov.bartender.specification.FindIngredientOfCocktail;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CocktailService {
+    private Logger logger = LogManager.getLogger();
+    CocktailDao cocktailDao;
 
-    public List<Cocktail> getCockatailAll(){
-        Portion p = new Portion("sugar", "2 spoons");
-        ArrayList l = new ArrayList<>();
-        l.add(p);
-        Cocktail cocktail1 = new Cocktail("OldCock", "5 mugs of water",
-                "", "", "no", l);
-        Cocktail cocktail2 = new Cocktail("NewCock", "2 mugs of water",
-                "", "", "yes", l);
-        List<Cocktail> list = new ArrayList<>();
-        list.add(cocktail1);
-        list.add(cocktail2);
-        return list;
+    public CocktailService() {
+        this.cocktailDao = new CocktailDao();
+    }
+
+    public List<Cocktail> getNextBatch(String locale, long limit, long offset){
+
+        //get next <limit> records from cocktails table, starting from <offset>
+        List<Cocktail> cocktailList = cocktailDao.query(new FindCocktailBatch(locale, limit, offset));
+        logger.debug("next batch: " + cocktailList);
+
+        /*fill each cocktail's list of portions with ingredients*/
+        cocktailList.forEach(cocktail -> cocktailDao.query(new FindIngredientOfCocktail(locale, cocktail)));
+        logger.debug("next batch with ingredients: " + cocktailList);
+
+        return cocktailList;
     }
 }

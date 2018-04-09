@@ -1,20 +1,20 @@
-package by.khlebnikov.bartender.repository;
+package by.khlebnikov.bartender.dao;
 
 import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.constant.ConstTableUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
-import by.khlebnikov.bartender.specification.UserSpecification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserRepository {
+public class UserDao {
     private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
@@ -110,7 +110,35 @@ public class UserRepository {
         //TODO something here
     }
 
-    public List<User> query(UserSpecification spec){
-        return spec.specified();
+    public List<User> findByCookie(String cookie) {
+        ArrayList<User> userList = new ArrayList<>();
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.BY_COOKIE);
+        User user;
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setString(1, cookie);
+            ResultSet resSet = prepStatement.executeQuery();
+
+            while (resSet.next()) {
+                String dbName = resSet.getString(ConstTableUser.NAME);
+                String dbEmail = resSet.getString(ConstTableUser.EMAIL);
+
+                Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
+                int hashLength = (int) hashBlob.length();
+                byte[] dbHash = hashBlob.getBytes(1, hashLength);
+
+                Blob saltBlob = resSet.getBlob(ConstTableUser.SALT);
+                int saltLength = (int) saltBlob.length();
+                byte[] dbSalt = saltBlob.getBytes(1, saltLength);
+
+                user = new User(dbName, dbEmail, dbHash, dbSalt);
+                userList.add(user);
+            }
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+        return userList;
     }
 }

@@ -20,6 +20,16 @@
                     });
                 return promise2;
             }
+            
+            self.getCocktails = function (offset, limit) {
+                var lang = document.getElementById("navbarDropdown").textContent;
+                var promise1 = $http.get('http://localhost:8080/webapi/cocktails/' + lang +
+                    '/' + offset + '/' + limit);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                });
+                return promise2;
+            }
 
         });
 })();

@@ -29,7 +29,6 @@ public class CatalogResource {
     @Produces(MediaType.APPLICATION_JSON)
     public FormData getCatalogFormData(@PathParam("locale") String locale){
         boolean correctString = Validator.checkString(locale);
-//        ArrayList<ArrayList<String>> dataList = new ArrayList<>();
         FormData data = new FormData();
 
         if(correctString){

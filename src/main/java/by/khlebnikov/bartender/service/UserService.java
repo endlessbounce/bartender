@@ -3,8 +3,7 @@ package by.khlebnikov.bartender.service;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.repository.UserRepository;
-import by.khlebnikov.bartender.specification.FindByCookie;
+import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
@@ -13,22 +12,22 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserService {
-    private UserRepository userRepository;
+    private UserDao userDao;
     private ProspectUserDao prospectUserDao;
     private Password passwordGenerator;
 
     public UserService() {
-        this.userRepository = new UserRepository();
+        this.userDao = new UserDao();
         this.prospectUserDao = new ProspectUserDao();
         this.passwordGenerator = new Password();
     }
 
     public Optional<User> findUser(String email) {
-        return userRepository.find(email);
+        return userDao.find(email);
     }
 
     public Optional<User> checkUser(String email, String password) {
-        Optional<User> userOpt = userRepository.find(email);
+        Optional<User> userOpt = userDao.find(email);
 
         if(userOpt.isPresent()){
             User user = userOpt.get();
@@ -45,7 +44,7 @@ public class UserService {
     }
 
     public List<User> findUserByCookie(String cookieId){
-        return userRepository.query(new FindByCookie(cookieId));
+        return userDao.findByCookie(cookieId);
     }
 
     public Optional<User> checkProspectUser(String email, String confirmationCode) {
@@ -92,7 +91,7 @@ public class UserService {
     }
 
     public boolean registerUser(User user) {
-        return userRepository.save(user);
+        return userDao.save(user);
     }
 
     public boolean registerProspectUser(ProspectUser prospectUser) {
@@ -100,7 +99,7 @@ public class UserService {
     }
 
     public boolean isUserRegistered(String email){
-        Optional<User> userOpt = userRepository.find(email);
+        Optional<User> userOpt = userDao.find(email);
         return userOpt.isPresent();
     }
 
@@ -114,6 +113,6 @@ public class UserService {
     }
 
     public boolean updateUser(User user){
-        return userRepository.update(user);
+        return userDao.update(user);
     }
 }

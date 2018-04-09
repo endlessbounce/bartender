@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * This class serves the catalog page of the application
  * providing information to REST resources.
- * These methods return data to fill in cocktail selection froms.
+ * These methods return data to fill in cocktail selection forms.
  */
 public class CatalogService {
     private Logger logger = LogManager.getLogger();

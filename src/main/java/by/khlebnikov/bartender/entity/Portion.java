@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Portion {
+    private int id;
     private String ingredientName;
     private String amount;
 
@@ -13,6 +14,14 @@ public class Portion {
     public Portion(String ingredientName, String amount) {
         this.ingredientName = ingredientName;
         this.amount = amount;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getIngredientName() {
@@ -36,16 +45,18 @@ public class Portion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Portion that = (Portion) o;
+        Portion portion = (Portion) o;
 
-        if (ingredientName != null ? !ingredientName.equals(that.ingredientName) : that.ingredientName != null)
+        if (id != portion.id) return false;
+        if (ingredientName != null ? !ingredientName.equals(portion.ingredientName) : portion.ingredientName != null)
             return false;
-        return amount != null ? amount.equals(that.amount) : that.amount == null;
+        return amount != null ? amount.equals(portion.amount) : portion.amount == null;
     }
 
     @Override
     public int hashCode() {
-        int result = ingredientName != null ? ingredientName.hashCode() : 0;
+        int result = id;
+        result = 31 * result + (ingredientName != null ? ingredientName.hashCode() : 0);
         result = 31 * result + (amount != null ? amount.hashCode() : 0);
         return result;
     }
