@@ -65,8 +65,7 @@ public class Utility {
                              String baseDrink,
                              ArrayList<String> ingredientList) {
 
-        StringBuilder query = new StringBuilder(PropertyReader.getQueryProperty(ConstQueryCocktail.QUERY));
-        String andSubquery = PropertyReader.getQueryProperty(ConstQueryCocktail.AND_IN_SUBQUERY);
+        StringBuilder query = new StringBuilder(PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY));
 
         if (ConstLocale.EN.equals(locale)) {
             if (drinkType != null) {
@@ -83,21 +82,23 @@ public class Utility {
                         .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_BASE));
             }
 
-            //build subquery
+            //build filter by ingredients subquery
             if (!ingredientList.isEmpty()) {
-                query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY));
+                query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1))
+                        .append(ingredientList.size())
+                        .append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2));
 
                 for (int i = 0; i < ingredientList.size(); i++) {
-                    query.append(ConstQueryCocktail.INGREDIENT_NAME)
+                    query.append("\"")
                             .append(ingredientList.get(i))
-                            .append("\" ");
+                            .append("\"");
 
                     if (i != ingredientList.size() - 1) {
-                        query.append(ConstQueryCocktail.OR);
+                        query.append(",");
                     }
                 }
 
-                query.append(andSubquery);
+                query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3));
             }
 
         } else {
@@ -111,4 +112,5 @@ public class Utility {
 
         return query.toString();
     }
+
 }

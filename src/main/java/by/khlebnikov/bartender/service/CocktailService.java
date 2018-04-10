@@ -41,13 +41,12 @@ public class CocktailService {
                 drinkType,
                 baseDrink,
                 ingredientList);
-        logger.debug("search by parameters: " + cocktailList);
 
         /*fill each cocktail's list of portions with ingredients*/
         for (Cocktail cocktail : cocktailList) {
             cocktailDao.findIngredients(locale, cocktail);
         }
-        logger.debug("next batch with ingredients: " + cocktailList);
+        logger.debug("chosen by parameters cocktails: " + cocktailList);
 
         return cocktailList;
     }
