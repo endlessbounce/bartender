@@ -9,7 +9,7 @@
             /*make request inside the function*/
             self.getFormData = function () {
                 /*get chosen language*/
-                var lang = document.getElementById("navbarDropdown").textContent;
+                var lang = document.getElementById("navbarDropdown").textContent.trim();
 
                 console.log("chosen language: " + lang);
 
@@ -20,11 +20,19 @@
                     });
                 return promise2;
             }
-            
-            self.getCocktails = function (offset, limit) {
-                var lang = document.getElementById("navbarDropdown").textContent;
-                var promise1 = $http.get('http://localhost:8080/webapi/cocktails/' + lang +
-                    '/' + offset + '/' + limit);
+
+            self.getCocktails = function () {
+                var lang = document.getElementById("navbarDropdown").textContent.trim();
+                var promise1 = $http.get('http://localhost:8080/webapi/cocktails?locale=' + lang);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                });
+                return promise2;
+            }
+
+            self.getCocktailsWithParams = function (url) {
+                var lang = document.getElementById("navbarDropdown").textContent.trim();
+                var promise1 = $http.get(url + "&locale=" + lang);
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 });

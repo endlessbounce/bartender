@@ -28,8 +28,12 @@
             <div class="form-group">
                 <label for="drinkType"><fmt:message key="drink.type"/></label>
                 <select class="form-control" id="drinkType">
-                    <option selected><fmt:message key="drink.default"/></option>
-                    <option ng-repeat="type in cat.drinkTypes" value="{{type}}">{{type}}</option>
+                    <option selected ng-click="cat.addDrinkType($event)" value="delete"><fmt:message
+                            key="drink.default"/></option>
+                    <option ng-repeat="type in cat.drinkTypes"
+                            value="{{type}}"
+                            ng-click="cat.addDrinkType($event)">{{type}}
+                    </option>
                 </select>
             </div>
 
@@ -37,8 +41,12 @@
             <div class="form-group">
                 <label for="baseDrink"><fmt:message key="drink.base"/></label>
                 <select class="form-control" id="baseDrink">
-                    <option selected><fmt:message key="drink.default"/></option>
-                    <option ng-repeat="drink in cat.baseDrinks" value="{{drink}}">{{drink}}</option>
+                    <option selected ng-click="cat.addBaseDrink($event)" value="delete"><fmt:message
+                            key="drink.default"/></option>
+                    <option ng-repeat="drink in cat.baseDrinks"
+                            value="{{drink}}"
+                            ng-click="cat.addBaseDrink($event)">{{drink}}
+                    </option>
                 </select>
             </div>
 
@@ -47,7 +55,10 @@
             <div class="form-check ingredient" id="ingDiv">
                 <div ng-repeat="ingredient in cat.ingredients">
                     <label class="form-check-label ml-3 mt-1 mb-1">
-                        <input class="form-check-input" type="checkbox" id="scb1" name="scb1" value="{{ingredient}}">{{ingredient}}
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="{{ingredient}}"
+                               ng-click="cat.addIngredient($event)">{{ingredient}}
                     </label>
                     <br>
                 </div>
@@ -75,9 +86,11 @@
                     <div class="card-body">
                         <h6 class="card-title text-truncate" ng-bind="card.name"></h6>
                         <p class="card-text" style="height: 50px; overflow: auto;">
-                            <span ng-repeat="portion in card.ingredientList">{{portion.ingredientName}}<span ng-if="!$last">, </span></span>
+                            <span ng-repeat="portion in card.ingredientList">{{portion.ingredientName}}<span
+                                    ng-if="!$last">, </span></span>
                         </p>
-                        <a href="/controller?command=cocktail&id={{card.id}}" class="btn btn-primary"><fmt:message key="content.pagination.view"/></a>
+                        <a href="/controller?command=cocktail&id={{card.id}}" class="btn btn-primary"><fmt:message
+                                key="content.pagination.view"/></a>
                     </div>
                 </div>
             </div>
@@ -86,8 +99,8 @@
 
                     <%--paginaton. change default template classes to bootstrap 4--%>
                     <dir-pagination-controls boundary-links="true"
-                                             on-page-change="getNextBatchOfCocktails(newPageNumber, oldPageNumber)"
-                                             template-url="../js/dirPagination.tpl.html"></dir-pagination-controls>
+                                             template-url="../js/dirPagination.tpl.html">
+                    </dir-pagination-controls>
                 </div>
             </div>
         </div>
