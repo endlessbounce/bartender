@@ -112,6 +112,26 @@
                 });
             }
 
+            //reset filtering form
+            self.reset = function () {
+                var j;
+                for (j = 0; j < self.params.currentIngredients.length; j++) {
+                    var ingredient = self.params.currentIngredients[j];
+                    document.getElementById(ingredient).checked = false;
+                }
+                self.params.currentIngredients = [];
+
+                document.getElementById("drinkType").selectedIndex = 0;
+                self.params.currentDrinkType = null;
+                document.getElementById("baseDrink").selectedIndex = 0;
+                self.params.currentBaseDrink = null;
+
+                restService.getCocktails().then(function (data) {
+                    console.log("getCocktails data: " + data);
+                    self.cocktails = data;
+                });
+            }
+
             //******************************************************************************
             //BUILD RECOURSE PATH
             //******************************************************************************
@@ -134,19 +154,14 @@
                 }
 
                 if (ingredientsNum > 0) {
-                    console.log("working with ingredients, size: " + ingredientsNum);
                     var j;
                     for (j = 0; j < ingredientsNum; j++) {
                         if (j == 0 && base == null && type == null) {
-                            console.log("buildPath1: " + buildPath);
                             buildPath += "ingredient" + (j + 1) +
                                 "=" + self.params.currentIngredients[j];
-                            console.log("buildPath2: " + buildPath);
                         } else {
-                            console.log("buildPath3: " + buildPath);
                             buildPath += "&ingredient" + (j + 1) +
                                 "=" + self.params.currentIngredients[j];
-                            console.log("buildPath4: " + buildPath);
                         }
                     }
                 }

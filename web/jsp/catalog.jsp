@@ -64,8 +64,14 @@
                 </div>
             </div>
 
+                <%--reset button--%>
+            <div class="form-group mt-3">
+                <button type="button" class="btn btn-primary btn-sm" ng-click="cat.reset()"><fmt:message
+                        key="content.button.reset"/></button>
+            </div>
+
             <%--show pages button group--%>
-            <label class="mt-3" for="btngroup" style="font-weight: normal"><fmt:message
+            <label for="btngroup" style="font-weight: normal"><fmt:message
                     key="content.pagination.show"/></label><br>
             <div class="btn-toolbar" id="btngroup" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="First group">
