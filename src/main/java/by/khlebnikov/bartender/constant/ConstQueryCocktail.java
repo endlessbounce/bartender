@@ -6,12 +6,16 @@ public class ConstQueryCocktail {
 
     //query for filtering by multiple parameters
     public static final String ALL_INGRED_QUERY = "cocktailreposiory.query1";
+    public static final String ALL_INGRED_QUERY_LANG = "cocktailreposiory.query1lang";
     public static final String AND_GROUP = "cocktailreposiory.query2";
     public static final String AND_BASE = "cocktailreposiory.query3";
     //subquery is built up from 3 parts
     public static final String SUBQUERY_PART_1 = "cocktailreposiory.subquery1";
+    public static final String SUBQUERY_PART_1_LANG = "cocktailreposiory.subquery1lang";
     public static final String SUBQUERY_PART_2 = "cocktailreposiory.subquery2";
+    public static final String SUBQUERY_PART_2_LANG = "cocktailreposiory.subquery2lang";
     public static final String SUBQUERY_PART_3 = "cocktailreposiory.subquery3";
+    public static final String SUBQUERY_PART_3_LANG = "cocktailreposiory.subquery3lang";
 
     public static final String DRINK_TYPE = "type";
     public static final String BASE_DRINK = "base";

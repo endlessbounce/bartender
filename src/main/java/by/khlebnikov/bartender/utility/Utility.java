@@ -65,46 +65,63 @@ public class Utility {
                              String baseDrink,
                              ArrayList<String> ingredientList) {
 
-        StringBuilder query = new StringBuilder(PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY));
+        StringBuilder query;
+        String outerQuery;
+        String groupName;
+        String baseName;
+        String subqueryPart1;
+        String subqueryPart2;
+        String subqueryPart3;
 
         if (ConstLocale.EN.equals(locale)) {
-            if (drinkType != null) {
-                query.append(ConstQueryCocktail.GROUP_NAME)
-                        .append(drinkType)
-                        .append("\" ")
-                        .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_GROUP));
-            }
-
-            if (baseDrink != null) {
-                query.append(ConstQueryCocktail.BASE_NAME)
-                        .append(baseDrink)
-                        .append("\" ")
-                        .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_BASE));
-            }
-
-            //build filter by ingredients subquery
-            if (!ingredientList.isEmpty()) {
-                query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1))
-                        .append(ingredientList.size())
-                        .append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2));
-
-                for (int i = 0; i < ingredientList.size(); i++) {
-                    query.append("\"")
-                            .append(ingredientList.get(i))
-                            .append("\"");
-
-                    if (i != ingredientList.size() - 1) {
-                        query.append(",");
-                    }
-                }
-
-                query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3));
-            }
-
+            outerQuery = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY);
+            groupName = ConstQueryCocktail.GROUP_NAME;
+            baseName = ConstQueryCocktail.BASE_NAME;
+            subqueryPart1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1);
+            subqueryPart2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2);
+            subqueryPart3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3);
         } else {
-            if (!ingredientList.isEmpty()) {
-                //ingredientName = ConstQueryCocktail.INGREDIENT_NAME_RUS;
+            outerQuery = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY_LANG);
+            groupName = ConstQueryCocktail.GROUP_NAME_RUS;
+            baseName = ConstQueryCocktail.BASE_NAME_RUS;
+            subqueryPart1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1_LANG);
+            subqueryPart2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2_LANG);
+            subqueryPart3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3_LANG);
+        }
+
+        query = new StringBuilder(outerQuery);
+
+        if (drinkType != null) {
+            query.append(groupName)
+                    .append(drinkType)
+                    .append("\" ")
+                    .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_GROUP));
+        }
+
+        if (baseDrink != null) {
+            query.append(baseName)
+                    .append(baseDrink)
+                    .append("\" ")
+                    .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_BASE));
+        }
+
+        //build filter by ingredients subquery
+        if (!ingredientList.isEmpty()) {
+            query.append(subqueryPart1)
+                    .append(ingredientList.size())
+                    .append(subqueryPart2);
+
+            for (int i = 0; i < ingredientList.size(); i++) {
+                query.append("\"")
+                        .append(ingredientList.get(i))
+                        .append("\"");
+
+                if (i != ingredientList.size() - 1) {
+                    query.append(",");
+                }
             }
+
+            query.append(subqueryPart3);
         }
 
         query.append(";");

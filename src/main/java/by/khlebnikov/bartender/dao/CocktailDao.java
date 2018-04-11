@@ -50,10 +50,17 @@ public class CocktailDao {
              Statement statement = connection.createStatement()
         ) {
             ResultSet rs = statement.executeQuery(query);
+            String columnName;
+
+            if (ConstLocale.EN.equals(locale)) {
+                columnName = ConstTableCocktail.NAME;
+            }else{
+                columnName = ConstTableCocktail.NAME_LANG;
+            }
 
             while (rs.next()) {
                 Cocktail cocktail = new Cocktail();
-                cocktail.setName(rs.getString(ConstTableCocktail.NAME));
+                cocktail.setName(rs.getString(columnName));
                 cocktail.setUri(rs.getString(ConstTableCocktail.URI));
                 cocktail.setId(Integer.parseInt(rs.getString(ConstTableCocktail.ID)));
                 result.add(cocktail);
