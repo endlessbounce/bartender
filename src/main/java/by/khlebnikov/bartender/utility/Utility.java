@@ -60,7 +60,7 @@ public class Utility {
         return loggedCookieOpt.isPresent();
     }
 
-    public String buildQuery(String locale,
+    public String buildQuery(String language,
                              String drinkType,
                              String baseDrink,
                              ArrayList<String> ingredientList) {
@@ -73,7 +73,7 @@ public class Utility {
         String subqueryPart2;
         String subqueryPart3;
 
-        if (ConstLocale.EN.equals(locale)) {
+        if (ConstLocale.EN.equals(language)) {
             outerQuery = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY);
             groupName = ConstQueryCocktail.GROUP_NAME;
             baseName = ConstQueryCocktail.BASE_NAME;
@@ -129,5 +129,4 @@ public class Utility {
 
         return query.toString();
     }
-
 }

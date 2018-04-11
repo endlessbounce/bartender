@@ -19,9 +19,9 @@ public class LocaleFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
             throws IOException, ServletException {
         HttpSession session = ((HttpServletRequest) request).getSession();
-        String locale = (String) session.getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
+        String language = (String) session.getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
 
-        if (locale == null){
+        if (language == null){
             session.setAttribute(ConstParameter.LOCALE, ConstLocale.EN_US);
             session.setAttribute(ConstAttribute.CHOSEN_LANGUAGE, ConstLocale.EN);
         }

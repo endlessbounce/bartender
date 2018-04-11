@@ -17,6 +17,10 @@ public class ConstQueryCocktail {
     public static final String SUBQUERY_PART_3 = "cocktailreposiory.subquery3";
     public static final String SUBQUERY_PART_3_LANG = "cocktailreposiory.subquery3lang";
 
+    //find cocktail by id
+    public static final String FIND_BY_ID = "cocktailreposiory.findcocktail";
+    public static final String FIND_BY_ID_LANG = "cocktailreposiory.findcocktaillang";
+
     public static final String DRINK_TYPE = "type";
     public static final String BASE_DRINK = "base";
 

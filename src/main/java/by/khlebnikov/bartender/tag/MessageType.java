@@ -18,7 +18,8 @@ public enum MessageType {
     MAIL_ERROR("message.mailerror"),
     HASH_ERROR("message.hasherror"),
     INCORRECT_USER("message.incorrectuser"),
-    PASSWORD_CHANGED("message.passwordchanged");
+    PASSWORD_CHANGED("message.passwordchanged"),
+    COCKTAIL_NOT_FOUND("message.cocktailnotfound");
 
     private String messageKey;
 

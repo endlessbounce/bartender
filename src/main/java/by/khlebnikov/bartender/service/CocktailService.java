@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CocktailService {
     private Logger logger = LogManager.getLogger();
@@ -19,11 +20,23 @@ public class CocktailService {
         this.cocktailDao = new CocktailDao();
     }
 
+    public Optional<Cocktail> findChosenCocktail(int id, String language) {
+        Optional<Cocktail> cocktailOpt = cocktailDao.findCocktail(id, language);
+        Cocktail cocktail;
+
+        if (cocktailOpt.isPresent()) {
+            cocktail = cocktailOpt.get();
+            cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+        }
+
+        return cocktailOpt;
+    }
+
     public List<Cocktail> findCocktails(MultivaluedMap params) {
         ArrayList<String> ingredientList = new ArrayList<>();
         String drinkType = null;
         String baseDrink = null;
-        String locale = null;
+        String language = null;
 
         for (Object key : params.keySet()) {
             if (ConstQueryCocktail.DRINK_TYPE.equals(key)) {
@@ -31,20 +44,23 @@ public class CocktailService {
             } else if (ConstQueryCocktail.BASE_DRINK.equals(key)) {
                 baseDrink = (String) params.getFirst(key);
             } else if (ConstParameter.LOCALE.equals(key)) {
-                locale = (String) params.getFirst(key);
+                language = (String) params.getFirst(key);
             } else {
-                ingredientList.add((String) params.getFirst(key));
+                String value = (String) params.getFirst(key);
+                value = value.replaceAll("[\"]", "\\\\\"");
+                logger.debug("replaced value: " + value);
+                ingredientList.add(value);
             }
         }
 
-        List<Cocktail> cocktailList = cocktailDao.findAllByParameter(locale,
+        List<Cocktail> cocktailList = cocktailDao.findAllByParameter(language,
                 drinkType,
                 baseDrink,
                 ingredientList);
 
-        /*fill each cocktail's list of portions with ingredients*/
+        /*find each cocktail's portions with ingredients*/
         for (Cocktail cocktail : cocktailList) {
-            cocktailDao.findIngredients(locale, cocktail);
+            cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
         }
         logger.debug("chosen by parameters cocktails: " + cocktailList);
 

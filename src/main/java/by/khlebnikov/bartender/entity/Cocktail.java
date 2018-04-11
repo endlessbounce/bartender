@@ -12,6 +12,7 @@ public class Cocktail {
     private String baseDrink;
     private String type;
     private String uri;
+    private String slogan;
     private ArrayList<Portion> ingredientList;
     private Date creationDate;
 
@@ -96,6 +97,14 @@ public class Cocktail {
         this.creationDate = creationDate;
     }
 
+    public String getSlogan() {
+        return slogan;
+    }
+
+    public void setSlogan(String slogan) {
+        this.slogan = slogan;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -133,7 +142,9 @@ public class Cocktail {
                 ", baseDrink='" + baseDrink + '\'' +
                 ", type='" + type + '\'' +
                 ", uri='" + uri + '\'' +
+                ", slogan='" + slogan + '\'' +
                 ", ingredientList=" + ingredientList +
+                ", creationDate=" + creationDate +
                 '}';
     }
 }

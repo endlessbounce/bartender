@@ -64,7 +64,6 @@ public class Portion {
     @Override
     public String toString() {
         return "Ingredient'" + ingredientName + '\'' +
-                ": amount='" + amount + '\'' +
-                '}';
+                ": amount='" + amount + '\'';
     }
 }

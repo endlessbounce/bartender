@@ -12,4 +12,5 @@ public class ConstPage {
     public static final String SETTINGS = "path.page.settings";
     public static final String PROFILE = "path.page.profile";
     public static final String GLOSSARY = "path.page.glossary";
+    public static final String COCKTAIL = "path.page.cocktail";
 }

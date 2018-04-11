@@ -47,7 +47,10 @@ public enum CommandType {
     SET_NEW_ACTION(new SetPasswordActionCommand()),
 
     /*Returns glossary page*/
-    GLOSSARY(new GlossaryCommand());
+    GLOSSARY(new GlossaryCommand()),
+
+    /*Returns the page with a chosen cocktail*/
+    COCKTAIL(new CocktailCommand());
 
     private Command command;
 
