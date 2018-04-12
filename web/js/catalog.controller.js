@@ -2,9 +2,7 @@
     angular.module("catalog")
         .controller("CatalogCtrl", function (restService) {
             var self = this;
-            //first pair of key and value
-            self.firstPair = true;
-            self.coctailsUrl = "http://localhost:8080/webapi/cocktails";
+            self.userUri = "http://localhost:8080/webapi/cocktails";
 
             //button group show pages
             self.showPages = 12;
@@ -136,7 +134,7 @@
             //BUILD RECOURSE PATH
             //******************************************************************************
             self.buildRecourse = function () {
-                var buildPath = self.coctailsUrl + "?";
+                var buildPath = self.userUri + "?";
                 var type = self.params.currentDrinkType;
                 var base = self.params.currentBaseDrink;
                 var ingredientsNum = self.params.currentIngredients.length;

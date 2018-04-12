@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.constant;
 
 public class ConstTableUser {
+    public static final String ID = "us_id";
     public static final String NAME = "us_name";
     public static final String EMAIL = "us_email";
     public static final String HASH = "us_password";

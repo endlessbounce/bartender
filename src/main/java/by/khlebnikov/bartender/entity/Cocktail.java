@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+//TODO sql.Date
 import java.util.Date;
 
 @XmlRootElement

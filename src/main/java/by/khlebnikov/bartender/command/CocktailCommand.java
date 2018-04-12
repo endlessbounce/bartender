@@ -41,6 +41,7 @@ public class CocktailCommand implements Command {
             request.setAttribute(ConstParameter.COCKTAIL_BASE, cocktail.getBaseDrink());
             request.setAttribute(ConstParameter.COCKTAIL_URI, cocktail.getUri());
             request.setAttribute(ConstParameter.COCKTAIL_INGREDIENT, cocktail.getIngredientList());
+            request.setAttribute(ConstParameter.COCKTAIL_ID, cocktail.getId());
 
             logger.debug("chosen cocktail: " + cocktail);
 

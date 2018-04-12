@@ -44,6 +44,7 @@ public class LoginActionCommand implements Command, CommandWithResponse {
             if(userOpt.isPresent()){
                 User user = userOpt.get();
                 request.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
+                request.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
 
                 //checking stay logged in checkbox
                 if(ConstParameter.TRUE.equals(logged)){

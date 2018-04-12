@@ -23,11 +23,11 @@ public class UserService {
     }
 
     public Optional<User> findUser(String email) {
-        return userDao.find(email);
+        return userDao.findByEmail(email);
     }
 
     public Optional<User> checkUser(String email, String password) {
-        Optional<User> userOpt = userDao.find(email);
+        Optional<User> userOpt = userDao.findByEmail(email);
 
         if(userOpt.isPresent()){
             User user = userOpt.get();
@@ -99,13 +99,21 @@ public class UserService {
     }
 
     public boolean isUserRegistered(String email){
-        Optional<User> userOpt = userDao.find(email);
+        Optional<User> userOpt = userDao.findByEmail(email);
         return userOpt.isPresent();
     }
 
     public boolean isProspectRegistered(String email){
         Optional<ProspectUser> userOpt = prospectUserDao.find(email);
         return userOpt.isPresent();
+    }
+
+    public boolean isFavouriteCocktail(int userId, int cocktailId){
+        return userDao.isFavourite(userId, cocktailId);
+    }
+
+    public boolean deleteFromFavourite(int userId, int cocktailId){
+        return userDao.isFavourite(userId, cocktailId);
     }
 
     public boolean deleteProspectUser(String email){

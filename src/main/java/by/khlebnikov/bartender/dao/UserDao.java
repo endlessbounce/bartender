@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.dao;
 
 import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.constant.ConstTableUser;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
@@ -22,9 +23,9 @@ public class UserDao {
         boolean result = false;
         String query = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
 
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
-        ){
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
             prepStatement.setString(1, user.getName());
             prepStatement.setString(2, user.getEmail());
             prepStatement.setBlob(3, new SerialBlob(user.getHashKey()));
@@ -34,44 +35,7 @@ public class UserDao {
             if (res == 1) {
                 result = true;
             }
-        } catch (InterruptedException e) {
-            logger.catching(e);
-        } catch (SQLException e) {
-            logger.catching(e);
-        }
-
-        return result;
-    }
-
-    public Optional<User> find(String email){
-        Optional<User> result = Optional.empty();
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
-
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
-        ){
-            prepStatement.setString(1, email);
-            ResultSet rs = prepStatement.executeQuery();
-
-            if(rs.next()){
-                String dbName = rs.getString(ConstTableUser.NAME);
-                String dbEmail = rs.getString(ConstTableUser.EMAIL);
-
-                Blob hashBlob = rs.getBlob(ConstTableUser.HASH);
-                int hashLength = (int)hashBlob.length();
-                byte [] dbHash = hashBlob.getBytes(1, hashLength);
-
-                Blob saltBlob = rs.getBlob(ConstTableUser.SALT);
-                int saltLength = (int)saltBlob.length();
-                byte [] dbSalt = saltBlob.getBytes(1, saltLength);
-
-                result = Optional.of(new User(dbName,
-                        dbEmail,
-                        dbHash,
-                        dbSalt));
-            }
-
-        } catch (SQLException | InterruptedException e) {
+        } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
 
@@ -82,8 +46,8 @@ public class UserDao {
         boolean result = false;
         String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
 
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setString(1, user.getName());
             prepStatement.setBlob(2, new SerialBlob(user.getHashKey()));
@@ -95,9 +59,7 @@ public class UserDao {
             if (res == 1) {
                 result = true;
             }
-        } catch (InterruptedException e) {
-            logger.catching(e);
-        } catch (SQLException e) {
+        } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
 
@@ -108,6 +70,41 @@ public class UserDao {
         boolean result = false;
         return result;
         //TODO something here
+    }
+
+    public Optional<User> findByEmail(String email) {
+        Optional<User> result = Optional.empty();
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setString(1, email);
+            ResultSet resSet = prepStatement.executeQuery();
+
+            if (resSet.next()) {
+                int dbID = resSet.getInt(ConstTableUser.ID);
+                String dbName = resSet.getString(ConstTableUser.NAME);
+                String dbEmail = resSet.getString(ConstTableUser.EMAIL);
+
+                Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
+                int hashLength = (int) hashBlob.length();
+                byte[] dbHash = hashBlob.getBytes(1, hashLength);
+
+                Blob saltBlob = resSet.getBlob(ConstTableUser.SALT);
+                int saltLength = (int) saltBlob.length();
+                byte[] dbSalt = saltBlob.getBytes(1, saltLength);
+
+                User user = new User(dbName, dbEmail, dbHash, dbSalt);
+                user.setId(dbID);
+                result = Optional.of(user);
+            }
+
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+
+        return result;
     }
 
     public List<User> findByCookie(String cookie) {
@@ -122,6 +119,7 @@ public class UserDao {
             ResultSet resSet = prepStatement.executeQuery();
 
             while (resSet.next()) {
+                int dbID = resSet.getInt(ConstTableUser.ID);
                 String dbName = resSet.getString(ConstTableUser.NAME);
                 String dbEmail = resSet.getString(ConstTableUser.EMAIL);
 
@@ -134,11 +132,66 @@ public class UserDao {
                 byte[] dbSalt = saltBlob.getBytes(1, saltLength);
 
                 user = new User(dbName, dbEmail, dbHash, dbSalt);
+                user.setId(dbID);
                 userList.add(user);
             }
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
         return userList;
+    }
+
+    public boolean isFavourite(int userId, int cocktailId) {
+        boolean result = false;
+
+        StringBuilder query = new StringBuilder(PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_1));
+        query.append(cocktailId)
+                .append(Constant.SPACE)
+                .append(PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_2))
+                .append(userId)
+                .append(Constant.SEMICOLON);
+
+        logger.debug("isFavourite query: " + query);
+
+        try (Connection connection = pool.getConnection();
+             Statement statement = connection.createStatement()
+        ) {
+            ResultSet resultSet = statement.executeQuery(query.toString());
+
+            if (resultSet.next()) {
+                int match = resultSet.getInt(1);
+                result = match == 1;
+                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
+            }
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+
+        return result;
+    }
+
+    public boolean deleteFromFavourite(int userId, int cocktailId) {
+        boolean result = false;
+
+//        TODO delete query
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_1);
+
+        logger.debug("isFavourite delete query: " + query);
+
+        try (Connection connection = pool.getConnection();
+             Statement statement = connection.createStatement()
+        ) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            if (resultSet.next()) {
+                int match = resultSet.getInt(1);
+                result = match == 1;
+                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
+            }
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+
+        return result;
     }
 }

@@ -6,6 +6,7 @@ import java.util.Date;
 
 @XmlRootElement
 public class User {
+    private int id;
     private String name;
     private String email;
     private byte[] hashKey;
@@ -71,6 +72,14 @@ public class User {
         this.uniqueCookie = uniqueCookie;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -98,10 +107,12 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", hashKey=" + Arrays.toString(hashKey) +
                 ", salt=" + Arrays.toString(salt) +
+                ", reistrationDate=" + reistrationDate +
                 ", uniqueCookie='" + uniqueCookie + '\'' +
                 '}';
     }

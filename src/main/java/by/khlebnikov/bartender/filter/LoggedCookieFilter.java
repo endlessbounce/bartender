@@ -58,8 +58,9 @@ public class LoggedCookieFilter implements Filter {
                 List<User> userList = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 
                 if (!userList.isEmpty()) {
-                    String name = userList.get(0).getName();
-                    httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, name);
+                    User user = userList.get(0);
+                    httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
+                    httpRequest.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
                 }
 
                 /*The cookie to mark new session*/
