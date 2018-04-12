@@ -55,10 +55,10 @@ public class LoggedCookieFilter implements Filter {
             logger.debug("case2: " + case2);
 
             if (case1 || case2) {
-                List<User> userList = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
+                Optional<User> userOpt = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 
-                if (!userList.isEmpty()) {
-                    User user = userList.get(0);
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
                     httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
                     httpRequest.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
                 }

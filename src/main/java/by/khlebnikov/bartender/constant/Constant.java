@@ -6,7 +6,8 @@ public class Constant {
     public static final String UTF8 = "UTF-8";
     public static final String SPACE = " ";
     public static final String SEMICOLON = ";";
-    public static final String TRUE = "true";
+    public static final String QUOTE = "\"";
+    public static final String QUOTE_SEMOCOLON = "\";";
     public static final String ISO_8859 = "ISO-8859-1";
     public static final String ENCODING = "requestEncoding";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
@@ -18,4 +19,5 @@ public class Constant {
     public static final int YEAR = 60*60*24*365;
     public static final int ITERATIONS = 10000;
     public static final int KEY_LENGTH = 256;
+    public static final int UPDATED_RECORDS_1 = 1;
 }

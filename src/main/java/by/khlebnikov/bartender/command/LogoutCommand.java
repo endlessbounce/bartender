@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Optional;
 
 public class LogoutCommand implements Command, CommandWithResponse {
     private Logger logger = LogManager.getLogger();
@@ -33,11 +34,11 @@ public class LogoutCommand implements Command, CommandWithResponse {
         for (Cookie cookie : cookieArr) {
             switch (cookie.getName()){
                 case ConstParameter.STAY_LOGGED:
-                    List<User> userList = service.findUserByCookie(cookie.getValue());
+                    Optional<User> userOpt = service.findUserByCookie(cookie.getValue());
                     User user;
 
-                    if(!userList.isEmpty()){
-                        user = userList.get(0);
+                    if(userOpt.isPresent()){
+                        user = userOpt.get();
                         user.setUniqueCookie(null);
                         service.updateUser(user);
                     }

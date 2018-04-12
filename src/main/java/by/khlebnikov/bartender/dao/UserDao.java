@@ -11,8 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class UserDao {
@@ -30,11 +28,8 @@ public class UserDao {
             prepStatement.setString(2, user.getEmail());
             prepStatement.setBlob(3, new SerialBlob(user.getHashKey()));
             prepStatement.setBlob(4, new SerialBlob(user.getSalt()));
-            int res = prepStatement.executeUpdate();
-
-            if (res == 1) {
-                result = true;
-            }
+            int updated = prepStatement.executeUpdate();
+            result = updated == Constant.UPDATED_RECORDS_1;
         } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
@@ -54,11 +49,8 @@ public class UserDao {
             prepStatement.setBlob(3, new SerialBlob(user.getSalt()));
             prepStatement.setString(4, user.getUniqueCookie());
             prepStatement.setString(5, user.getEmail());
-            int res = prepStatement.executeUpdate();
-
-            if (res == 1) {
-                result = true;
-            }
+            int updated = prepStatement.executeUpdate();
+            result = updated == Constant.UPDATED_RECORDS_1;
         } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
@@ -73,72 +65,13 @@ public class UserDao {
     }
 
     public Optional<User> findByEmail(String email) {
-        Optional<User> result = Optional.empty();
         String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setString(1, email);
-            ResultSet resSet = prepStatement.executeQuery();
-
-            if (resSet.next()) {
-                int dbID = resSet.getInt(ConstTableUser.ID);
-                String dbName = resSet.getString(ConstTableUser.NAME);
-                String dbEmail = resSet.getString(ConstTableUser.EMAIL);
-
-                Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
-                int hashLength = (int) hashBlob.length();
-                byte[] dbHash = hashBlob.getBytes(1, hashLength);
-
-                Blob saltBlob = resSet.getBlob(ConstTableUser.SALT);
-                int saltLength = (int) saltBlob.length();
-                byte[] dbSalt = saltBlob.getBytes(1, saltLength);
-
-                User user = new User(dbName, dbEmail, dbHash, dbSalt);
-                user.setId(dbID);
-                result = Optional.of(user);
-            }
-
-        } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
-        }
-
-        return result;
+        return findUser(email, query);
     }
 
-    public List<User> findByCookie(String cookie) {
-        ArrayList<User> userList = new ArrayList<>();
+    public Optional<User> findByCookie(String cookie) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.BY_COOKIE);
-        User user;
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setString(1, cookie);
-            ResultSet resSet = prepStatement.executeQuery();
-
-            while (resSet.next()) {
-                int dbID = resSet.getInt(ConstTableUser.ID);
-                String dbName = resSet.getString(ConstTableUser.NAME);
-                String dbEmail = resSet.getString(ConstTableUser.EMAIL);
-
-                Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
-                int hashLength = (int) hashBlob.length();
-                byte[] dbHash = hashBlob.getBytes(1, hashLength);
-
-                Blob saltBlob = resSet.getBlob(ConstTableUser.SALT);
-                int saltLength = (int) saltBlob.length();
-                byte[] dbSalt = saltBlob.getBytes(1, saltLength);
-
-                user = new User(dbName, dbEmail, dbHash, dbSalt);
-                user.setId(dbID);
-                userList.add(user);
-            }
-        } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
-        }
-        return userList;
+        return findUser(cookie, query);
     }
 
     public boolean isFavourite(int userId, int cocktailId) {
@@ -160,7 +93,7 @@ public class UserDao {
 
             if (resultSet.next()) {
                 int match = resultSet.getInt(1);
-                result = match == 1;
+                result = match == Constant.UPDATED_RECORDS_1;
                 logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
             }
         } catch (InterruptedException | SQLException e) {
@@ -171,24 +104,59 @@ public class UserDao {
     }
 
     public boolean deleteFromFavourite(int userId, int cocktailId) {
-        boolean result = false;
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
+        logger.debug("deleteFromFavourite query: " + query);
+        return updateFavourite(userId, cocktailId, query);
+    }
 
-//        TODO delete query
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_1);
+    public boolean saveFavourite(int userId, int cocktailId) {
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
+        logger.debug("saveFavourite query: " + query);
+        return updateFavourite(userId, cocktailId, query);
+    }
 
-        logger.debug("isFavourite delete query: " + query);
+    private boolean updateFavourite(int userId, int cocktailId, String query) {
+        int updated = 0;
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            updated = prepStatement.executeUpdate();
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+        return updated == Constant.UPDATED_RECORDS_1;
+    }
+
+    private Optional<User> findUser(String searchParameter, String query) {
+        Optional<User> result = Optional.empty();
 
         try (Connection connection = pool.getConnection();
-             Statement statement = connection.createStatement()
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
-            ResultSet resultSet = statement.executeQuery(query);
+            prepStatement.setString(1, searchParameter);
+            ResultSet resSet = prepStatement.executeQuery();
 
-            if (resultSet.next()) {
-                int match = resultSet.getInt(1);
-                result = match == 1;
-                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
+            if (resSet.next()) {
+                int dbID = resSet.getInt(ConstTableUser.ID);
+                String dbName = resSet.getString(ConstTableUser.NAME);
+                String dbEmail = resSet.getString(ConstTableUser.EMAIL);
+
+                Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
+                int hashLength = (int) hashBlob.length();
+                byte[] dbHash = hashBlob.getBytes(1, hashLength);
+
+                Blob saltBlob = resSet.getBlob(ConstTableUser.SALT);
+                int saltLength = (int) saltBlob.length();
+                byte[] dbSalt = saltBlob.getBytes(1, saltLength);
+
+                User user = new User(dbName, dbEmail, dbHash, dbSalt);
+                user.setId(dbID);
+                result = Optional.of(user);
             }
-        } catch (InterruptedException | SQLException e) {
+
+        } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
 

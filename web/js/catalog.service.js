@@ -40,8 +40,18 @@
             };
 
             /*check if the cocktail is in the list of favourite user's cocktails*/
-            self.liked = function (cocktailID, userID) {
+            self.isCocktailliked = function (cocktailID, userID) {
                 var promise1 = $http.get('http://localhost:8080/webapi/user/' + userID + '/favourite/' + cocktailID);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                }, function (response) {
+                    console.log(response.data)
+                });
+                return promise2;
+            };
+
+            self.addLiked = function (cocktailID, userID) {
+                var promise1 = $http.post('http://localhost:8080/webapi/user/' + userID + '/favourite', {"id": cocktailID});
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
@@ -52,16 +62,6 @@
 
             self.deleteLiked = function (cocktailID, userID) {
                 var promise1 = $http.delete('http://localhost:8080/webapi/user/' + userID + '/favourite/' + cocktailID);
-                var promise2 = promise1.then(function (response) {
-                    return response.data;
-                }, function (response) {
-                    console.log(response.data)
-                });
-                return promise2;
-            };
-
-            self.addLiked = function (cocktailID, userID) {
-                var promise1 = $http.get('http://localhost:8080/webapi/user/' + userID + '/favourite/' + cocktailID);
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {

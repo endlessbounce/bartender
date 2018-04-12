@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.dao;
 
 import by.khlebnikov.bartender.constant.ConstQueryProspect;
 import by.khlebnikov.bartender.constant.ConstTableProspect;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.pool.ConnectionPool;
@@ -29,11 +30,8 @@ public class ProspectUserDao {
             prepStatement.setBlob(4, new SerialBlob(prospectUser.getSalt()));
             prepStatement.setLong(5, prospectUser.getExpiration());
             prepStatement.setLong(6, prospectUser.getCode());
-            int res = prepStatement.executeUpdate();
-
-            if(res == 1){
-                result = true;
-            }
+            int updated = prepStatement.executeUpdate();
+            result = updated == Constant.UPDATED_RECORDS_1;
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
@@ -83,11 +81,8 @@ public class ProspectUserDao {
             PreparedStatement prepStatement = connection.prepareStatement(query)
         ){
             prepStatement.setString(1, email);
-            int res = prepStatement.executeUpdate();
-
-            if(res == 1){
-                result = true;
-            }
+            int updated = prepStatement.executeUpdate();
+            result = updated == Constant.UPDATED_RECORDS_1;
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }

@@ -41,7 +41,7 @@
                 </div>
 
                 <%--LIKE/UNLIKE BUTTONS--%>
-                <div class="row mt-4">
+                <div class="row mt-4" style="visibility: hidden;" id="likeButtons">
                     <c:if test="${userName != null}">
                         <button ng-hide="ctrl.isFavourite"
                                 type="button"

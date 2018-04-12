@@ -48,7 +48,7 @@ public class CocktailDao {
             type = ConstTableCocktail.GROUP_NAME_RUS;
         }
 
-        query.append(id).append("\";");
+        query.append(id).append(Constant.QUOTE_SEMOCOLON);
 
         try (Connection connection = pool.getConnection();
              Statement statement = connection.createStatement()
@@ -76,7 +76,6 @@ public class CocktailDao {
             logger.catching(e);
         }
 
-
         return result;
     }
 
@@ -84,7 +83,7 @@ public class CocktailDao {
      * As user may choose different number of parameters for cocktail,
      * we need to build request each time.
      *
-     * @param language         locale of the user
+     * @param language       locale of the user
      * @param drinkType      chosen (or not) drink type
      * @param baseDrink      chosen (or not) base drink
      * @param ingredientList chosen ingredients
@@ -135,33 +134,35 @@ public class CocktailDao {
      * Looks for ingredients and their portions for a given cocktail
      *
      * @param language locale of user
-     * @param id     id of cocktail
+     * @param id       id of cocktail
      * @return the list of ingredients and proportions for a cocktail
      */
     public ArrayList<Portion> findIngredients(String language, int id) {
         ArrayList<Portion> ingredientList = new ArrayList<>();
-        String query;
+        StringBuilder query = new StringBuilder();
         String ingredientName;
         String amountOfIngredient;
 
         if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT) +
-                    "\"" + id + "\";";
+            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT));
             ingredientName = ConstTableIngredient.NAME;
             amountOfIngredient = ConstTableCombination.PORTION;
         } else {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS) +
-                    "\"" + id + "\";";
+            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS));
             ingredientName = ConstTableIngredient.NAME_RUS;
             amountOfIngredient = ConstTableCombination.PORTION_LANG;
         }
+
+        query.append(Constant.QUOTE)
+                .append(id)
+                .append(Constant.QUOTE_SEMOCOLON);
 
         logger.debug("chosen query: " + query);
 
         try (Connection connection = pool.getConnection();
              Statement statement = connection.createStatement()
         ) {
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery(query.toString());
 
             while (rs.next()) {
                 Portion portion = new Portion();

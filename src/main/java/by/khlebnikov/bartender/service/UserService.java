@@ -26,6 +26,10 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
+    public boolean updateUser(User user){
+        return userDao.update(user);
+    }
+
     public Optional<User> checkUser(String email, String password) {
         Optional<User> userOpt = userDao.findByEmail(email);
 
@@ -43,8 +47,29 @@ public class UserService {
         return userOpt;
     }
 
-    public List<User> findUserByCookie(String cookieId){
+    public Optional<User> findUserByCookie(String cookieId){
         return userDao.findByCookie(cookieId);
+    }
+
+    public boolean changingPasswordUser(String email, String confirmationCode) {
+        String dbCode = "";
+
+        if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
+            return false;
+        }
+
+        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
+
+        if (userOpt.isPresent()) {
+            ProspectUser user = userOpt.get();
+            dbCode = String.valueOf(user.getCode());
+        }
+
+        return confirmationCode.equals(dbCode);
+    }
+
+    public boolean registerUser(User user) {
+        return userDao.save(user);
     }
 
     public Optional<User> checkProspectUser(String email, String confirmationCode) {
@@ -73,29 +98,12 @@ public class UserService {
         return result;
     }
 
-    public boolean changingPasswordUser(String email, String confirmationCode) {
-        String dbCode = "";
-
-        if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
-            return false;
-        }
-
-        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
-
-        if (userOpt.isPresent()) {
-            ProspectUser user = userOpt.get();
-            dbCode = String.valueOf(user.getCode());
-        }
-
-        return confirmationCode.equals(dbCode);
-    }
-
-    public boolean registerUser(User user) {
-        return userDao.save(user);
-    }
-
     public boolean registerProspectUser(ProspectUser prospectUser) {
         return prospectUserDao.save(prospectUser);
+    }
+
+    public boolean deleteProspectUser(String email){
+        return prospectUserDao.delete(email);
     }
 
     public boolean isUserRegistered(String email){
@@ -113,14 +121,12 @@ public class UserService {
     }
 
     public boolean deleteFromFavourite(int userId, int cocktailId){
-        return userDao.isFavourite(userId, cocktailId);
+        return userDao.deleteFromFavourite(userId, cocktailId);
     }
 
-    public boolean deleteProspectUser(String email){
-        return prospectUserDao.delete(email);
+    public boolean addFavourite(int userId, int cocktailId){
+        return userDao.saveFavourite(userId, cocktailId);
     }
 
-    public boolean updateUser(User user){
-        return userDao.update(user);
-    }
+
 }
