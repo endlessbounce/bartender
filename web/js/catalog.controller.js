@@ -34,6 +34,7 @@
             restService.getCocktails().then(function (data) {
                 console.log("getCocktails data: " + data);
                 self.cocktails = data;
+                document.getElementById("onLoad").style.visibility = "visible";
             });
 
             /*change number of displayed cocktails*/

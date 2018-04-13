@@ -4,8 +4,8 @@ public class Constant {
     public static final String EMAIL_PROPERTY_PATH = "/WEB-INF/classes/email.properties";
     public static final String OLD_SESSION = "oldSession";
     public static final String UTF8 = "UTF-8";
-    public static final String QUOTE = "\"";
-    public static final String QUOTE_SEMOCOLON = "\";";
+    public static final String QUOTE_REGEX = "[\"]";
+    public static final String QUOTE_ESCAPE = "\\\\\"";
     public static final String ISO_8859 = "ISO-8859-1";
     public static final String ENCODING = "requestEncoding";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";

@@ -27,25 +27,25 @@
             <div id="carouselExampleControls" class="carousel slide mx-auto mt-3" data-ride="carousel" style="width: 800px; height: 400px">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <img class="d-block w-100" src="../img/slide3.jpg" alt="First slide">
+                        <img class="d-block w-100" src="${ pageContext.request.contextPath }/img/slide3.jpg" alt="First slide">
                         <div class="carousel-caption d-none d-md-block">
                             <h4 class="font-weight-light text-dark bg-warning"><fmt:message key="slide.item1"/></h4>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="../img/slide1.jpg" alt="Second slide">
+                        <img class="d-block w-100" src="${ pageContext.request.contextPath }/img/slide1.jpg" alt="Second slide">
                         <div class="carousel-caption d-none d-md-block">
                             <h4 class="font-weight-light text-dark bg-warning"><fmt:message key="slide.item2"/></h4>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="../img/slide2.jpg" alt="Third slide">
+                        <img class="d-block w-100" src="${ pageContext.request.contextPath }/img/slide2.jpg" alt="Third slide">
                         <div class="carousel-caption d-none d-md-block">
                             <h4 class="font-weight-light text-dark bg-warning"><fmt:message key="slide.item3"/></h4>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="../img/slide4.jpg" alt="Fourth slide">
+                        <img class="d-block w-100" src="${ pageContext.request.contextPath }/img/slide4.jpg" alt="Fourth slide">
                         <div class="carousel-caption d-none d-md-block">
                             <h4 class="font-weight-light text-dark bg-warning"><fmt:message key="slide.item4"/></h4>
                         </div>

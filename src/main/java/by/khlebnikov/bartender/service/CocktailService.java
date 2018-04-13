@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstQueryCocktail;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.dao.CocktailDao;
 import org.apache.logging.log4j.LogManager;
@@ -46,7 +47,7 @@ public class CocktailService {
                 language = (String) params.getFirst(key);
             } else {
                 String value = (String) params.getFirst(key);
-                value = value.replaceAll("[\"]", "\\\\\"");
+                value = value.replaceAll(Constant.QUOTE_REGEX, Constant.QUOTE_ESCAPE);
                 logger.debug("replaced value: " + value);
                 ingredientList.add(value);
             }
@@ -64,5 +65,17 @@ public class CocktailService {
         logger.debug("chosen by parameters cocktails: " + cocktailList);
 
         return cocktailList;
+    }
+
+    public List<Cocktail> findAllFavourite(MultivaluedMap params, int userId) {
+        String language = (String) params.getFirst(ConstParameter.LOCALE);
+        List<Cocktail> favouriteList = cocktailDao.findAllFavourite(language, userId);
+
+        if(!favouriteList.isEmpty()){
+            favouriteList.forEach(cocktail -> cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId())));
+        }
+
+        logger.debug("return favourite list : " + favouriteList);
+        return favouriteList;
     }
 }

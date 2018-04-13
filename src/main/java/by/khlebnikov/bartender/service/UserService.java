@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.dao.ProspectUserDao;
+import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.dao.UserDao;
@@ -127,6 +128,4 @@ public class UserService {
     public boolean addFavourite(int userId, int cocktailId){
         return userDao.saveFavourite(userId, cocktailId);
     }
-
-
 }

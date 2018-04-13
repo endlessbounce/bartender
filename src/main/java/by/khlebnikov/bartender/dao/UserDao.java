@@ -58,19 +58,13 @@ public class UserDao {
         return result;
     }
 
-    public boolean delete(User user) {
-        boolean result = false;
-        return result;
-        //TODO something here
-    }
-
     public Optional<User> findByEmail(String email) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
         return executeQueryUser(email, query);
     }
 
     public Optional<User> findByCookie(String cookie) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.BY_COOKIE);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
         return executeQueryUser(cookie, query);
     }
 
@@ -102,16 +96,16 @@ public class UserDao {
     public boolean deleteFromFavourite(int userId, int cocktailId) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
         logger.debug("deleteFromFavourite query: " + query);
-        return executeQueryFavourite(userId, cocktailId, query);
+        return executeUpdateFavourite(userId, cocktailId, query);
     }
 
     public boolean saveFavourite(int userId, int cocktailId) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
         logger.debug("saveFavourite query: " + query);
-        return executeQueryFavourite(userId, cocktailId, query);
+        return executeUpdateFavourite(userId, cocktailId, query);
     }
 
-    private boolean executeQueryFavourite(int userId, int cocktailId, String query) {
+    private boolean executeUpdateFavourite(int userId, int cocktailId, String query) {
         int updated = 0;
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)

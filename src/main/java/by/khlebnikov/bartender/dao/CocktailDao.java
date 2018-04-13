@@ -98,27 +98,22 @@ public class CocktailDao {
                 + ingredientList + ", ingredientList: ");
 
         String query = new Utility().buildQuery(language, drinkType, baseDrink, ingredientList);
+        String name;
+
+        if (ConstLocale.EN.equals(language)) {
+            name = ConstTableCocktail.NAME;
+        } else {
+            name = ConstTableCocktail.NAME_LANG;
+        }
 
         try (Connection connection = pool.getConnection();
              Statement statement = connection.createStatement()
         ) {
-            ResultSet rs = statement.executeQuery(query);
-            String name;
+            ResultSet resSet = statement.executeQuery(query);
 
-            if (ConstLocale.EN.equals(language)) {
-                name = ConstTableCocktail.NAME;
-            } else {
-                name = ConstTableCocktail.NAME_LANG;
+            while (resSet.next()) {
+                result.add(readCocktail(resSet, name));
             }
-
-            while (rs.next()) {
-                Cocktail cocktail = new Cocktail();
-                cocktail.setName(rs.getString(name));
-                cocktail.setUri(rs.getString(ConstTableCocktail.URI));
-                cocktail.setId(Integer.parseInt(rs.getString(ConstTableCocktail.ID)));
-                result.add(cocktail);
-            }
-
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
@@ -126,11 +121,43 @@ public class CocktailDao {
         return result;
     }
 
+
+    public List<Cocktail> findAllFavourite(String language, int userId) {
+        ArrayList<Cocktail> favouriteList = new ArrayList<>();
+        String query;
+        String name;
+
+        if (ConstLocale.EN.equals(language)) {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE);
+            name = ConstTableCocktail.NAME;
+        } else {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE_LANG);
+            name = ConstTableCocktail.NAME_LANG;
+        }
+
+        logger.debug("findAllFavourite: " + query + " lang: " + language);
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, userId);
+            ResultSet resSet = prepStatement.executeQuery();
+
+            while (resSet.next()) {
+                favouriteList.add(readCocktail(resSet, name));
+            }
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+
+        return favouriteList;
+    }
+
     /**
      * Looks for ingredients and their portions for a given cocktail
      *
-     * @param language locale of user
-     * @param cocktailId       id of cocktail
+     * @param language   locale of user
+     * @param cocktailId id of cocktail
      * @return the list of ingredients and proportions for a cocktail
      */
     public ArrayList<Portion> findIngredients(String language, int cocktailId) {
@@ -169,5 +196,21 @@ public class CocktailDao {
         }
 
         return ingredientList;
+    }
+
+    /**
+     * Private method to read cocktails from ResultSet
+     *
+     * @param resSet ResultSet of a query
+     * @param name   Cocktail name
+     * @return read Cocktail
+     * @throws SQLException is handled in on this level
+     */
+    private Cocktail readCocktail(ResultSet resSet, String name) throws SQLException {
+        Cocktail cocktail = new Cocktail();
+        cocktail.setName(resSet.getString(name));
+        cocktail.setUri(resSet.getString(ConstTableCocktail.URI));
+        cocktail.setId(Integer.parseInt(resSet.getString(ConstTableCocktail.ID)));
+        return cocktail;
     }
 }

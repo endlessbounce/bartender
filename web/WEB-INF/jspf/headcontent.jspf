@@ -1,12 +1,13 @@
 <meta charset="utf-8">
 <!-- To ensure proper rendering and touch zooming for all devices -->
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<link href="../css/style.css" rel="stylesheet">
-<link rel="shortcut icon" href="../img/icon.png"/>
-<script src="../js/angular.js"></script>
-<script src="../js/dirPagination.js"></script>
-<script src="../js/app.js"></script>
-<script src="../js/catalog.service.js"></script>
-<script src="../js/catalog.controller.js"></script>
-<script src="../js/cocktail.controller.js"></script>
+<link href="${ pageContext.request.contextPath }/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<link href="${ pageContext.request.contextPath }/css/style.css" rel="stylesheet">
+<link rel="shortcut icon" href="${ pageContext.request.contextPath }/img/icon.png"/>
+<script src="${ pageContext.request.contextPath }/js/angular.js"></script>
+<script src="${ pageContext.request.contextPath }/js/dirPagination.js"></script>
+<script src="${ pageContext.request.contextPath }/js/app.js"></script>
+<script src="${ pageContext.request.contextPath }/js/catalog.service.js"></script>
+<script src="${ pageContext.request.contextPath }/js/catalog.controller.js"></script>
+<script src="${ pageContext.request.contextPath }/js/cocktail.controller.js"></script>
+<script src="${ pageContext.request.contextPath }/js/profile.controller.js"></script>

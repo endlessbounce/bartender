@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-                <%--reset button--%>
+            <%--reset button--%>
             <div class="form-group mt-3">
                 <button type="button" class="btn btn-primary btn-sm" ng-click="cat.reset()"><fmt:message
                         key="content.button.reset"/></button>
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-9" id="onLoad" style="visibility: hidden;">
             <div class="row">
 
                 <%--cocktail card--%>
@@ -101,13 +101,10 @@
                 </div>
             </div>
             <div class="row m-3">
-                <div>
-
-                    <%--paginaton. change default template classes to bootstrap 4--%>
-                    <dir-pagination-controls boundary-links="true"
-                                             template-url="../js/dirPagination.tpl.html">
-                    </dir-pagination-controls>
-                </div>
+                <%--paginaton. change default template classes to bootstrap 4--%>
+                <dir-pagination-controls boundary-links="true"
+                                         template-url="${ pageContext.request.contextPath }/js/dirPagination.tpl.html">
+                </dir-pagination-controls>
             </div>
         </div>
     </div>

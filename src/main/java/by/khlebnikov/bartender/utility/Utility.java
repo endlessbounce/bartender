@@ -125,7 +125,7 @@ public class Utility {
         }
 
         query.append(";");
-        logger.debug("query: " + query);
+        logger.debug("buildQuery: " + query);
 
         return query.toString();
     }
