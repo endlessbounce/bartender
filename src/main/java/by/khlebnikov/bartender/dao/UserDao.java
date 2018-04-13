@@ -29,7 +29,7 @@ public class UserDao {
             prepStatement.setBlob(3, new SerialBlob(user.getHashKey()));
             prepStatement.setBlob(4, new SerialBlob(user.getSalt()));
             int updated = prepStatement.executeUpdate();
-            result = updated == Constant.UPDATED_RECORDS_1;
+            result = updated == Constant.EQUALS_1;
         } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
@@ -50,7 +50,7 @@ public class UserDao {
             prepStatement.setString(4, user.getUniqueCookie());
             prepStatement.setString(5, user.getEmail());
             int updated = prepStatement.executeUpdate();
-            result = updated == Constant.UPDATED_RECORDS_1;
+            result = updated == Constant.EQUALS_1;
         } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
@@ -66,34 +66,30 @@ public class UserDao {
 
     public Optional<User> findByEmail(String email) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND);
-        return findUser(email, query);
+        return executeQueryUser(email, query);
     }
 
     public Optional<User> findByCookie(String cookie) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.BY_COOKIE);
-        return findUser(cookie, query);
+        return executeQueryUser(cookie, query);
     }
 
     public boolean isFavourite(int userId, int cocktailId) {
         boolean result = false;
-
-        StringBuilder query = new StringBuilder(PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_1));
-        query.append(cocktailId)
-                .append(Constant.SPACE)
-                .append(PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE_2))
-                .append(userId)
-                .append(Constant.SEMICOLON);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
 
         logger.debug("isFavourite query: " + query);
 
         try (Connection connection = pool.getConnection();
-             Statement statement = connection.createStatement()
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
-            ResultSet resultSet = statement.executeQuery(query.toString());
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            ResultSet resultSet = prepStatement.executeQuery();
 
             if (resultSet.next()) {
                 int match = resultSet.getInt(1);
-                result = match == Constant.UPDATED_RECORDS_1;
+                result = match == Constant.EQUALS_1;
                 logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
             }
         } catch (InterruptedException | SQLException e) {
@@ -106,16 +102,16 @@ public class UserDao {
     public boolean deleteFromFavourite(int userId, int cocktailId) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
         logger.debug("deleteFromFavourite query: " + query);
-        return updateFavourite(userId, cocktailId, query);
+        return executeQueryFavourite(userId, cocktailId, query);
     }
 
     public boolean saveFavourite(int userId, int cocktailId) {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
         logger.debug("saveFavourite query: " + query);
-        return updateFavourite(userId, cocktailId, query);
+        return executeQueryFavourite(userId, cocktailId, query);
     }
 
-    private boolean updateFavourite(int userId, int cocktailId, String query) {
+    private boolean executeQueryFavourite(int userId, int cocktailId, String query) {
         int updated = 0;
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -126,10 +122,10 @@ public class UserDao {
         } catch (InterruptedException | SQLException e) {
             logger.catching(e);
         }
-        return updated == Constant.UPDATED_RECORDS_1;
+        return updated == Constant.EQUALS_1;
     }
 
-    private Optional<User> findUser(String searchParameter, String query) {
+    private Optional<User> executeQueryUser(String searchParameter, String query) {
         Optional<User> result = Optional.empty();
 
         try (Connection connection = pool.getConnection();

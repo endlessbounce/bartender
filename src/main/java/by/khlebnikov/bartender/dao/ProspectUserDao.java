@@ -31,7 +31,7 @@ public class ProspectUserDao {
             prepStatement.setLong(5, prospectUser.getExpiration());
             prepStatement.setLong(6, prospectUser.getCode());
             int updated = prepStatement.executeUpdate();
-            result = updated == Constant.UPDATED_RECORDS_1;
+            result = updated == Constant.EQUALS_1;
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
@@ -82,7 +82,7 @@ public class ProspectUserDao {
         ){
             prepStatement.setString(1, email);
             int updated = prepStatement.executeUpdate();
-            result = updated == Constant.UPDATED_RECORDS_1;
+            result = updated == Constant.EQUALS_1;
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }

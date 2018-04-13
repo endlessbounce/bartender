@@ -10,10 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +20,9 @@ public class CocktailDao {
     private ConnectionPool pool = ConnectionPool.getInstance();
 
 
-    public Optional<Cocktail> findCocktail(int id, String language) {
+    public Optional<Cocktail> findCocktail(int cocktailId, String language) {
         Optional<Cocktail> result = Optional.empty();
-        StringBuilder query = new StringBuilder();
+        String query;
         String name;
         String recipe;
         String slogan;
@@ -33,14 +30,14 @@ public class CocktailDao {
         String type;
 
         if (ConstLocale.EN.equals(language)) {
-            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID));
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID);
             name = ConstTableCocktail.NAME;
             recipe = ConstTableCocktail.RECIPE;
             slogan = ConstTableCocktail.SLOGAN;
             base = ConstTableCocktail.BASE_NAME;
             type = ConstTableCocktail.GROUP_NAME;
         } else {
-            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG));
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
             name = ConstTableCocktail.NAME_LANG;
             recipe = ConstTableCocktail.RECIPE_LANG;
             slogan = ConstTableCocktail.SLOGAN_LANG;
@@ -48,27 +45,26 @@ public class CocktailDao {
             type = ConstTableCocktail.GROUP_NAME_RUS;
         }
 
-        query.append(id).append(Constant.QUOTE_SEMOCOLON);
-
         try (Connection connection = pool.getConnection();
-             Statement statement = connection.createStatement()
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
-            ResultSet rs = statement.executeQuery(query.toString());
+            prepStatement.setInt(1, cocktailId);
+            ResultSet resultSet = prepStatement.executeQuery();
 
-            if (rs.next()) {
+            if (resultSet.next()) {
                 Cocktail cocktail = new Cocktail();
-                cocktail.setName(rs.getString(name));
+                cocktail.setName(resultSet.getString(name));
                 try {
-                    cocktail.setRecipe(new String(rs.getString(recipe).getBytes(Constant.ISO_8859), Constant.UTF8));
+                    cocktail.setRecipe(new String(resultSet.getString(recipe).getBytes(Constant.ISO_8859), Constant.UTF8));
                 } catch (UnsupportedEncodingException e) {
                     logger.debug(e);
                 }
-                cocktail.setSlogan(rs.getString(slogan));
-                cocktail.setBaseDrink(rs.getString(base));
-                cocktail.setType(rs.getString(type));
-                cocktail.setCreationDate(rs.getDate(ConstTableCocktail.DATE));
-                cocktail.setUri(rs.getString(ConstTableCocktail.URI));
-                cocktail.setId(id);
+                cocktail.setSlogan(resultSet.getString(slogan));
+                cocktail.setBaseDrink(resultSet.getString(base));
+                cocktail.setType(resultSet.getString(type));
+                cocktail.setCreationDate(resultSet.getDate(ConstTableCocktail.DATE));
+                cocktail.setUri(resultSet.getString(ConstTableCocktail.URI));
+                cocktail.setId(cocktailId);
                 result = Optional.of(cocktail);
             }
 
@@ -134,40 +130,37 @@ public class CocktailDao {
      * Looks for ingredients and their portions for a given cocktail
      *
      * @param language locale of user
-     * @param id       id of cocktail
+     * @param cocktailId       id of cocktail
      * @return the list of ingredients and proportions for a cocktail
      */
-    public ArrayList<Portion> findIngredients(String language, int id) {
+    public ArrayList<Portion> findIngredients(String language, int cocktailId) {
         ArrayList<Portion> ingredientList = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
+        String query;
         String ingredientName;
         String amountOfIngredient;
 
         if (ConstLocale.EN.equals(language)) {
-            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT));
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT);
             ingredientName = ConstTableIngredient.NAME;
             amountOfIngredient = ConstTableCombination.PORTION;
         } else {
-            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS));
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS);
             ingredientName = ConstTableIngredient.NAME_RUS;
             amountOfIngredient = ConstTableCombination.PORTION_LANG;
         }
 
-        query.append(Constant.QUOTE)
-                .append(id)
-                .append(Constant.QUOTE_SEMOCOLON);
-
-        logger.debug("chosen query: " + query);
+        logger.debug("findIngredients query: " + query);
 
         try (Connection connection = pool.getConnection();
-             Statement statement = connection.createStatement()
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
-            ResultSet rs = statement.executeQuery(query.toString());
+            prepStatement.setInt(1, cocktailId);
+            ResultSet resultSet = prepStatement.executeQuery();
 
-            while (rs.next()) {
+            while (resultSet.next()) {
                 Portion portion = new Portion();
-                portion.setIngredientName(rs.getString(ingredientName));
-                portion.setAmount(rs.getString(amountOfIngredient));
+                portion.setIngredientName(resultSet.getString(ingredientName));
+                portion.setAmount(resultSet.getString(amountOfIngredient));
                 ingredientList.add(portion);
             }
 

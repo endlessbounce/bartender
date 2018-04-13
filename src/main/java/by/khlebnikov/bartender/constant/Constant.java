@@ -4,8 +4,6 @@ public class Constant {
     public static final String EMAIL_PROPERTY_PATH = "/WEB-INF/classes/email.properties";
     public static final String OLD_SESSION = "oldSession";
     public static final String UTF8 = "UTF-8";
-    public static final String SPACE = " ";
-    public static final String SEMICOLON = ";";
     public static final String QUOTE = "\"";
     public static final String QUOTE_SEMOCOLON = "\";";
     public static final String ISO_8859 = "ISO-8859-1";
@@ -19,5 +17,5 @@ public class Constant {
     public static final int YEAR = 60*60*24*365;
     public static final int ITERATIONS = 10000;
     public static final int KEY_LENGTH = 256;
-    public static final int UPDATED_RECORDS_1 = 1;
+    public static final int EQUALS_1 = 1;
 }

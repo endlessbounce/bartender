@@ -22,10 +22,9 @@ public class CocktailService {
 
     public Optional<Cocktail> findChosenCocktail(int id, String language) {
         Optional<Cocktail> cocktailOpt = cocktailDao.findCocktail(id, language);
-        Cocktail cocktail;
 
         if (cocktailOpt.isPresent()) {
-            cocktail = cocktailOpt.get();
+            Cocktail cocktail = cocktailOpt.get();
             cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
         }
 
