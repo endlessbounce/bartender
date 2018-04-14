@@ -37,7 +37,7 @@
 
                 <%--IIMAGE--%>
                 <div class="row">
-                    <img src="${cocktailUri}" class="img-fluid img-thumbnail" alt="Responsive image">
+                    <img src="${ pageContext.request.contextPath }${cocktailUri}" class="img-fluid img-thumbnail" alt="Responsive image">
                 </div>
 
                 <%--LIKE/UNLIKE BUTTONS--%>

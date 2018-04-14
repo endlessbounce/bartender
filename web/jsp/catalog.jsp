@@ -88,7 +88,8 @@
                 <%--cocktail card--%>
                 <div class="card float-left m-2" style="width: 16rem;"
                      dir-paginate="card in cat.cocktails | itemsPerPage: cat.showPages track by $index">
-                    <img class="card-img-top" src="{{card.uri}}" alt="Card image cap">
+                    <img class="card-img-top" src="${ pageContext.request.contextPath }{{card.uri}}"
+                         alt="Card image cap">
                     <div class="card-body">
                         <h6 class="card-title text-truncate" ng-bind="card.name"></h6>
                         <p class="card-text" style="height: 50px; overflow: auto;">
