@@ -11,7 +11,15 @@
             self.cocktails = [];
             self.catalogCocktails = [];
             //ngModel selected cocktail (is edited and sent to the server)
-            self.selectedBaseCocktail = {};
+            self.selectedBaseCocktail = {
+                "name": "",
+                "recipe": "",
+                "baseDrink": "",
+                "type": "",
+                "uri": "",
+                "slogan": "",
+                "ingredientList": []
+            };
 
             //from data
             self.baseDrinks = [];
@@ -22,8 +30,16 @@
             self.textAreaLeft = 1000;
             self.nameLeft = 60;
             self.sloganLeft = 255;
-            self.portionLeft = 50;
+            self.ingredientsLeft = 20;
+            //max 20 portions
+            self.portionLeftArr = [];
 
+            var l;
+            for (l = 0; l < 20; l++) {
+                self.portionLeftArr.push(50);
+            }
+
+            self.pictureVisible = false;
 
             console.log("profile controller user id: " + self.userID);
 
@@ -71,23 +87,53 @@
 
             self.setBaseCocktail = function (baseCocktailID) {
                 if (baseCocktailID != 0) {
+                    self.selectedBaseCocktail.ingredientList = [];
+
                     var i;
                     for (i = 0; i < self.catalogCocktails.length; i++) {
                         if (self.catalogCocktails[i].id == baseCocktailID) {
-                            self.selectedBaseCocktail.name = self.catalogCocktails[i].name;
-                            self.selectedBaseCocktail.ingredientList = self.catalogCocktails[i].ingredientList;
-                            self.selectedBaseCocktail.uri = self.catalogCocktails[i].uri;
 
-                            self.nameLeft = 60 - self.selectedBaseCocktail.name.length;
+                            //find base cocktail and push the copy of its ingredient list into the cocktail being built
+                            var k;
+                            for (k = 0; k < self.catalogCocktails[i].ingredientList.length; k++) {
+                                var ingName = self.catalogCocktails[i].ingredientList[k].ingredientName;
+                                var amount = self.catalogCocktails[i].ingredientList[k].amount;
+
+                                self.selectedBaseCocktail.ingredientList.push({
+                                    "ingredientName": ingName,
+                                    "amount": amount
+                                });
+                            }
+
+                            //update number of characters left for amounts
+                            var j;
+                            for (j = 0; j < self.selectedBaseCocktail.ingredientList.length; j++) {
+                                if(self.selectedBaseCocktail.ingredientList[j].amount == undefined){
+                                    self.selectedBaseCocktail.ingredientList[j].amount = "";
+                                }
+                                self.portionLeftArr[j] = 50 - self.selectedBaseCocktail.ingredientList[j].amount.length;
+                            }
+
+                            //update number of characters left for ingredients
+                            self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
+
+                            self.selectedBaseCocktail.uri = self.catalogCocktails[i].uri;
+                            self.pictureVisible = true;
                         }
                     }
                 } else {
-                    self.selectedBaseCocktail = {};
+                    self.selectedBaseCocktail = {
+                        "name": "",
+                        "recipe": "",
+                        "baseDrink": "",
+                        "type": "",
+                        "uri": "",
+                        "slogan": "",
+                        "ingredientList": []
+                    };
+                    self.ingredientsLeft = 20;
+                    self.pictureVisible = false;
                 }
-            }
-
-            self.setPortion = function (index) {
-
             }
 
             self.updateTextarea = function () {
@@ -116,14 +162,30 @@
 
             self.updatePortion = function (index) {
                 if (self.selectedBaseCocktail.ingredientList[index].amount != undefined) {
-                    self.portionLeft = 50 - self.selectedBaseCocktail.ingredientList[index].amount.length;
+                    self.portionLeftArr[index] = 50 - self.selectedBaseCocktail.ingredientList[index].amount.length;
                 } else {
-                    self.portionLeft = 50;
+                    self.portionLeftArr[index] = 50;
                 }
             }
-            
-            self.removePortion = function () {
 
+            self.removePortion = function (index) {
+                self.selectedBaseCocktail.ingredientList.splice(index, 1);
+                self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
+            }
+
+            self.addPortion = function () {
+                if (self.selectedBaseCocktail.ingredientList.length < 20) {
+                    self.selectedBaseCocktail.ingredientList.push({
+                        "ingredientName": "",
+                        "amount": ""
+                    });
+                }
+                self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
+            }
+
+            self.cleanIngredients = function () {
+                self.selectedBaseCocktail.ingredientList = [];
+                self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
             }
         });
 })();

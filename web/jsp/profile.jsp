@@ -95,18 +95,23 @@
             <div class="tab-pane fade" id="myContent" role="tabpanel" aria-labelledby="newCocktail"></div>
 
             <%--CREATE COCKTAIL--%>
-            <div class="tab-pane fade" id="newContent"  role="tabpanel" aria-labelledby="myCocktails">
+            <div class="tab-pane fade" id="newContent" role="tabpanel" aria-labelledby="myCocktails">
                 <div class="container" style="width: 100%;">
                     <%--NECESSARY--%>
                     <div class="form-group mb-3">
                         <small class="form-text text-muted"><fmt:message key="create.necessary"/></small>
+                        <small class="form-text text-muted"><fmt:message key="create.howto"/></small>
                     </div>
 
                     <%--IMAGE--%>
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" ng-show="prof.pictureVisible">
                         <img src="${ pageContext.request.contextPath }{{prof.selectedBaseCocktail.uri}}"
                              class="img-fluid img-thumbnail"
                              alt="Cocktail image">
+                    </div>
+
+                    <%--CHOOSE IMAGE--%>
+                    <div class="form-group mb-3">
                         <div class="custom-file">
                             <input type="file"
                                    class="custom-file-input"
@@ -139,7 +144,8 @@
                                     <label for="drinkTypeDropList"><fmt:message key="create.type"/></label>
                                     <select class="form-control" id="drinkTypeDropList" required>
                                         <option ng-repeat="type in prof.drinkTypes"
-                                                ng-model="prof.selectedBaseCocktail.type">{{type}}
+                                                ng-model="prof.selectedBaseCocktail.type"
+                                                value="{{type}}">{{type}}
                                         </option>
                                     </select>
                                 </div>
@@ -150,7 +156,8 @@
                                     <label for="baseDrinkDropList"><fmt:message key="create.base"/></label>
                                     <select class="form-control" id="baseDrinkDropList" required>
                                         <option ng-repeat="base in prof.baseDrinks"
-                                                ng-model="prof.selectedBaseCocktail.baseDrink">{{base}}
+                                                ng-model="prof.selectedBaseCocktail.baseDrink"
+                                                value="{{base}}">{{base}}
                                         </option>
                                     </select>
                                 </div>
@@ -168,7 +175,8 @@
                                ng-model="prof.selectedBaseCocktail.name"
                                ng-change="prof.updateName()"
                                placeholder="<fmt:message key="create.name.placeholder"/>"
-                               required>
+                               required
+                               autofocus>
                         <small class="form-text text-muted"><fmt:message
                                 key="create.charsleft"/>{{prof.nameLeft}}
                         </small>
@@ -191,20 +199,36 @@
 
                     <%--INGREDIENTS--%>
                     <div class="form-group mb-3">
-                        <h6><fmt:message key="create.ingredients"/></h6>
-                        <%--//TODO button add--%>
-                    </div>
-                    <div class="form-group mb-3" ng-repeat="portion in prof.selectedBaseCocktail.ingredientList track by $index">
                         <div class="row">
                             <div class="col">
-                                <label for="ingredientSelect"><fmt:message key="create.ingredients.name"/></label>
+                                <button type="button"
+                                        class="btn btn-info"
+                                        ng-click="prof.addPortion()"><fmt:message
+                                        key="create.ingredients.add"/>
+                                </button>
+                                <small class="form-text text-muted"><fmt:message
+                                        key="create.ingredients.restrition"/> {{prof.ingredientsLeft}}
+                                </small>
+                            </div>
+                            <div class="col">
+                                <button type="button"
+                                        class="btn btn-warning"
+                                        ng-click="prof.cleanIngredients()"><fmt:message
+                                        key="create.ingredients.clean"/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3"
+                         ng-repeat="portion in prof.selectedBaseCocktail.ingredientList track by $index">
+                        <div class="row">
+                            <div class="col">
+                                <label for="ingredientSelect{{$index}}"><fmt:message key="create.ingredients.name"/></label>
                                 <select class="form-control"
-                                        id="ingredientSelect"
+                                        id="ingredientSelect{{$index}}"
+                                        ng-options="ingredient for ingredient in prof.ingredients"
                                         ng-model="portion.ingredientName"
                                         required>
-                                    <option ng-repeat="ingredient in prof.ingredients"
-                                            ng-click="prof.setPortion('{{ingredient}}')">{{ingredient}}
-                                    </option>
                                 </select>
                             </div>
                             <div class="col">
@@ -218,12 +242,15 @@
                                        placeholder="<fmt:message key="create.ingredients.portion.placeholder"/>"
                                        required>
                                 <small class="form-text text-muted"><fmt:message
-                                        key="create.charsleft"/>{{prof.portionLeft}}
+                                        key="create.charsleft"/>{{prof.portionLeftArr[$index]}}
                                 </small>
                             </div>
-                            <div class="col mt-5">
-                                <a href="#" ng-click="prof.removePortion($index)" class="btn btn-danger ml-3"><fmt:message
-                                        key="create.remove"/></a>
+                            <div class="col" style="margin-top: 32px;">
+                                <button type="button"
+                                        class="btn btn-danger"
+                                        ng-click="prof.removePortion($index)"><fmt:message
+                                        key="create.remove"/>
+                                </button>
                             </div>
                         </div>
                     </div>
