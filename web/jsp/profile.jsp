@@ -104,22 +104,40 @@
                     </div>
 
                     <%--IMAGE--%>
-                    <div class="form-group mb-3" ng-show="prof.pictureVisible">
+                    <div class="form-group mb-3" id="imgDiv" ng-show="prof.pictureVisible">
                         <img src="${ pageContext.request.contextPath }{{prof.selectedBaseCocktail.uri}}"
                              class="img-fluid img-thumbnail"
-                             alt="Cocktail image">
+                             id="cocktailImage"
+                             width="286px"
+                             height="180px"
+                             alt="<fmt:message key="create.image.choose"/>">
                     </div>
 
                     <%--CHOOSE IMAGE--%>
                     <div class="form-group mb-3">
-                        <div class="custom-file">
-                            <input type="file"
-                                   class="custom-file-input"
-                                   id="customFile"
-                                   accept="image/jpeg,image/png,image/gif">
-                            <label class="custom-file-label" for="customFile"><fmt:message
-                                    key="create.image.choose"/></label>
+                        <div class="row">
+                            <div class="col" id="uploadImgDiv">
+                                <div class="form-group">
+                                    <input type="file"
+                                           class="form-control-file"
+                                           id="uploadImage"
+                                           file-change="prof.upload($event)"
+                                           ng-model="prof.file"
+                                           accept="image/jpeg,image/png,image/gif">
+                                    <label for="uploadImage" class="text-muted"><fmt:message
+                                            key="create.image.choose"/></label>
+                                    <small ng-show="prof.msgInvalidSize" class="form-text text-danger"><fmt:message key="create.toobigimg"/></small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <button type="button"
+                                        class="btn btn-warning"
+                                        ng-click="prof.removeImage()"><fmt:message
+                                        key="create.ingredients.removeImage"/>
+                                </button>
+                            </div>
                         </div>
+
                     </div>
 
                     <%--TYPE & BASE DRINK & BASE COCKTAIL--%>
@@ -223,7 +241,8 @@
                          ng-repeat="portion in prof.selectedBaseCocktail.ingredientList track by $index">
                         <div class="row">
                             <div class="col">
-                                <label for="ingredientSelect{{$index}}"><fmt:message key="create.ingredients.name"/></label>
+                                <label for="ingredientSelect{{$index}}"><fmt:message
+                                        key="create.ingredients.name"/></label>
                                 <select class="form-control"
                                         id="ingredientSelect{{$index}}"
                                         ng-options="ingredient for ingredient in prof.ingredients"
@@ -269,6 +288,15 @@
                         <small class="form-text text-muted"><fmt:message
                                 key="create.charsleft"/>{{prof.textAreaLeft}}
                         </small>
+                    </div>
+
+                    <%--SAVE BUTTON--%>
+                    <div class="form-group mb-3">
+                        <button type="button"
+                                ng-click="prof.saveCocktail()"
+                                class="btn btn-primary"><fmt:message
+                                key="create.save"/>
+                        </button>
                     </div>
                 </div>
             </div>

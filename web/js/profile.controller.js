@@ -40,6 +40,8 @@
             }
 
             self.pictureVisible = false;
+            self.pictureValidSize = false;
+            self.msgInvalidSize = false;
 
             console.log("profile controller user id: " + self.userID);
 
@@ -108,17 +110,19 @@
                             //update number of characters left for amounts
                             var j;
                             for (j = 0; j < self.selectedBaseCocktail.ingredientList.length; j++) {
-                                if(self.selectedBaseCocktail.ingredientList[j].amount == undefined){
+                                if (self.selectedBaseCocktail.ingredientList[j].amount == undefined) {
                                     self.selectedBaseCocktail.ingredientList[j].amount = "";
                                 }
                                 self.portionLeftArr[j] = 50 - self.selectedBaseCocktail.ingredientList[j].amount.length;
                             }
 
-                            //update number of characters left for ingredients
+                            //update number of ingredients left
                             self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
 
                             self.selectedBaseCocktail.uri = self.catalogCocktails[i].uri;
                             self.pictureVisible = true;
+                            self.pictureValidSize = true;
+                            self.msgInvalidSize = false;
                         }
                     }
                 } else {
@@ -132,7 +136,10 @@
                         "ingredientList": []
                     };
                     self.ingredientsLeft = 20;
+                    document.getElementById('uploadImage').value = '';
                     self.pictureVisible = false;
+                    self.pictureValidSize = false;
+                    self.msgInvalidSize = false;
                 }
             }
 
@@ -187,5 +194,74 @@
                 self.selectedBaseCocktail.ingredientList = [];
                 self.ingredientsLeft = 20 - self.selectedBaseCocktail.ingredientList.length;
             }
+
+            self.saveCocktail = function () {
+
+                //todo image to send to the server in BASE64 format
+                //before sending set cocktails' uri on a new copy-object
+                // check pictureValidSize before sending
+                //todo JSON.stringify
+                //cocktails left != 20 check. and msg
+            }
+
+            self.upload = function () {
+                var input = document.getElementById('uploadImage');
+
+                //self.file is an ng-Model return value after upload from the input tag
+                if (self.file.size < 500000) {
+                    var reader = new FileReader();
+
+                    reader.onload = function () {
+                        document.getElementById('cocktailImage').src = reader.result;
+                        self.pictureVisible = true;
+                        self.selectedBaseCocktail.uri = reader.result;
+                        console.log(reader.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+
+                    alert(self.file.name + " size: " + self.file.size);
+
+                    self.pictureValidSize = true;
+                    self.msgInvalidSize = false;
+                } else {
+                    input.value = '';
+                    self.pictureValidSize = false;
+                    self.msgInvalidSize = true;
+                }
+            }
+
+            self.removeImage = function () {
+                self.selectedBaseCocktail.uri = "";
+                self.pictureValidSize = false;
+                self.msgInvalidSize = false;
+                self.pictureVisible = false;
+                document.getElementById('uploadImage').value = '';
+                document.getElementById('cocktailImage').src = '';
+            }
+        })//directive for binding file input and model. this allows to use ng-change and dynamically
+        //display new uploaded image
+        .directive('fileChange', function () {
+            return {
+                restrict: 'A',
+                require: 'ngModel',
+                scope: {
+                    fileChange: '&'
+                },
+                link: function link(scope, element, attrs, ctrl) {
+                    element.on('change', onChange);
+
+                    scope.$on('destroy', function () {
+                        element.off('change', onChange);
+                    });
+
+                    function onChange() {
+                        attrs.multiple ? ctrl.$setViewValue(element[0].files) : ctrl.$setViewValue(element[0].files[0]);
+                        scope.$apply(function () {
+                            scope.fileChange();
+                        });
+                    }
+                }
+            };
         });
 })();
