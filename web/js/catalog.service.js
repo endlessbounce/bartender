@@ -60,6 +60,17 @@
                 return promise2;
             };
 
+            self.addCreated = function (cocktail, userID) {
+                var lang = document.getElementById("navbarDropdown").textContent.trim();
+                var promise1 = $http.post('http://localhost:8080/webapi/user/' + userID + '/created?locale=' + lang, cocktail);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                }, function (response) {
+                    throw response.data;
+                });
+                return promise2;
+            };
+
             self.deleteLiked = function (cocktailID, userID) {
                 var promise1 = $http.delete('http://localhost:8080/webapi/user/' + userID + '/favourite/' + cocktailID);
                 var promise2 = promise1.then(function (response) {

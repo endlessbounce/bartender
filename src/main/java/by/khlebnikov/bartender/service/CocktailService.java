@@ -5,10 +5,15 @@ import by.khlebnikov.bartender.constant.ConstQueryCocktail;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.dao.CocktailDao;
+import by.khlebnikov.bartender.exception.ServiceException;
+import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,5 +82,29 @@ public class CocktailService {
 
         logger.debug("return favourite list : " + favouriteList);
         return favouriteList;
+    }
+
+    public boolean addCreated(int userId,
+                              Cocktail cocktail,
+                              HttpServletRequest httpRequest,
+                              MultivaluedMap params) throws ServiceException {
+        String language = (String) params.getFirst(ConstParameter.LOCALE);
+        String uri = cocktail.getUri();
+        boolean stringOk = Validator.checkString(uri);
+
+        if(!stringOk){
+            cocktail.setUri(Constant.DEFAULT_COCKTAIL);
+        }else if(uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)){
+            try {
+                cocktail.setUri(Utility.convertBase64ToImage(uri, httpRequest));
+            } catch (IOException e) {
+                logger.catching(e);
+                throw new ServiceException(e);
+            }
+        }
+
+        logger.debug("imparting cocktail to DAO: " + cocktail);
+
+        return cocktailDao.saveCreated(userId, cocktail, language);
     }
 }

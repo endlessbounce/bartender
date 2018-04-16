@@ -1,18 +1,19 @@
 package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.dao.ProspectUserDao;
-import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 import java.util.Optional;
 
 public class UserService {
+    private Logger logger = LogManager.getLogger();
     private UserDao userDao;
     private ProspectUserDao prospectUserDao;
     private Password passwordGenerator;

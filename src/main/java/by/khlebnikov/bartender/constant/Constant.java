@@ -8,7 +8,13 @@ public class Constant {
     public static final String QUOTE_ESCAPE = "\\\\\"";
     public static final String ISO_8859 = "ISO-8859-1";
     public static final String ENCODING = "requestEncoding";
+    public static final String BASE64 = ";base64";
+    public static final String BASE64_START = "data:image/";
+    public static final String EMPTY = "";
+    public static final String IMG_FOLDER = "/img/";
+    public static final String DOT = ".";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
+    public static final String DEFAULT_COCKTAIL = "/img/defaultCocktail.png";
     public static final int MULTIPLIER = 1000000;
     public static final int MIN_PASSWORD_LENGTH = 7;
     public static final int MAX_PASSWORD_LENGTH = 32;

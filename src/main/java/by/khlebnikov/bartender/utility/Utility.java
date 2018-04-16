@@ -8,16 +8,18 @@ import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.DatatypeConverter;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.UUID;
 
 public class Utility {
-    private Logger logger = LogManager.getLogger();
-
     public static long expirationTime() {
         return Calendar.getInstance().getTimeInMillis() / Constant.TO_SECONDS + Constant.TIME_TO_CONFIRM;
     }
@@ -60,10 +62,10 @@ public class Utility {
         return loggedCookieOpt.isPresent();
     }
 
-    public String buildQuery(String language,
-                             String drinkType,
-                             String baseDrink,
-                             ArrayList<String> ingredientList) {
+    public static String buildQuery(String language,
+                                    String drinkType,
+                                    String baseDrink,
+                                    ArrayList<String> ingredientList) {
 
         StringBuilder query;
         String outerQuery;
@@ -125,8 +127,28 @@ public class Utility {
         }
 
         query.append(";");
-        logger.debug("buildQuery: " + query);
 
         return query.toString();
     }
+
+    public static String convertBase64ToImage(String base64String, HttpServletRequest httpRequest) throws IOException {
+        String[] partArr = base64String.split(",");
+        String base64Image = partArr[1];
+
+        String extension = partArr[0].replace(Constant.BASE64_START, Constant.DOT)
+                .replace(Constant.BASE64, Constant.EMPTY);
+
+        String relativePath = httpRequest.getServletContext().getRealPath(Constant.EMPTY);
+        String imagePath = Constant.IMG_FOLDER + Utility.uniqueId() + extension;
+
+        File outputFile = new File(relativePath + imagePath);
+
+        byte[] imageByte = DatatypeConverter.parseBase64Binary(base64Image);
+        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+            out.write(imageByte);
+        }
+
+        return imagePath;
+    }
+
 }

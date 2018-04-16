@@ -1,11 +1,14 @@
 package by.khlebnikov.bartender.resource;
 
 import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.exception.ResourceException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.CocktailService;
 import by.khlebnikov.bartender.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -24,6 +27,8 @@ public class UserResource {
     private Logger logger = LogManager.getLogger();
     private UserService userService;
     private CocktailService cocktailService;
+    @Context
+    private HttpServletRequest httpRequest;
 
     public UserResource() {
         this.userService = new UserService();
@@ -68,7 +73,24 @@ public class UserResource {
     @Path("/{userId}/favourite")
     public void addToFavourite(
             @PathParam("userId") int userId, Cocktail cocktail) {
-        logger.debug("POSTing cocktail: " + cocktail);
+        logger.debug("POSTing cocktail to favourite: " + cocktail);
         userService.addFavourite(userId, cocktail.getId());
+    }
+
+    @POST
+    @Path("/{userId}/created")
+    public void addCreated(
+            @PathParam("userId") int userId,
+            @Context UriInfo uriInfo,
+            Cocktail cocktail) throws ResourceException {
+        logger.debug("POSTing created cocktail for user: " + userId + " .... " + cocktail);
+
+        MultivaluedMap params = uriInfo.getQueryParameters();
+
+        try {
+            cocktailService.addCreated(userId, cocktail, httpRequest, params);
+        } catch (ServiceException e) {
+            throw new ResourceException(e);
+        }
     }
 }

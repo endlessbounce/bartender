@@ -29,4 +29,11 @@ public class ConstQueryCocktail {
     public static final String BASE_NAME = " AND `base_drink`.`base_name` = \"";
     public static final String BASE_NAME_RUS = " AND `base_drink`.`base_name_rus` = \"";
 
+    //Save created cocktail
+    public static final String SAVE_COCKTAIL = "cocktaildao.savecreatedcocktail";
+    public static final String SAVE_COCKTAIL_RUS = "cocktaildao.savecreatedcocktailrus";
+    public static final String SAVE_COMBINATION = "cocktaildao.savecombination";
+    public static final String SAVE_COMBINATION_RUS = "cocktaildao.savecombinationrus";
+    public static final String LAST_INSERTED_ID = "cocktaildao.lastinsertedid";
+
 }

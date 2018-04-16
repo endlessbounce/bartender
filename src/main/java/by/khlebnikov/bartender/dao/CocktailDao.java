@@ -97,8 +97,11 @@ public class CocktailDao {
                 + baseDrink + ", baseDrink: "
                 + ingredientList + ", ingredientList: ");
 
-        String query = new Utility().buildQuery(language, drinkType, baseDrink, ingredientList);
+        String query = Utility.buildQuery(language, drinkType, baseDrink, ingredientList);
         String name;
+
+        logger.debug("buildQuery: " + query);
+
 
         if (ConstLocale.EN.equals(language)) {
             name = ConstTableCocktail.NAME;
@@ -196,6 +199,75 @@ public class CocktailDao {
         }
 
         return ingredientList;
+    }
+
+    public boolean saveCreated(int userId, Cocktail cocktail, String language) {
+        boolean cocktailSaved = false;
+        boolean combinationSaved = false;
+
+        String querySaveCocktail;
+        String querySaveCombination;
+        String queryLastSavedId = PropertyReader.getQueryProperty(ConstQueryCocktail.LAST_INSERTED_ID);
+
+        if (ConstLocale.EN.equals(language)) {
+            querySaveCocktail = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL);
+            querySaveCombination = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION);
+        } else {
+            querySaveCocktail = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL_RUS);
+            querySaveCombination = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION_RUS);
+        }
+
+        logger.debug("save cocktail = " + querySaveCocktail + "\n save combination = " + querySaveCombination);
+
+        try (Connection connection = pool.getConnection()) {
+
+            try (PreparedStatement prepStatementCocktail = connection.prepareStatement(querySaveCocktail);
+                 PreparedStatement prepStatementCombination = connection.prepareStatement(querySaveCombination);
+                 Statement statement = connection.createStatement()) {
+                connection.setAutoCommit(false);
+
+                prepStatementCocktail.setString(1, cocktail.getName());
+                prepStatementCocktail.setString(2, cocktail.getRecipe());
+                prepStatementCocktail.setString(3, cocktail.getSlogan());
+                prepStatementCocktail.setString(4, cocktail.getType());
+                prepStatementCocktail.setString(5, cocktail.getBaseDrink());
+                prepStatementCocktail.setString(6, cocktail.getUri());
+                prepStatementCocktail.setInt(7, userId);
+
+                int firstResult = prepStatementCocktail.executeUpdate();
+
+                cocktailSaved = firstResult == Constant.EQUALS_1;
+
+                //get id of last saved cocktail
+                ResultSet resultSet = statement.executeQuery(queryLastSavedId);
+                int savedCocktailId = 0;
+
+                if(resultSet.next()){
+                    savedCocktailId = resultSet.getInt(1);
+                }
+
+                //now save ingredients to combination table
+                for (Portion portion : cocktail.getIngredientList()) {
+                    prepStatementCombination.setString(1, portion.getIngredientName());
+                    prepStatementCombination.setInt(2, savedCocktailId);
+                    prepStatementCombination.setString(3, portion.getAmount());
+                    int result = prepStatementCombination.executeUpdate();
+                    combinationSaved = combinationSaved && (result == Constant.EQUALS_1);
+                }
+
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                logger.catching(e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+
+        return cocktailSaved && combinationSaved;
     }
 
     /**

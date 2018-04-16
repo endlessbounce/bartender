@@ -92,212 +92,229 @@
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="myContent" role="tabpanel" aria-labelledby="newCocktail"></div>
+            <div class="tab-pane fade" id="myContent" role="tabpanel" aria-labelledby="newCocktail">there you go</div>
 
             <%--CREATE COCKTAIL--%>
             <div class="tab-pane fade" id="newContent" role="tabpanel" aria-labelledby="myCocktails">
                 <div class="container" style="width: 100%;">
-                    <%--NECESSARY--%>
-                    <div class="form-group mb-3">
-                        <small class="form-text text-muted"><fmt:message key="create.necessary"/></small>
-                        <small class="form-text text-muted"><fmt:message key="create.howto"/></small>
-                    </div>
-
-                    <%--IMAGE--%>
-                    <div class="form-group mb-3" id="imgDiv" ng-show="prof.pictureVisible">
-                        <img src="${ pageContext.request.contextPath }{{prof.selectedBaseCocktail.uri}}"
-                             class="img-fluid img-thumbnail"
-                             id="cocktailImage"
-                             width="286px"
-                             height="180px"
-                             alt="<fmt:message key="create.image.choose"/>">
-                    </div>
-
-                    <%--CHOOSE IMAGE--%>
-                    <div class="form-group mb-3">
-                        <div class="row">
-                            <div class="col" id="uploadImgDiv">
-                                <div class="form-group">
-                                    <input type="file"
-                                           class="form-control-file"
-                                           id="uploadImage"
-                                           file-change="prof.upload($event)"
-                                           ng-model="prof.file"
-                                           accept="image/jpeg,image/png,image/gif">
-                                    <label for="uploadImage" class="text-muted"><fmt:message
-                                            key="create.image.choose"/></label>
-                                    <small ng-show="prof.msgInvalidSize" class="form-text text-danger"><fmt:message key="create.toobigimg"/></small>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <button type="button"
-                                        class="btn btn-warning"
-                                        ng-click="prof.removeImage()"><fmt:message
-                                        key="create.ingredients.removeImage"/>
-                                </button>
-                            </div>
+                    <form ng-submit="prof.saveCocktail()" >
+                        <%--NECESSARY--%>
+                        <div class="form-group mb-3">
+                            <small class="form-text text-muted"><fmt:message key="create.necessary"/></small>
+                            <small class="form-text text-muted"><fmt:message key="create.howto"/></small>
                         </div>
 
-                    </div>
+                        <%--IMAGE--%>
+                        <div class="form-group mb-3" id="imgDiv" ng-show="prof.pictureVisible">
+                            <img src="${ pageContext.request.contextPath }{{prof.selectedBaseCocktail.uri}}"
+                                 class="img-fluid img-thumbnail"
+                                 id="cocktailImage"
+                                 width="286px"
+                                 height="180px"
+                                 alt="<fmt:message key="create.image.choose"/>">
+                        </div>
 
-                    <%--TYPE & BASE DRINK & BASE COCKTAIL--%>
-                    <div class="form-group mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <%--BASE COCKTAIL--%>
-                                <div class="form-group">
-                                    <label for="baseCocktail"><fmt:message key="create.basecocktail"/></label>
-                                    <select class="form-control" id="baseCocktail">
-                                        <option selected ng-click="prof.setBaseCocktail(0)"><fmt:message
-                                                key="create.choose"/></option>
-                                        <option ng-repeat="cocktail in prof.catalogCocktails"
-                                                ng-click="prof.setBaseCocktail(cocktail.id)">{{cocktail.name}}
-                                        </option>
-                                    </select>
+                        <%--CHOOSE IMAGE--%>
+                        <div class="form-group mb-3">
+                            <div class="row">
+                                <div class="col" id="uploadImgDiv">
+                                    <div class="form-group">
+                                        <label for="uploadImage"><fmt:message
+                                                key="create.image.choose"/></label>
+                                        <input type="file"
+                                               class="form-control-file"
+                                               id="uploadImage"
+                                               file-change="prof.upload($event)"
+                                               ng-model="prof.file"
+                                               value="<fmt:message key="create.image.choose.img"/>"
+                                               accept="image/jpeg,image/png,image/gif">
+                                        <small class="form-text text-muted"><fmt:message
+                                                key="create.image.choose.hint"/></small>
+                                        <small ng-show="prof.msgInvalidSize" class="form-text text-danger"><fmt:message
+                                                key="create.toobigimg"/></small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <button type="button"
+                                            class="btn btn-warning"
+                                            ng-click="prof.removeImage()"><fmt:message
+                                            key="create.ingredients.removeImage"/>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col">
-                                <%--TYPE--%>
-                                <div class="form-group">
-                                    <label for="drinkTypeDropList"><fmt:message key="create.type"/></label>
-                                    <select class="form-control" id="drinkTypeDropList" required>
-                                        <option ng-repeat="type in prof.drinkTypes"
+
+                        </div>
+
+                        <%--TYPE & BASE DRINK & BASE COCKTAIL--%>
+                        <div class="form-group mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <%--BASE COCKTAIL--%>
+                                    <div class="form-group">
+                                        <label for="baseCocktail"><fmt:message key="create.basecocktail"/></label>
+                                        <select class="form-control" id="baseCocktail">
+                                            <option selected ng-click="prof.setBaseCocktail(0)"><fmt:message
+                                                    key="create.choose"/></option>
+                                            <option ng-repeat="cocktail in prof.catalogCocktails"
+                                                    ng-click="prof.setBaseCocktail(cocktail.id)">{{cocktail.name}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <%--TYPE--%>
+                                    <div class="form-group">
+                                        <label for="drinkTypeDropList"><fmt:message key="create.type"/></label>
+                                        <select class="form-control"
+                                                id="drinkTypeDropList"
+                                                ng-options="type for type in prof.drinkTypes"
                                                 ng-model="prof.selectedBaseCocktail.type"
-                                                value="{{type}}">{{type}}
-                                        </option>
-                                    </select>
+                                                ng-change="prof.checkDrinkType()"
+                                                required>
+                                        </select>
+                                        <small ng-hide="prof.typeIsNotChosen" class="form-text text-danger"><fmt:message
+                                                key="create.typeisnotchosen"/></small>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col">
-                                <%--BASE DRINK--%>
-                                <div class="form-group">
-                                    <label for="baseDrinkDropList"><fmt:message key="create.base"/></label>
-                                    <select class="form-control" id="baseDrinkDropList" required>
-                                        <option ng-repeat="base in prof.baseDrinks"
+                                <div class="col">
+                                    <%--BASE DRINK--%>
+                                    <div class="form-group">
+                                        <label for="baseDrinkDropList"><fmt:message key="create.base"/></label>
+                                        <select class="form-control"
+                                                id="baseDrinkDropList"
+                                                ng-options="base for base in prof.baseDrinks"
                                                 ng-model="prof.selectedBaseCocktail.baseDrink"
-                                                value="{{base}}">{{base}}
-                                        </option>
-                                    </select>
+                                                ng-change="prof.checkBaseDrink()"
+                                                required>
+                                        </select>
+                                        <small ng-hide="prof.baseIsNotChosen" class="form-text text-danger"><fmt:message
+                                                key="create.baseisnotchosen"/></small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <%--NAME--%>
-                    <div class="form-group mb-3">
-                        <label for="createName"><fmt:message key="create.name"/></label>
-                        <input type="text"
-                               class="form-control"
-                               id="createName"
-                               maxlength="60"
-                               ng-model="prof.selectedBaseCocktail.name"
-                               ng-change="prof.updateName()"
-                               placeholder="<fmt:message key="create.name.placeholder"/>"
-                               required
-                               autofocus>
-                        <small class="form-text text-muted"><fmt:message
-                                key="create.charsleft"/>{{prof.nameLeft}}
-                        </small>
-                    </div>
+                        <%--NAME--%>
+                        <div class="form-group mb-3">
+                            <label for="createName"><fmt:message key="create.name"/></label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="createName"
+                                   maxlength="60"
+                                   ng-model="prof.selectedBaseCocktail.name"
+                                   ng-change="prof.updateName()"
+                                   placeholder="<fmt:message key="create.name.placeholder"/>"
+                                   required
+                                   autofocus>
+                            <small class="form-text text-muted"><fmt:message
+                                    key="create.charsleft"/>{{prof.nameLeft}}
+                            </small>
+                        </div>
 
-                    <%--SLOGAN--%>
-                    <div class="form-group mb-3">
-                        <label for="createSlogan"><fmt:message key="create.slogan"/></label>
-                        <input type="text"
-                               class="form-control"
-                               id="createSlogan"
-                               ng-model="prof.selectedBaseCocktail.slogan"
-                               ng-change="prof.updateSlogan()"
-                               maxlength="255"
-                               placeholder="<fmt:message key="create.slogan.placeholder"/>">
-                        <small class="form-text text-muted"><fmt:message
-                                key="create.charsleft"/>{{prof.sloganLeft}}
-                        </small>
-                    </div>
+                        <%--SLOGAN--%>
+                        <div class="form-group mb-3">
+                            <label for="createSlogan"><fmt:message key="create.slogan"/></label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="createSlogan"
+                                   ng-model="prof.selectedBaseCocktail.slogan"
+                                   ng-change="prof.updateSlogan()"
+                                   maxlength="255"
+                                   placeholder="<fmt:message key="create.slogan.placeholder"/>">
+                            <small class="form-text text-muted"><fmt:message
+                                    key="create.charsleft"/>{{prof.sloganLeft}}
+                            </small>
+                        </div>
 
-                    <%--INGREDIENTS--%>
-                    <div class="form-group mb-3">
-                        <div class="row">
-                            <div class="col">
-                                <button type="button"
-                                        class="btn btn-info"
-                                        ng-click="prof.addPortion()"><fmt:message
-                                        key="create.ingredients.add"/>
-                                </button>
-                                <small class="form-text text-muted"><fmt:message
-                                        key="create.ingredients.restrition"/> {{prof.ingredientsLeft}}
-                                </small>
-                            </div>
-                            <div class="col">
-                                <button type="button"
-                                        class="btn btn-warning"
-                                        ng-click="prof.cleanIngredients()"><fmt:message
-                                        key="create.ingredients.clean"/>
-                                </button>
+                        <%--INGREDIENTS--%>
+                        <div class="form-group mb-3">
+                            <div class="row">
+                                <div class="col">
+                                    <button type="button"
+                                            class="btn btn-info"
+                                            ng-click="prof.addPortion()"><fmt:message
+                                            key="create.ingredients.add"/>
+                                    </button>
+                                    <small class="form-text text-muted"><fmt:message
+                                            key="create.ingredients.restrition"/> {{prof.ingredientsLeft}}
+                                    </small>
+                                    <small ng-hide="prof.notEnoughIngredients" class="form-text text-danger"><fmt:message
+                                            key="create.minimumingredients"/></small>
+                                </div>
+                                <div class="col">
+                                    <button type="button"
+                                            class="btn btn-warning"
+                                            ng-click="prof.cleanIngredients()"><fmt:message
+                                            key="create.ingredients.clean"/>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group mb-3"
-                         ng-repeat="portion in prof.selectedBaseCocktail.ingredientList track by $index">
-                        <div class="row">
-                            <div class="col">
-                                <label for="ingredientSelect{{$index}}"><fmt:message
-                                        key="create.ingredients.name"/></label>
-                                <select class="form-control"
-                                        id="ingredientSelect{{$index}}"
-                                        ng-options="ingredient for ingredient in prof.ingredients"
-                                        ng-model="portion.ingredientName"
-                                        required>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <label for="enterPortion"><fmt:message key="create.ingredients.portion"/></label>
-                                <input type="text"
-                                       class="form-control"
-                                       id="enterPortion"
-                                       maxlength="50"
-                                       ng-model="portion.amount"
-                                       ng-change="prof.updatePortion($index)"
-                                       placeholder="<fmt:message key="create.ingredients.portion.placeholder"/>"
-                                       required>
-                                <small class="form-text text-muted"><fmt:message
-                                        key="create.charsleft"/>{{prof.portionLeftArr[$index]}}
-                                </small>
-                            </div>
-                            <div class="col" style="margin-top: 32px;">
-                                <button type="button"
-                                        class="btn btn-danger"
-                                        ng-click="prof.removePortion($index)"><fmt:message
-                                        key="create.remove"/>
-                                </button>
+                        <div class="form-group mb-3"
+                             ng-repeat="portion in prof.selectedBaseCocktail.ingredientList track by $index">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="ingredientSelect{{$index}}"><fmt:message
+                                            key="create.ingredients.name"/></label>
+                                    <select class="form-control"
+                                            id="ingredientSelect{{$index}}"
+                                            ng-options="ingredient for ingredient in prof.ingredients"
+                                            ng-model="portion.ingredientName"
+                                            ng-change="prof.checkIngredients()"
+                                            required>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label for="enterPortion"><fmt:message key="create.ingredients.portion"/></label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="enterPortion"
+                                           maxlength="50"
+                                           ng-model="portion.amount"
+                                           ng-change="prof.updatePortion($index)"
+                                           placeholder="<fmt:message key="create.ingredients.portion.placeholder"/>"
+                                           required>
+                                    <small class="form-text text-muted"><fmt:message
+                                            key="create.charsleft"/>{{prof.portionLeftArr[$index]}}
+                                    </small>
+                                </div>
+                                <div class="col" style="margin-top: 32px;">
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            ng-click="prof.removePortion($index)"><fmt:message
+                                            key="create.remove"/>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <%--RECIPE--%>
-                    <div class="form-group mb-3">
-                        <label for="recipe"><fmt:message key="create.recipe"/></label>
-                        <textarea class="form-control"
-                                  id="recipe"
-                                  rows="3"
-                                  maxlength="1000"
-                                  ng-model="prof.selectedBaseCocktail.recipe"
-                                  ng-change="prof.updateTextarea()"
-                                  placeholder="<fmt:message key="create.recipe.placeholder"/>"
-                                  required></textarea>
-                        <small class="form-text text-muted"><fmt:message
-                                key="create.charsleft"/>{{prof.textAreaLeft}}
-                        </small>
-                    </div>
+                        <%--RECIPE--%>
+                        <div class="form-group mb-3">
+                            <label for="recipe"><fmt:message key="create.recipe"/></label>
+                            <textarea class="form-control"
+                                      id="recipe"
+                                      rows="3"
+                                      maxlength="1000"
+                                      ng-model="prof.selectedBaseCocktail.recipe"
+                                      ng-change="prof.updateTextarea()"
+                                      placeholder="<fmt:message key="create.recipe.placeholder"/>"
+                                      required></textarea>
+                            <small class="form-text text-muted"><fmt:message
+                                    key="create.charsleft"/>{{prof.textAreaLeft}}
+                            </small>
+                        </div>
 
-                    <%--SAVE BUTTON--%>
-                    <div class="form-group mb-3">
-                        <button type="button"
-                                ng-click="prof.saveCocktail()"
-                                class="btn btn-primary"><fmt:message
-                                key="create.save"/>
-                        </button>
-                    </div>
+                        <%--SAVE BUTTON--%>
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary"><fmt:message
+                                    key="create.save"/>
+                            </button>
+                            <small ng-hide="prof.ingredientIsNotChosen" class="form-text text-danger"><fmt:message
+                                    key="create.ingredientisnotchosen"/></small>
+                            <small ng-hide="prof.errorNotSaved" class="form-text text-danger"><fmt:message
+                                    key="create.error"/></small>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
