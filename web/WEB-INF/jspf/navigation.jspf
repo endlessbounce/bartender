@@ -30,7 +30,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
-                    ${ChosenLocale}
+                    ${e:forHtmlContent(ChosenLocale)}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a>

@@ -32,8 +32,6 @@
     </build>
 
     <!--!!!!!!!!!IMPORTANT!!!!!!-->
-    <!--!!!!!!!!!IMPORTANT!!!!!!-->
-    <!--!!!!!!!!!IMPORTANT!!!!!!-->
     <!--exploded artifacts are deployed outside tomcat and
     use dependencies from tomcat's lib folder-->
     <dependencies>
@@ -131,6 +129,18 @@
             <version>1.11</version>
         </dependency>
 
+        <!--XSS attacks prevention-->
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder-jsp</artifactId>
+            <version>1.2.1</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

@@ -28,7 +28,7 @@
                                name="name"
                                placeholder="<fmt:message
                                 key="content.placeholder.name"/>"
-                               value="${name}"
+                               value="${e:forHtmlAttribute(name)}"
                                autofocus
                         <%--required--%>
                         >
@@ -43,7 +43,7 @@
                                name="email"
                                placeholder="<fmt:message
                                 key="content.placeholder.email"/>"
-                               value="${email}"
+                               value="${e:forHtmlAttribute(email)}"
                         <%--required--%>
                         >
                     </div>
@@ -60,7 +60,7 @@
                                    id="password"
                                    placeholder="<fmt:message
                                 key="content.placeholder.password"/>"
-                                   value="${password}"
+                                   value="${e:forHtmlAttribute(password)}"
                             <%--required--%>
                             >
                             <small id="passwordHelpBlock" class="form-text text-muted">
@@ -76,7 +76,7 @@
                                    id="confirmation"
                                    placeholder="<fmt:message
                                 key="content.placeholder.confirmpassword"/>"
-                                   value="${confirmation}"
+                                   value="${e:forHtmlAttribute(confirmation)}"
                             <%--required--%>
                             >
                         </div>
