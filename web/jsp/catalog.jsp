@@ -88,7 +88,7 @@
                 <%--cocktail card--%>
                 <div class="card float-left m-2" style="width: 16rem;"
                      dir-paginate="card in cat.cocktails | itemsPerPage: cat.showPages track by $index">
-                    <img class="card-img-top" src="${ pageContext.request.contextPath }{{card.uri}}"
+                    <img class="card-img-top" ng-src="${ pageContext.request.contextPath }{{card.uri}}"
                          alt="Card image cap">
                     <div class="card-body">
                         <h6 class="card-title text-truncate" ng-bind="card.name"></h6>
@@ -96,7 +96,7 @@
                             <span ng-repeat="portion in card.ingredientList">{{portion.ingredientName}}<span
                                     ng-if="!$last">, </span></span>
                         </p>
-                        <a href="/controller?command=cocktail&id={{card.id}}" class="btn btn-primary"><fmt:message
+                        <a ng-href="/controller?command=cocktail&id={{card.id}}" class="btn btn-primary"><fmt:message
                                 key="content.pagination.view"/></a>
                     </div>
                 </div>

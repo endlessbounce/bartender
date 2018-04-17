@@ -96,5 +96,20 @@
                 return promise2;
             };
 
+            self.getAllCreated = function (userID) {
+                var lang = document.getElementById("navbarDropdown").textContent.trim();
+                var path = 'http://localhost:8080/webapi/user/' + userID + '/created' + "?locale=" + lang;
+
+                console.log(path);
+
+                var promise1 = $http.get(path);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                }, function (response) {
+                    console.log(response.data)
+                });
+                return promise2;
+            };
+
         });
 })();

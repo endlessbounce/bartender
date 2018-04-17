@@ -15,12 +15,5 @@ public class ConstParameter {
     public static final String CODE = "code";
     public static final String ID = "id";
     //cocktail params
-    public static final String COCKTAIL_NAME = "cocktailName";
-    public static final String COCKTAIL_TYPE = "cocktailType";
-    public static final String COCKTAIL_BASE = "cocktailBase";
-    public static final String COCKTAIL_RECIPE = "cocktailRecipe";
-    public static final String COCKTAIL_SLOGAN = "cocktailSlogan";
-    public static final String COCKTAIL_INGREDIENT = "cocktailIngredients";
-    public static final String COCKTAIL_URI = "cocktailUri";
-    public static final String COCKTAIL_ID = "cocktailId";
+    public static final String COCKTAIL = "cocktail";
 }

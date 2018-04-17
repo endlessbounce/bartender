@@ -61,6 +61,16 @@ public class UserResource {
         return cocktailService.findAllFavourite(params, userId);
     }
 
+
+    @GET
+    @Path("/{userId}/created")
+    public List<Cocktail> getAllCreated(
+            @PathParam("userId") int userId,
+            @Context UriInfo uriInfo) {
+        MultivaluedMap params = uriInfo.getQueryParameters();
+        return cocktailService.findAllCreated(params, userId);
+    }
+
     @DELETE
     @Path("/{userId}/favourite/{cocktailId}")
     public void deleteFromFavourite(

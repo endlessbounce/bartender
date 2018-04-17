@@ -46,6 +46,9 @@ public class UnloggedUserRedirectFilter implements Filter {
                         case PROFILE:
                             prohibitedRequest = true;
                             break;
+                        case CREATED_COCKTAIL:
+                            prohibitedRequest = true;
+                            break;
                         case SETTINGS:
                             prohibitedRequest = true;
                             break;

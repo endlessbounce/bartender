@@ -16,10 +16,12 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/controller"><fmt:message key="crumb.bartender"/></a></li>
-        <li class="breadcrumb-item"><a href="/controller?command=catalog"><fmt:message key="crumb.catalog"/></a></li>
+        <li class="breadcrumb-item"><a href="/controller?command=profile"><fmt:message key="crumb.profile"/></a></li>
+        <li class="breadcrumb-item"><a href="/controller?command=created_cocktail"><fmt:message key="crumb.usercocktail"/></a></li>
         <li class="breadcrumb-item active" aria-current="page">${cocktail.name}</li>
     </ol>
 </nav>
+
 <div class="container mt-3" ng-controller="CocktailCtrl as ctrl">
     <p style="display: none;" id="cocktailId">${cocktail.id}</p>
     <p style="display: none;" id="userID">${userID}</p>
@@ -40,7 +42,7 @@
                     <img src="${ pageContext.request.contextPath }${cocktail.uri}" class="img-fluid img-thumbnail" alt="Responsive image">
                 </div>
 
-                <%--LIKE/UNLIKE BUTTONS--%>
+                <%--EDIT/DELETE BUTTONS--%>
                 <div class="row mt-4" style="visibility: hidden;" id="likeButtons">
                     <c:if test="${userName != null}">
                         <button ng-hide="ctrl.isFavourite"

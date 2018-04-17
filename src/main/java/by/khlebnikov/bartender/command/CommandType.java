@@ -36,6 +36,9 @@ public enum CommandType {
     /*returns profile page*/
     PROFILE(new ProfileCommand()),
 
+    /*returns profile page created cocktails section*/
+    CREATED_COCKTAIL(new CreatedCocktailCommand()),
+
     /*returns settings page*/
     SETTINGS(new SettingCommand()),
 
@@ -48,6 +51,9 @@ public enum CommandType {
 
     /*Returns glossary page*/
     GLOSSARY(new GlossaryCommand()),
+
+    /*Returns a cocktail created by user*/
+    USER_COCKTAIL(new UserCocktailCommand()),
 
     /*Returns the page with a chosen cocktail*/
     COCKTAIL(new CocktailCommand());

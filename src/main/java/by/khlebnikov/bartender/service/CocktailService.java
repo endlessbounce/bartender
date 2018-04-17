@@ -75,13 +75,20 @@ public class CocktailService {
     public List<Cocktail> findAllFavourite(MultivaluedMap params, int userId) {
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         List<Cocktail> favouriteList = cocktailDao.findAllFavourite(language, userId);
-
-        if(!favouriteList.isEmpty()){
-            favouriteList.forEach(cocktail -> cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId())));
-        }
+        fillWithIngredient(favouriteList, language);
 
         logger.debug("return favourite list : " + favouriteList);
         return favouriteList;
+    }
+
+    public List<Cocktail> findAllCreated(MultivaluedMap params, int userId) {
+        String language = (String) params.getFirst(ConstParameter.LOCALE);
+        List<Cocktail> createdList = cocktailDao.findAllCreated(userId);
+        fillWithIngredient(createdList, language);
+
+        logger.debug("return list of created: " + createdList);
+
+        return createdList;
     }
 
     public boolean addCreated(int userId,
@@ -106,5 +113,11 @@ public class CocktailService {
         logger.debug("imparting cocktail to DAO: " + cocktail);
 
         return cocktailDao.saveCreated(userId, cocktail, language);
+    }
+
+    private void fillWithIngredient(List<Cocktail> cocktailList, String language){
+        if(!cocktailList.isEmpty()){
+            cocktailList.forEach(cocktail -> cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId())));
+        }
     }
 }

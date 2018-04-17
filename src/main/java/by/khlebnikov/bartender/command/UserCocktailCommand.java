@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstLocale;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.entity.Cocktail;
@@ -13,34 +14,31 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-public class CocktailCommand implements Command {
+public class UserCocktailCommand implements Command {
     private Logger logger = LogManager.getLogger();
     private CocktailService cocktailService;
+    private String page;
 
-    public CocktailCommand() {
+    public UserCocktailCommand() {
         this.cocktailService = new CocktailService();
     }
 
     @Override
     public String execute(HttpServletRequest request) {
-        int id = Integer.parseInt(request.getParameter(ConstParameter.ID));
-        String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
-        String page;
+        int cocktailId = Integer.parseInt(request.getParameter(ConstParameter.ID));
 
-        logger.debug("cocktail to fetch: " + id);
-
-        Optional<Cocktail> cocktailOpt = cocktailService.findChosenCocktail(id, language);
+        /*RU language means to fetch from the column where created cocktail has been saved*/
+        Optional<Cocktail> cocktailOpt = cocktailService.findChosenCocktail(cocktailId, ConstLocale.RU);
 
         if(cocktailOpt.isPresent()){
             request.setAttribute(ConstParameter.COCKTAIL, cocktailOpt.get());
-            logger.debug("chosen cocktail: " + cocktailOpt.get());
+            logger.debug("chosen created cocktail: " + cocktailOpt.get());
 
-            page = PropertyReader.getConfigProperty(ConstPage.COCKTAIL);
+            page = PropertyReader.getConfigProperty(ConstPage.USER_COCKTAIL);
         }else{
             request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.COCKTAIL_NOT_FOUND);
             page = PropertyReader.getConfigProperty(ConstPage.RESULT);
         }
-
         return page;
     }
 }

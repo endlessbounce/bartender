@@ -126,7 +126,6 @@ public class CocktailDao {
 
 
     public List<Cocktail> findAllFavourite(String language, int userId) {
-        ArrayList<Cocktail> favouriteList = new ArrayList<>();
         String query;
         String name;
 
@@ -140,20 +139,16 @@ public class CocktailDao {
 
         logger.debug("findAllFavourite: " + query + " lang: " + language);
 
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, userId);
-            ResultSet resSet = prepStatement.executeQuery();
+        return executeQueryCocktail(userId, query, name);
+    }
 
-            while (resSet.next()) {
-                favouriteList.add(readCocktail(resSet, name));
-            }
-        } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
-        }
+    public List<Cocktail> findAllCreated(int userId) {
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED_LANG);
+        String name = ConstTableCocktail.NAME_LANG;
 
-        return favouriteList;
+        logger.debug("findAllCreated: " + query);
+
+        return executeQueryCocktail(userId, query, name);
     }
 
     /**
@@ -284,5 +279,24 @@ public class CocktailDao {
         cocktail.setUri(resSet.getString(ConstTableCocktail.URI));
         cocktail.setId(Integer.parseInt(resSet.getString(ConstTableCocktail.ID)));
         return cocktail;
+    }
+
+    private List<Cocktail> executeQueryCocktail(int userId, String query, String columnName){
+        ArrayList<Cocktail> selectedCocktail = new ArrayList<>();
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, userId);
+            ResultSet resSet = prepStatement.executeQuery();
+
+            while (resSet.next()) {
+                selectedCocktail.add(readCocktail(resSet, columnName));
+            }
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+
+        return selectedCocktail;
     }
 }

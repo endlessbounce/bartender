@@ -14,6 +14,7 @@
 
             //list of favourite cocktails
             self.cocktails = [];
+            self.createdCocktails = [];
             self.catalogCocktails = [];
             //ngModel selected cocktail (is edited and sent to the server)
             self.selectedBaseCocktail = {
@@ -36,7 +37,7 @@
 
             var l;
             for (l = 0; l < 20; l++) {
-                self.portionLeftArr.push(50);
+                self.portionLeftArr.push(50);//50 characters for amount
             }
 
             self.pictureVisible = false;
@@ -45,8 +46,9 @@
             self.notEnoughIngredients = true;
             self.typeIsNotChosen = true;
             self.baseIsNotChosen = true;
-            self.ingredientIsNotChosen = true;
+            self.ingredientIsChosen = true;
             self.errorNotSaved = true;
+            self.ingredientsUnique = true;
 
             console.log("profile controller user id: " + self.userID);
 
@@ -56,9 +58,14 @@
 
             //get favourite cocktails on load of the page
             restService.getAllFavourite(self.userID).then(function (data) {
-                console.log("favourite cocktails: " + data);
                 self.cocktails = data;
                 document.getElementById("firstItem").style.visibility = "visible";
+            });
+
+            //get all created by user cocktails on load of the page
+            restService.getAllCreated(self.userID).then(function (data) {
+                self.createdCocktails = data;
+                document.getElementById("secondItem").style.visibility = "visible";
             });
 
             /*change number of displayed cocktails*/
@@ -218,41 +225,31 @@
                     self.baseIsNotChosen = false;
                     return;
                 } else {
-                    var p;
-                    for (p = 0; p < length; p++) {
-                        if (self.selectedBaseCocktail.ingredientList[p].ingredientName == '') {
-                            self.ingredientIsNotChosen = false;
-                            return;
-                        }
-                    }
+                    self.checkIngredients();
                 }
 
-                if (self.pictureValidSize) {
+                if (self.pictureValidSize &&
+                    self.ingredientsUnique &&
+                    self.ingredientIsChosen) {
                     console.log(JSON.stringify(self.selectedBaseCocktail));
 
                     //send data to the server
                     restService.addCreated(self.selectedBaseCocktail, self.userID)
                         .then(function () {
-                            console.log("success profile controller");
+                            //update list of created cocktails
+                            restService.getAllCreated(self.userID).then(function (data) {
+                                self.createdCocktails = data;
+                                document.getElementById("secondItem").style.visibility = "visible";
+                            });
+
+                            //cleaning of the section
+                            self.cleanCreateSection();
+
                             //moving view to "my cocktails" pill
-                            document.getElementById("newCocktail").classList.remove('active');
-                            document.getElementById("newContent").classList.remove('show');
-                            document.getElementById("newContent").classList.remove('active');
                             document.getElementById("myCocktails").classList.add('active');
                             document.getElementById("myContent").classList.add('show');
                             document.getElementById("myContent").classList.add('active');
 
-                            //cleaning of the section
-                            self.selectedBaseCocktail = {
-                                "name": "",
-                                "recipe": "",
-                                "baseDrink": "",
-                                "type": "",
-                                "uri": "",
-                                "slogan": "",
-                                "ingredientList": []
-                            };
-                            self.removeImage();
                         }, function (data) {
                             //show a message if an error happened on server side
                             console.log(data);
@@ -261,7 +258,6 @@
                                 self.errorNotSaved = true;
                             }, 5000);
                         });
-
                 }
             }
 
@@ -274,9 +270,8 @@
 
                     reader.onload = function () {
                         document.getElementById('cocktailImage').src = reader.result;
-                        self.pictureVisible = true;
                         self.selectedBaseCocktail.uri = reader.result;
-                        console.log(reader.result);
+                        self.pictureVisible = true;
                     }
 
                     reader.readAsDataURL(input.files[0]);
@@ -314,14 +309,68 @@
             }
 
             self.checkIngredients = function () {
+                self.checkAllSelected();
+                self.checkUniqueIngredients();
+            }
+
+            self.checkAllSelected = function () {
+                self.ingredientIsChosen = true;
+                var length = self.selectedBaseCocktail.ingredientList.length;
                 var p;
-                self.ingredientIsNotChosen = true;
                 for (p = 0; p < length; p++) {
                     if (self.selectedBaseCocktail.ingredientList[p].ingredientName == '') {
-                        self.ingredientIsNotChosen = false;
+                        self.ingredientIsChosen = false;
                     }
                 }
             }
+
+            self.checkUniqueIngredients = function () {
+                self.ingredientsUnique = true;
+                var i, j, length = self.selectedBaseCocktail.ingredientList.length;
+
+                if (length >= 2) {
+                    for (i = 0; i < length - 1; i++) {
+                        for (j = i + 1; j < length; j++) {
+
+                            if (self.selectedBaseCocktail.ingredientList[i].ingredientName ==
+                                self.selectedBaseCocktail.ingredientList[j].ingredientName) {
+
+                                self.ingredientsUnique = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            self.cleanCreateSection = function () {
+                document.getElementById("newCocktail").classList.remove('active');
+                document.getElementById("newContent").classList.remove('show');
+                document.getElementById("newContent").classList.remove('active');
+                self.cleanFrom();
+            }
+
+            self.cleanFrom = function () {
+                self.selectedBaseCocktail = {
+                    "name": "",
+                    "recipe": "",
+                    "baseDrink": "",
+                    "type": "",
+                    "uri": "",
+                    "slogan": "",
+                    "ingredientList": []
+                };
+                self.removeImage();
+                self.textAreaLeft = 1000;
+                self.nameLeft = 60;
+                self.sloganLeft = 255;
+                self.ingredientsLeft = 20;
+                self.portionLeftArr = [];
+                var l;
+                for (l = 0; l < 20; l++) {
+                    self.portionLeftArr.push(50);//50 characters for amount
+                }
+            }
+
         })//directive for binding file input and model. this allows to use ng-change and dynamically
         //display new uploaded image
         .directive('fileChange', function () {
