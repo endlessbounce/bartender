@@ -2,7 +2,36 @@
     angular.module("catalog")
         .controller("ProfileCtrl", function (restService) {
             var self = this;
-            self.userID = document.getElementById("userID").textContent;
+            self.userID = null;
+
+            self.init = function (section, userID) {
+                self.userID = userID;
+                console.log("ProfileCtrl ON_INIT: userID: " + userID + ", section: " + section);
+                //check if user was moving from a page of created by him cocktail
+                if(section == 'created'){
+                    document.getElementById("favourite").classList.remove('active');
+                    document.getElementById("favContent").classList.remove('show');
+                    document.getElementById("favContent").classList.remove('active');
+                    document.getElementById("myCocktails").classList.add('active');
+                    document.getElementById("myContent").classList.add('show');
+                    document.getElementById("myContent").classList.add('active');
+                }
+                //getAllFavourite & getAllCreated are called in on-init method because they use userID,
+                //and outside of this method it will be none before on-init gets userID injected
+                //get favourite cocktails on load of the page
+                restService.getAllFavourite(self.userID).then(function (data) {
+                    self.cocktails = data;
+                    console.log('getting all favourite ' + data)
+                    document.getElementById("firstItem").style.visibility = "visible";
+                });
+
+                //get all created by user cocktails on load of the page
+                restService.getAllCreated(self.userID).then(function (data) {
+                    self.createdCocktails = data;
+                    console.log('getting all created ' + data)
+                    document.getElementById("secondItem").style.visibility = "visible";
+                });
+            }
 
             //button group show pages
             self.showPages = 12;
@@ -56,18 +85,6 @@
             // ****************FAVOURITE***************************
             // ****************************************************
 
-            //get favourite cocktails on load of the page
-            restService.getAllFavourite(self.userID).then(function (data) {
-                self.cocktails = data;
-                document.getElementById("firstItem").style.visibility = "visible";
-            });
-
-            //get all created by user cocktails on load of the page
-            restService.getAllCreated(self.userID).then(function (data) {
-                self.createdCocktails = data;
-                document.getElementById("secondItem").style.visibility = "visible";
-            });
-
             /*change number of displayed cocktails*/
             self.changeDisplayNumber = function (number) {
                 self.showPages = number;
@@ -75,10 +92,13 @@
 
             self.unlike = function (cocktailID) {
                 console.log("unliked: " + cocktailID);
-                restService.deleteLiked(cocktailID, self.userID);
-                restService.getAllFavourite(self.userID).then(function (data) {
-                    console.log("favourite cocktails: " + data);
-                    self.cocktails = data;
+                restService.deleteLiked(cocktailID, self.userID).then(function () {
+
+                    restService.getAllFavourite(self.userID).then(function (data) {
+                        console.log("favourite cocktails: " + data);
+                        self.cocktails = data;
+                    });
+
                 });
             }
 
@@ -374,15 +394,18 @@
 
             self.deleteCreated = function (cocktailID) {
                 console.log("deleting: " + cocktailID);
-                restService.deleteCreatedCocktail(cocktailID, self.userID);
-                restService.getAllCreated(self.userID).then(function (data) {
-                    console.log("updating created cocktails: " + data);
-                    self.createdCocktails = data;
-                });
+                restService.deleteCreatedCocktail(cocktailID, self.userID).then(function () {
+
+                        restService.getAllCreated(self.userID).then(function (data) {
+                            console.log("updating created cocktails: " + data);
+                            self.createdCocktails = data;
+                        });
+
+                    });
             }
-            
+
             self.editCreated = function (cocktailID) {
-                
+
             }
         })//directive for binding file input and model. this allows to use ng-change and dynamically
         //display new uploaded image

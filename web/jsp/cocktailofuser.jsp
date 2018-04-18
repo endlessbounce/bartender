@@ -17,13 +17,12 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/controller"><fmt:message key="crumb.bartender"/></a></li>
         <li class="breadcrumb-item"><a href="/controller?command=profile"><fmt:message key="crumb.profile"/></a></li>
+        <li class="breadcrumb-item"><a href="/controller?command=profile&section=created"><fmt:message key="crumb.usercocktail"/></a></li>
         <li class="breadcrumb-item active" aria-current="page">${cocktail.name}</li>
     </ol>
 </nav>
 
-<div class="container mt-3" ng-controller="CocktailCtrl as ctrl">
-    <p style="display: none;" id="cocktailId">${cocktail.id}</p>
-    <p style="display: none;" id="userID">${userID}</p>
+<div class="container mt-3" ng-controller="UserCocktailCtrl as ctrl" ng-init="ctrl.init('${userID}')">
     <div class="row">
         <h2 class="font-weight-light">${cocktail.name}</h2>
     </div>
@@ -42,19 +41,18 @@
                 </div>
 
                 <%--EDIT/DELETE BUTTONS--%>
-                <div class="row mt-4" style="visibility: hidden;" id="likeButtons">
+                <div class="row mt-4" id="likeButtons">
                     <c:if test="${userName != null}">
-                        <button ng-hide="ctrl.isFavourite"
-                                type="button"
-                                class="btn btn btn-outline-success"
-                                ng-click="ctrl.like()">
-                            <fmt:message key="content.button.like"/></button>
-
-                        <button ng-show="ctrl.isFavourite"
-                                type="button"
-                                class="btn btn-outline-danger"
-                                ng-click="ctrl.unlike()">
-                            <fmt:message key="content.button.unlike"/></button>
+                        <a ng-href="/controller?command=user_cocktail&id={{card.id}}">
+                            <button class="btn btn-default">
+                                <img src="${ pageContext.request.contextPath }/img/edit.png" width="20" />
+                            </button>
+                        </a>
+                        <a class="ml-3" ng-click="ctrl.deleteCreatedC('${cocktail.id}')" ng-href="/controller?command=profile&section=created">
+                            <button class="btn btn-default">
+                                <img src="${ pageContext.request.contextPath }/img/delete.png" width="20" />
+                            </button>
+                        </a>
                     </c:if>
                 </div>
             </div>

@@ -14,6 +14,8 @@ public class ConstParameter {
     public static final String EMAIL = "email";
     public static final String CODE = "code";
     public static final String ID = "id";
+    public static final String SECTION = "section";
+    public static final String CREATED = "created";
     //cocktail params
     public static final String COCKTAIL = "cocktail";
 }

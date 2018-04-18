@@ -11,3 +11,4 @@
 <script src="${ pageContext.request.contextPath }/js/catalog.controller.js"></script>
 <script src="${ pageContext.request.contextPath }/js/cocktail.controller.js"></script>
 <script src="${ pageContext.request.contextPath }/js/profile.controller.js"></script>
+<script src="${ pageContext.request.contextPath }/js/usercocktail.controller.js"></script>

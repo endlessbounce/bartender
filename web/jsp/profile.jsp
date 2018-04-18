@@ -19,8 +19,7 @@
         <li class="breadcrumb-item active" aria-current="page"><fmt:message key="crumb.profile"/></li>
     </ol>
 </nav>
-<div class="container mt-3" ng-controller="ProfileCtrl as prof">
-    <p style="display: none;" id="userID">${userID}</p>
+<div class="container mt-3" ng-controller="ProfileCtrl as prof" ng-init="prof.init('${section}', '${userID}')">
     <div class="row">
         <%--PILLS--%>
         <div class="col-md-3 nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
