@@ -7,6 +7,7 @@ public class ConstQueryUser {
     public static final String FIND_BY_COOKIE = "userdao.findbycookie";
     public static final String IS_FAVOURITE = "userdao.isfavourite";
     public static final String DELETE_FAVOURITE = "userdao.deletefavourite";
+    public static final String DELETE_CREATED = "userdao.deletecreated";
     public static final String SAVE_FAVOURITE = "userdao.savefavourite";
     public static final String FIND_ALL_FAVOURITE = "userdao.findallfavourite";
     public static final String FIND_ALL_FAVOURITE_LANG = "userdao.findallfavouritelang";

@@ -102,7 +102,15 @@ public class UserResource {
     public void deleteFromFavourite(
             @PathParam("userId") int userId,
             @PathParam("cocktailId") int cocktailId) {
-        userService.deleteFromFavourite(userId, cocktailId);
+        userService.deleteFavourite(userId, cocktailId);
+    }
+
+    @DELETE
+    @Path("/{userId}/created/{cocktailId}")
+    public void deleteCreated(
+            @PathParam("userId") int userId,
+            @PathParam("cocktailId") int cocktailId) {
+        userService.deleteCreated(userId, cocktailId);
     }
 
     @POST

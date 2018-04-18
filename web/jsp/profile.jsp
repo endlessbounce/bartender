@@ -146,6 +146,18 @@
                                    class="btn btn-primary"><fmt:message
                                         key="content.pagination.view"/>
                                 </a>
+                                <a ng-href="/controller?command=user_cocktail&id={{card.id}}">
+                                    <button class="btn btn-default"
+                                    ng-click="prof.editCreated(card.id)">
+                                        <img src="${ pageContext.request.contextPath }/img/edit.png" width="20" />
+                                    </button>
+                                </a>
+                                <a ng-href="#">
+                                    <button class="btn btn-default"
+                                            ng-click="prof.deleteCreated(card.id)">
+                                        <img src="${ pageContext.request.contextPath }/img/delete.png" width="20" />
+                                    </button>
+                                </a>
                             </div>
                         </div>
                     </div>

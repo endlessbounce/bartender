@@ -372,6 +372,18 @@
                 }
             }
 
+            self.deleteCreated = function (cocktailID) {
+                console.log("deleting: " + cocktailID);
+                restService.deleteCreatedCocktail(cocktailID, self.userID);
+                restService.getAllCreated(self.userID).then(function (data) {
+                    console.log("updating created cocktails: " + data);
+                    self.createdCocktails = data;
+                });
+            }
+            
+            self.editCreated = function (cocktailID) {
+                
+            }
         })//directive for binding file input and model. this allows to use ng-change and dynamically
         //display new uploaded image
         .directive('fileChange', function () {

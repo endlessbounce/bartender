@@ -1,9 +1,11 @@
 package by.khlebnikov.bartender.service;
 
+import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
@@ -13,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.Optional;
 
 public class UserService {
-    private Logger logger = LogManager.getLogger();
     private UserDao userDao;
     private ProspectUserDao prospectUserDao;
     private Password passwordGenerator;
@@ -25,7 +26,8 @@ public class UserService {
     }
 
     public Optional<User> findUser(String email) {
-        return userDao.findByEmail(email);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
+        return userDao.find(email, query);
     }
 
     public boolean updateUser(User user){
@@ -33,7 +35,8 @@ public class UserService {
     }
 
     public Optional<User> checkUser(String email, String password) {
-        Optional<User> userOpt = userDao.findByEmail(email);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
+        Optional<User> userOpt = userDao.find(email, query);
 
         if(userOpt.isPresent()){
             User user = userOpt.get();
@@ -50,7 +53,8 @@ public class UserService {
     }
 
     public Optional<User> findUserByCookie(String cookieId){
-        return userDao.findByCookie(cookieId);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
+        return userDao.find(cookieId, query);
     }
 
     public boolean changingPasswordUser(String email, String confirmationCode) {
@@ -108,11 +112,6 @@ public class UserService {
         return prospectUserDao.delete(email);
     }
 
-    public boolean isUserRegistered(String email){
-        Optional<User> userOpt = userDao.findByEmail(email);
-        return userOpt.isPresent();
-    }
-
     public boolean isProspectRegistered(String email){
         Optional<ProspectUser> userOpt = prospectUserDao.find(email);
         return userOpt.isPresent();
@@ -122,11 +121,18 @@ public class UserService {
         return userDao.isFavourite(userId, cocktailId);
     }
 
-    public boolean deleteFromFavourite(int userId, int cocktailId){
-        return userDao.deleteFromFavourite(userId, cocktailId);
+    public boolean deleteFavourite(int userId, int cocktailId){
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
+        return userDao.executeUpdateCocktail(userId, cocktailId, query);
     }
 
     public boolean addFavourite(int userId, int cocktailId){
-        return userDao.saveFavourite(userId, cocktailId);
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
+        return userDao.executeUpdateCocktail(userId, cocktailId, query);
+    }
+
+    public boolean deleteCreated(int userId, int cocktailId) {
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_CREATED);
+        return userDao.executeUpdateCocktail(userId, cocktailId, query);
     }
 }

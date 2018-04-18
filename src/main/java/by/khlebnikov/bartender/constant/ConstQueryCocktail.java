@@ -28,11 +28,6 @@ public class ConstQueryCocktail {
     public static final String DRINK_TYPE = "type";
     public static final String BASE_DRINK = "base";
 
-    public static final String GROUP_NAME = " ";
-    public static final String GROUP_NAME_RUS = "";
-    public static final String BASE_NAME = "";
-    public static final String BASE_NAME_RUS = "";
-
     //Save created cocktail
     public static final String SAVE_COCKTAIL = "cocktaildao.savecreatedcocktail";
     public static final String SAVE_COCKTAIL_RUS = "cocktaildao.savecreatedcocktailrus";

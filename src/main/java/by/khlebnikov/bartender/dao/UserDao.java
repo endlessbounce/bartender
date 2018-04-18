@@ -37,89 +37,7 @@ public class UserDao {
         return result;
     }
 
-    public boolean update(User user) {
-        boolean result = false;
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setString(1, user.getName());
-            prepStatement.setBlob(2, new SerialBlob(user.getHashKey()));
-            prepStatement.setBlob(3, new SerialBlob(user.getSalt()));
-            prepStatement.setString(4, user.getUniqueCookie());
-            prepStatement.setString(5, user.getEmail());
-            int updated = prepStatement.executeUpdate();
-            result = updated == Constant.EQUALS_1;
-        } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
-        }
-
-        return result;
-    }
-
-    public Optional<User> findByEmail(String email) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
-        return executeQueryUser(email, query);
-    }
-
-    public Optional<User> findByCookie(String cookie) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
-        return executeQueryUser(cookie, query);
-    }
-
-    public boolean isFavourite(int userId, int cocktailId) {
-        boolean result = false;
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
-
-        logger.debug("isFavourite query: " + query);
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, cocktailId);
-            prepStatement.setInt(2, userId);
-            ResultSet resultSet = prepStatement.executeQuery();
-
-            if (resultSet.next()) {
-                int match = resultSet.getInt(1);
-                result = match == Constant.EQUALS_1;
-                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
-            }
-        } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
-        }
-
-        return result;
-    }
-
-    public boolean deleteFromFavourite(int userId, int cocktailId) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
-        logger.debug("deleteFromFavourite query: " + query);
-        return executeUpdateFavourite(userId, cocktailId, query);
-    }
-
-    public boolean saveFavourite(int userId, int cocktailId) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
-        logger.debug("saveFavourite query: " + query);
-        return executeUpdateFavourite(userId, cocktailId, query);
-    }
-
-    private boolean executeUpdateFavourite(int userId, int cocktailId, String query) {
-        int updated = 0;
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, cocktailId);
-            prepStatement.setInt(2, userId);
-            updated = prepStatement.executeUpdate();
-        } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
-        }
-        return updated == Constant.EQUALS_1;
-    }
-
-    private Optional<User> executeQueryUser(String searchParameter, String query) {
+    public Optional<User> find(String searchParameter, String query) {
         Optional<User> result = Optional.empty();
 
         try (Connection connection = pool.getConnection();
@@ -151,5 +69,72 @@ public class UserDao {
         }
 
         return result;
+    }
+
+    public boolean update(User user) {
+        boolean result = false;
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setString(1, user.getName());
+            prepStatement.setBlob(2, new SerialBlob(user.getHashKey()));
+            prepStatement.setBlob(3, new SerialBlob(user.getSalt()));
+            prepStatement.setString(4, user.getUniqueCookie());
+            prepStatement.setString(5, user.getEmail());
+            int updated = prepStatement.executeUpdate();
+            result = updated == Constant.EQUALS_1;
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+
+        return result;
+    }
+
+    public boolean isFavourite(int userId, int cocktailId) {
+        boolean result = false;
+        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
+
+        logger.debug("isFavourite query: " + query);
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            ResultSet resultSet = prepStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int match = resultSet.getInt(1);
+                result = match == Constant.EQUALS_1;
+                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
+            }
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Works with favourite or created by user cocktails
+     * @param userId
+     * @param cocktailId
+     * @param query
+     * @return
+     */
+    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) {
+        int updated = 0;
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            updated = prepStatement.executeUpdate();
+        } catch (InterruptedException | SQLException e) {
+            logger.catching(e);
+        }
+        return updated == Constant.EQUALS_1;
     }
 }

@@ -81,6 +81,16 @@
                 return promise2;
             };
 
+            self.deleteCreatedCocktail = function (cocktailID, userID) {
+                var promise1 = $http.delete('http://localhost:8080/webapi/user/' + userID + '/created/' + cocktailID);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                }, function (response) {
+                    console.log(response.data)
+                });
+                return promise2;
+            };
+
             self.getAllFavourite = function (userID) {
                 var lang = document.getElementById("navbarDropdown").textContent.trim();
                 var path = 'http://localhost:8080/webapi/user/' + userID + '/favourite' + "?locale=" + lang;
