@@ -8,13 +8,10 @@ import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.DatatypeConverter;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,73 +59,53 @@ public class Utility {
         return loggedCookieOpt.isPresent();
     }
 
-    public static String buildQuery(String language,
-                                    String drinkType,
-                                    String baseDrink,
-                                    ArrayList<String> ingredientList) {
-
-        StringBuilder query;
-        String outerQuery;
-        String groupName;
-        String baseName;
+    public static String buildQuery(boolean drinkTypeSelected,
+                                    boolean baseDrinkSelected,
+                                    int optionNum,
+                                    String language) {
+        StringBuilder query = new StringBuilder();
+        String groupPart;
+        String basePart;
         String subqueryPart1;
         String subqueryPart2;
         String subqueryPart3;
 
         if (ConstLocale.EN.equals(language)) {
-            outerQuery = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY);
-            groupName = ConstQueryCocktail.GROUP_NAME;
-            baseName = ConstQueryCocktail.BASE_NAME;
+            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY));
+            groupPart = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART);
+            basePart = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART);
             subqueryPart1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1);
             subqueryPart2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2);
             subqueryPart3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3);
         } else {
-            outerQuery = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY_LANG);
-            groupName = ConstQueryCocktail.GROUP_NAME_RUS;
-            baseName = ConstQueryCocktail.BASE_NAME_RUS;
+            query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY_LANG));
+            groupPart = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART_LANG);
+            basePart = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART_LANG);
             subqueryPart1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1_LANG);
             subqueryPart2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2_LANG);
             subqueryPart3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3_LANG);
         }
 
-        query = new StringBuilder(outerQuery);
-
-        if (drinkType != null) {
-            query.append(groupName)
-                    .append(drinkType)
-                    .append("\" ")
-                    .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_GROUP));
+        if (drinkTypeSelected) {
+            query.append(groupPart);
         }
 
-        if (baseDrink != null) {
-            query.append(baseName)
-                    .append(baseDrink)
-                    .append("\" ")
-                    .append(PropertyReader.getQueryProperty(ConstQueryCocktail.AND_BASE));
+        if (baseDrinkSelected) {
+            query.append(basePart);
         }
 
-        //build filter by ingredients subquery
-        if (!ingredientList.isEmpty()) {
+        query.append(PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_AND_BASE));
+
+        if (optionNum > 0) {
             query.append(subqueryPart1)
-                    .append(ingredientList.size())
-                    .append(subqueryPart2);
-
-            for (int i = 0; i < ingredientList.size(); i++) {
-                query.append("\"")
-                        .append(ingredientList.get(i))
-                        .append("\"");
-
-                if (i != ingredientList.size() - 1) {
-                    query.append(",");
-                }
-            }
-
-            query.append(subqueryPart3);
+                    .append(optionNum)
+                    .append(subqueryPart2)
+                    .append(buildQuestionPart(optionNum))
+                    .append(subqueryPart3);
         }
 
-        query.append(";");
-
-        return query.toString();
+        return query.append(Constant.SEMICOLON)
+                .toString();
     }
 
     public static String convertBase64ToImage(String base64String, HttpServletRequest httpRequest) throws IOException {
@@ -151,4 +128,17 @@ public class Utility {
         return imagePath;
     }
 
+    private static String buildQuestionPart(int numOfSubstitutes){
+        StringBuilder questionPart = new StringBuilder();
+
+        for(int i = 0; i< numOfSubstitutes; i++){
+            questionPart.append(Constant.QUESTION);
+
+            if (i != numOfSubstitutes - 1) {
+                questionPart.append(Constant.COMMA);
+            }
+        }
+
+        return questionPart.toString();
+    }
 }

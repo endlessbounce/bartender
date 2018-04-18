@@ -19,31 +19,16 @@ public class CocktailDao {
     private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
-
-    public Optional<Cocktail> findCocktail(int cocktailId, String language) {
+    /**
+     * Find a cocktail by its ID
+     * @param cocktailId
+     * @param language
+     * @param isCreated
+     * @param query
+     * @return
+     */
+    public Optional<Cocktail> find(int cocktailId, String language, boolean isCreated, String query) {
         Optional<Cocktail> result = Optional.empty();
-        String query;
-        String name;
-        String recipe;
-        String slogan;
-        String base;
-        String type;
-
-        if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID);
-            name = ConstTableCocktail.NAME;
-            recipe = ConstTableCocktail.RECIPE;
-            slogan = ConstTableCocktail.SLOGAN;
-            base = ConstTableCocktail.BASE_NAME;
-            type = ConstTableCocktail.GROUP_NAME;
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
-            name = ConstTableCocktail.NAME_LANG;
-            recipe = ConstTableCocktail.RECIPE_LANG;
-            slogan = ConstTableCocktail.SLOGAN_LANG;
-            base = ConstTableCocktail.BASE_NAME_RUS;
-            type = ConstTableCocktail.GROUP_NAME_RUS;
-        }
 
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -52,20 +37,7 @@ public class CocktailDao {
             ResultSet resultSet = prepStatement.executeQuery();
 
             if (resultSet.next()) {
-                Cocktail cocktail = new Cocktail();
-                cocktail.setName(resultSet.getString(name));
-                try {
-                    cocktail.setRecipe(new String(resultSet.getString(recipe).getBytes(Constant.ISO_8859), Constant.UTF8));
-                } catch (UnsupportedEncodingException e) {
-                    logger.debug(e);
-                }
-                cocktail.setSlogan(resultSet.getString(slogan));
-                cocktail.setBaseDrink(resultSet.getString(base));
-                cocktail.setType(resultSet.getString(type));
-                cocktail.setCreationDate(resultSet.getDate(ConstTableCocktail.DATE));
-                cocktail.setUri(resultSet.getString(ConstTableCocktail.URI));
-                cocktail.setId(cocktailId);
-                result = Optional.of(cocktail);
+                result = Optional.of(mapCocktailToObject(resultSet, language, isCreated));
             }
 
         } catch (SQLException | InterruptedException e) {
@@ -73,6 +45,33 @@ public class CocktailDao {
         }
 
         return result;
+    }
+
+    /**
+     * Find favourite or created by user cocktails
+     * @param userId
+     * @param query
+     * @param language
+     * @param isCreated
+     * @return
+     */
+    public List<Cocktail> findAll(int userId, String query, String language, boolean isCreated) {
+        ArrayList<Cocktail> selectedCocktail = new ArrayList<>();
+
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, userId);
+            ResultSet resSet = prepStatement.executeQuery();
+
+            while (resSet.next()) {
+                selectedCocktail.add(mapCocktailToObject(resSet, language, isCreated));
+            }
+        } catch (SQLException | InterruptedException e) {
+            logger.catching(e);
+        }
+
+        return selectedCocktail;
     }
 
     /**
@@ -85,70 +84,56 @@ public class CocktailDao {
      * @param ingredientList chosen ingredients
      * @return list of cocktails which meet all the parameters
      */
-    public List<Cocktail> findAllByParameter(String language,
-                                             String drinkType,
-                                             String baseDrink,
-                                             ArrayList<String> ingredientList) {
-
+    public List<Cocktail> findAllMatching(String language,
+                                          String drinkType,
+                                          String baseDrink,
+                                          ArrayList<String> ingredientList) {
         ArrayList<Cocktail> result = new ArrayList<>();
+        boolean drinkTypeSelected = false;
+        boolean baseDrinkSelected = false;
+        int optionNum = ingredientList.size();
+        int queryPosition = 0;
+        boolean isCreated = false;
 
-        logger.debug("request parameters: " + language
-                + drinkType + ", drinkType: "
-                + baseDrink + ", baseDrink: "
-                + ingredientList + ", ingredientList: ");
+        if (drinkType != null) {
+            drinkTypeSelected = true;
+        }
 
-        String query = Utility.buildQuery(language, drinkType, baseDrink, ingredientList);
-        String name;
+        if (baseDrink != null) {
+            baseDrinkSelected = true;
+        }
+
+        String query = Utility.buildQuery(drinkTypeSelected, baseDrinkSelected, optionNum, language);
 
         logger.debug("buildQuery: " + query);
 
-
-        if (ConstLocale.EN.equals(language)) {
-            name = ConstTableCocktail.NAME;
-        } else {
-            name = ConstTableCocktail.NAME_LANG;
-        }
-
         try (Connection connection = pool.getConnection();
-             Statement statement = connection.createStatement()
+             PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
-            ResultSet resSet = statement.executeQuery(query);
+            if (drinkTypeSelected) {
+                prepStatement.setString(++queryPosition, drinkType);
+            }
+
+            if (baseDrinkSelected) {
+                prepStatement.setString(++queryPosition, baseDrink);
+            }
+
+            if (optionNum > 0) {
+                for(int i = 0; i < optionNum; i++){
+                    prepStatement.setString(++queryPosition, ingredientList.get(i));
+                }
+            }
+
+            ResultSet resSet = prepStatement.executeQuery();
 
             while (resSet.next()) {
-                result.add(readCocktail(resSet, name));
+                result.add(mapCocktailToObject(resSet, language, isCreated));
             }
         } catch (SQLException | InterruptedException e) {
             logger.catching(e);
         }
 
         return result;
-    }
-
-
-    public List<Cocktail> findAllFavourite(String language, int userId) {
-        String query;
-        String name;
-
-        if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE);
-            name = ConstTableCocktail.NAME;
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE_LANG);
-            name = ConstTableCocktail.NAME_LANG;
-        }
-
-        logger.debug("findAllFavourite: " + query + " lang: " + language);
-
-        return executeQueryCocktail(userId, query, name);
-    }
-
-    public List<Cocktail> findAllCreated(int userId) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED_LANG);
-        String name = ConstTableCocktail.NAME_LANG;
-
-        logger.debug("findAllCreated: " + query);
-
-        return executeQueryCocktail(userId, query, name);
     }
 
     /**
@@ -196,7 +181,7 @@ public class CocktailDao {
         return ingredientList;
     }
 
-    public boolean saveCreated(int userId, Cocktail cocktail, String language) {
+    public boolean save(int userId, Cocktail cocktail, String language) {
         boolean cocktailSaved = false;
         boolean combinationSaved = false;
 
@@ -269,34 +254,54 @@ public class CocktailDao {
      * Private method to read cocktails from ResultSet
      *
      * @param resSet ResultSet of a query
-     * @param name   Cocktail name
+     * @param language   Locale language
      * @return read Cocktail
      * @throws SQLException is handled in on this level
      */
-    private Cocktail readCocktail(ResultSet resSet, String name) throws SQLException {
+    private Cocktail mapCocktailToObject(ResultSet resSet, String language, boolean isCreated) throws SQLException {
         Cocktail cocktail = new Cocktail();
-        cocktail.setName(resSet.getString(name));
-        cocktail.setUri(resSet.getString(ConstTableCocktail.URI));
-        cocktail.setId(Integer.parseInt(resSet.getString(ConstTableCocktail.ID)));
-        return cocktail;
-    }
 
-    private List<Cocktail> executeQueryCocktail(int userId, String query, String columnName){
-        ArrayList<Cocktail> selectedCocktail = new ArrayList<>();
+        String name;
+        String recipe;
+        String slogan;
+        String base;
+        String type;
 
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, userId);
-            ResultSet resSet = prepStatement.executeQuery();
+        if (ConstLocale.EN.equals(language)) {
 
-            while (resSet.next()) {
-                selectedCocktail.add(readCocktail(resSet, columnName));
+            if(isCreated){
+                name = ConstTableCocktail.NAME_LANG;
+                recipe = ConstTableCocktail.RECIPE_LANG;
+                slogan = ConstTableCocktail.SLOGAN_LANG;
+            }else{
+                name = ConstTableCocktail.NAME;
+                recipe = ConstTableCocktail.RECIPE;
+                slogan = ConstTableCocktail.SLOGAN;
             }
-        } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
+
+            base = ConstTableCocktail.BASE_NAME;
+            type = ConstTableCocktail.GROUP_NAME;
+        } else {
+            name = ConstTableCocktail.NAME_LANG;
+            recipe = ConstTableCocktail.RECIPE_LANG;
+            slogan = ConstTableCocktail.SLOGAN_LANG;
+            base = ConstTableCocktail.BASE_NAME_RUS;
+            type = ConstTableCocktail.GROUP_NAME_RUS;
         }
 
-        return selectedCocktail;
+        cocktail.setName(resSet.getString(name));
+        try {
+            cocktail.setRecipe(new String(resSet.getString(recipe).getBytes(Constant.ISO_8859), Constant.UTF8));
+        } catch (UnsupportedEncodingException e) {
+            logger.debug(e);
+        }
+        cocktail.setSlogan(resSet.getString(slogan));
+        cocktail.setBaseDrink(resSet.getString(base));
+        cocktail.setType(resSet.getString(type));
+        cocktail.setCreationDate(resSet.getDate(ConstTableCocktail.DATE));
+        cocktail.setUri(resSet.getString(ConstTableCocktail.URI));
+        cocktail.setId(resSet.getInt(ConstTableCocktail.ID));
+
+        return cocktail;
     }
 }

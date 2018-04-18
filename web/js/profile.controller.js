@@ -270,13 +270,14 @@
 
                     reader.onload = function () {
                         document.getElementById('cocktailImage').src = reader.result;
-                        self.selectedBaseCocktail.uri = reader.result;
                         self.pictureVisible = true;
+                        self.selectedBaseCocktail.uri = reader.result;
+                        console.log(reader.result);
                     }
 
                     reader.readAsDataURL(input.files[0]);
 
-                    // alert(self.file.name + " size: " + self.file.size);
+                    console.log(self.file.name + " size: " + self.file.size);
 
                     self.pictureValidSize = true;
                     self.msgInvalidSize = false;

@@ -1,8 +1,6 @@
 package by.khlebnikov.bartender.service;
 
-import by.khlebnikov.bartender.constant.ConstParameter;
-import by.khlebnikov.bartender.constant.ConstQueryCocktail;
-import by.khlebnikov.bartender.constant.Constant;
+import by.khlebnikov.bartender.constant.*;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.dao.CocktailDao;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -18,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Works with cocktails
+ */
 public class CocktailService {
     private Logger logger = LogManager.getLogger();
     CocktailDao cocktailDao;
@@ -26,8 +27,14 @@ public class CocktailService {
         this.cocktailDao = new CocktailDao();
     }
 
-    public Optional<Cocktail> findChosenCocktail(int id, String language) {
-        Optional<Cocktail> cocktailOpt = cocktailDao.findCocktail(id, language);
+    /**
+     * Finds cocktail by its id
+     * @param cocktailId
+     * @param language
+     * @return
+     */
+    public Optional<Cocktail> find(int cocktailId, String language, boolean isCreated, String query) {
+        Optional<Cocktail> cocktailOpt = cocktailDao.find(cocktailId, language, isCreated, query);
 
         if (cocktailOpt.isPresent()) {
             Cocktail cocktail = cocktailOpt.get();
@@ -37,7 +44,26 @@ public class CocktailService {
         return cocktailOpt;
     }
 
-    public List<Cocktail> findCocktails(MultivaluedMap params) {
+    /**
+     * Finds all favourite or created by user cocktails
+     * @param language
+     * @param query
+     * @param userId
+     * @return
+     */
+    public List<Cocktail> findAll(String language, String query, int userId, boolean isCreated) {
+        List<Cocktail> createdList = cocktailDao.findAll(userId, query, language, isCreated);
+        fillWithIngredient(createdList, language);
+
+        return createdList;
+    }
+
+    /**
+     * Finds all cocktails by parameters from the form on catalog page
+     * @param params
+     * @return
+     */
+    public List<Cocktail> findAllMatching(MultivaluedMap params) {
         ArrayList<String> ingredientList = new ArrayList<>();
         String drinkType = null;
         String baseDrink = null;
@@ -58,7 +84,12 @@ public class CocktailService {
             }
         }
 
-        List<Cocktail> cocktailList = cocktailDao.findAllByParameter(language,
+        logger.debug("request parameters: " + language +
+                ", drinkType: " + drinkType +
+                ", baseDrink: "  + baseDrink +
+                ", ingredientList: " + ingredientList );
+
+        List<Cocktail> cocktailList = cocktailDao.findAllMatching(language,
                 drinkType,
                 baseDrink,
                 ingredientList);
@@ -67,34 +98,23 @@ public class CocktailService {
         for (Cocktail cocktail : cocktailList) {
             cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
         }
-        logger.debug("chosen by parameters cocktails: " + cocktailList);
 
         return cocktailList;
     }
 
-    public List<Cocktail> findAllFavourite(MultivaluedMap params, int userId) {
-        String language = (String) params.getFirst(ConstParameter.LOCALE);
-        List<Cocktail> favouriteList = cocktailDao.findAllFavourite(language, userId);
-        fillWithIngredient(favouriteList, language);
-
-        logger.debug("return favourite list : " + favouriteList);
-        return favouriteList;
-    }
-
-    public List<Cocktail> findAllCreated(MultivaluedMap params, int userId) {
-        String language = (String) params.getFirst(ConstParameter.LOCALE);
-        List<Cocktail> createdList = cocktailDao.findAllCreated(userId);
-        fillWithIngredient(createdList, language);
-
-        logger.debug("return list of created: " + createdList);
-
-        return createdList;
-    }
-
-    public boolean addCreated(int userId,
-                              Cocktail cocktail,
-                              HttpServletRequest httpRequest,
-                              MultivaluedMap params) throws ServiceException {
+    /**
+     * Persists a cocktail
+     * @param userId
+     * @param cocktail
+     * @param httpRequest
+     * @param params
+     * @return
+     * @throws ServiceException
+     */
+    public boolean save(int userId,
+                        Cocktail cocktail,
+                        HttpServletRequest httpRequest,
+                        MultivaluedMap params) throws ServiceException {
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         String uri = cocktail.getUri();
         boolean stringOk = Validator.checkString(uri);
@@ -112,9 +132,14 @@ public class CocktailService {
 
         logger.debug("imparting cocktail to DAO: " + cocktail);
 
-        return cocktailDao.saveCreated(userId, cocktail, language);
+        return cocktailDao.save(userId, cocktail, language);
     }
 
+    /**
+     * Finds all ingredients of a cocktail
+     * @param cocktailList
+     * @param language
+     */
     private void fillWithIngredient(List<Cocktail> cocktailList, String language){
         if(!cocktailList.isEmpty()){
             cocktailList.forEach(cocktail -> cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId())));

@@ -36,9 +36,6 @@ public enum CommandType {
     /*returns profile page*/
     PROFILE(new ProfileCommand()),
 
-    /*returns profile page created cocktails section*/
-    CREATED_COCKTAIL(new CreatedCocktailCommand()),
-
     /*returns settings page*/
     SETTINGS(new SettingCommand()),
 

@@ -11,7 +11,6 @@ public class ConstPage {
     public static final String CATALOG = "path.page.catalog";
     public static final String SETTINGS = "path.page.settings";
     public static final String PROFILE = "path.page.profile";
-    public static final String CREATED_COCKTAILS = "path.page.profilecreated";
     public static final String GLOSSARY = "path.page.glossary";
     public static final String COCKTAIL = "path.page.cocktail";
     public static final String USER_COCKTAIL = "path.page.usercocktail";

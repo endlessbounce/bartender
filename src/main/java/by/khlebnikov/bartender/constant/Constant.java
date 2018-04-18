@@ -13,6 +13,9 @@ public class Constant {
     public static final String EMPTY = "";
     public static final String IMG_FOLDER = "/img/";
     public static final String DOT = ".";
+    public static final String COMMA = ",";
+    public static final String SEMICOLON = ";";
+    public static final String QUESTION = "?";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
     public static final String DEFAULT_COCKTAIL = "/img/defaultCocktail.png";
     public static final int MULTIPLIER = 1000000;

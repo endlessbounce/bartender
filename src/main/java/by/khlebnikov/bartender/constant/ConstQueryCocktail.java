@@ -7,8 +7,11 @@ public class ConstQueryCocktail {
     //query for filtering by multiple parameters
     public static final String ALL_INGRED_QUERY = "cocktailreposiory.query1";
     public static final String ALL_INGRED_QUERY_LANG = "cocktailreposiory.query1lang";
-    public static final String AND_GROUP = "cocktailreposiory.query2";
-    public static final String AND_BASE = "cocktailreposiory.query3";
+    public static final String GROUP_PART = "cocktailreposiory.query2";
+    public static final String GROUP_PART_LANG = "cocktailreposiory.query2lang";
+    public static final String GROUP_AND_BASE = "cocktailreposiory.query2base";
+    public static final String BASE_PART = "cocktailreposiory.query3";
+    public static final String BASE_PART_LANG = "cocktailreposiory.query3lang";
     //subquery is built up from 3 parts
     public static final String SUBQUERY_PART_1 = "cocktailreposiory.subquery1";
     public static final String SUBQUERY_PART_1_LANG = "cocktailreposiory.subquery1lang";
@@ -19,15 +22,16 @@ public class ConstQueryCocktail {
 
     //find cocktail by id
     public static final String FIND_BY_ID = "cocktailreposiory.findcocktail";
+    public static final String FIND_CREATED_BY_ID = "cocktailreposiory.findcocktailcreated";
     public static final String FIND_BY_ID_LANG = "cocktailreposiory.findcocktaillang";
 
     public static final String DRINK_TYPE = "type";
     public static final String BASE_DRINK = "base";
 
-    public static final String GROUP_NAME = " AND `drink_group`.`group_name` = \"";
-    public static final String GROUP_NAME_RUS = " AND `drink_group`.`group_name_rus` = \"";
-    public static final String BASE_NAME = " AND `base_drink`.`base_name` = \"";
-    public static final String BASE_NAME_RUS = " AND `base_drink`.`base_name_rus` = \"";
+    public static final String GROUP_NAME = " ";
+    public static final String GROUP_NAME_RUS = "";
+    public static final String BASE_NAME = "";
+    public static final String BASE_NAME_RUS = "";
 
     //Save created cocktail
     public static final String SAVE_COCKTAIL = "cocktaildao.savecreatedcocktail";

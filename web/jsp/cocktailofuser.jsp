@@ -17,7 +17,6 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/controller"><fmt:message key="crumb.bartender"/></a></li>
         <li class="breadcrumb-item"><a href="/controller?command=profile"><fmt:message key="crumb.profile"/></a></li>
-        <li class="breadcrumb-item"><a href="/controller?command=created_cocktail"><fmt:message key="crumb.usercocktail"/></a></li>
         <li class="breadcrumb-item active" aria-current="page">${cocktail.name}</li>
     </ol>
 </nav>

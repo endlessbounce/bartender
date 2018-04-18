@@ -1,9 +1,6 @@
 package by.khlebnikov.bartender.command;
 
-import by.khlebnikov.bartender.constant.ConstAttribute;
-import by.khlebnikov.bartender.constant.ConstLocale;
-import by.khlebnikov.bartender.constant.ConstPage;
-import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.*;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.CocktailService;
@@ -17,7 +14,6 @@ import java.util.Optional;
 public class UserCocktailCommand implements Command {
     private Logger logger = LogManager.getLogger();
     private CocktailService cocktailService;
-    private String page;
 
     public UserCocktailCommand() {
         this.cocktailService = new CocktailService();
@@ -26,16 +22,26 @@ public class UserCocktailCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {
         int cocktailId = Integer.parseInt(request.getParameter(ConstParameter.ID));
+        String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
+        boolean isCreated = true;
+        String query;
+        String page;
+
+        if (ConstLocale.EN.equals(language)) {
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_CREATED_BY_ID);
+        } else {
+            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
+        }
 
         /*RU language means to fetch from the column where created cocktail has been saved*/
-        Optional<Cocktail> cocktailOpt = cocktailService.findChosenCocktail(cocktailId, ConstLocale.RU);
+        Optional<Cocktail> cocktailOpt = cocktailService.find(cocktailId, language, isCreated, query);
 
-        if(cocktailOpt.isPresent()){
+        if (cocktailOpt.isPresent()) {
             request.setAttribute(ConstParameter.COCKTAIL, cocktailOpt.get());
             logger.debug("chosen created cocktail: " + cocktailOpt.get());
 
             page = PropertyReader.getConfigProperty(ConstPage.USER_COCKTAIL);
-        }else{
+        } else {
             request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.COCKTAIL_NOT_FOUND);
             page = PropertyReader.getConfigProperty(ConstPage.RESULT);
         }

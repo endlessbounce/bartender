@@ -10,5 +10,6 @@ public class ConstQueryUser {
     public static final String SAVE_FAVOURITE = "userdao.savefavourite";
     public static final String FIND_ALL_FAVOURITE = "userdao.findallfavourite";
     public static final String FIND_ALL_FAVOURITE_LANG = "userdao.findallfavouritelang";
+    public static final String FIND_ALL_CREATED = "userdao.findallcreated";
     public static final String FIND_ALL_CREATED_LANG = "userdao.findallcreatedlang";
 }

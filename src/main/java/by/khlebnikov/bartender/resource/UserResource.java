@@ -1,8 +1,12 @@
 package by.khlebnikov.bartender.resource;
 
+import by.khlebnikov.bartender.constant.ConstLocale;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
+import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.CocktailService;
 import by.khlebnikov.bartender.service.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -58,7 +62,18 @@ public class UserResource {
             @PathParam("userId") int userId,
             @Context UriInfo uriInfo) {
         MultivaluedMap params = uriInfo.getQueryParameters();
-        return cocktailService.findAllFavourite(params, userId);
+        String language = (String) params.getFirst(ConstParameter.LOCALE);
+        boolean isCreated = false;
+        String query;
+
+        if (ConstLocale.EN.equals(language)) {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE);
+        } else {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE_LANG);
+        }
+        logger.debug("getAllFavourite: " + query);
+
+        return cocktailService.findAll(language, query, userId, isCreated);
     }
 
 
@@ -68,7 +83,18 @@ public class UserResource {
             @PathParam("userId") int userId,
             @Context UriInfo uriInfo) {
         MultivaluedMap params = uriInfo.getQueryParameters();
-        return cocktailService.findAllCreated(params, userId);
+        String language = (String) params.getFirst(ConstParameter.LOCALE);
+        boolean isCreated = true;
+        String query;
+
+        if (ConstLocale.EN.equals(language)) {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED);
+        } else {
+            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED_LANG);
+        }
+        logger.debug("findAllCreated: " + query);
+
+        return cocktailService.findAll(language, query, userId, isCreated);
     }
 
     @DELETE
@@ -98,7 +124,7 @@ public class UserResource {
         MultivaluedMap params = uriInfo.getQueryParameters();
 
         try {
-            cocktailService.addCreated(userId, cocktail, httpRequest, params);
+            cocktailService.save(userId, cocktail, httpRequest, params);
         } catch (ServiceException e) {
             throw new ResourceException(e);
         }
