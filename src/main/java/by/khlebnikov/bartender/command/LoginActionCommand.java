@@ -5,6 +5,8 @@ import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
@@ -29,42 +31,48 @@ public class LoginActionCommand implements Command, CommandWithResponse {
     }
 
     @Override
-    public String execute(HttpServletRequest request) {
+    public String execute(HttpServletRequest request) throws ControllerException {
         String email = request.getParameter(ConstParameter.EMAIL);
         String password = request.getParameter(ConstParameter.PASSWORD);
         String logged = request.getParameter(ConstParameter.STAY_LOGGED);
+        User user = null;
 
         logger.debug("stay logged: " + logged);
 
         boolean correctInput = Validator.checkLoginData(email, password, request);
 
-        if(correctInput){
-            Optional<User> userOpt = service.checkUser(email, password);
+        if (correctInput) {
 
-            if(userOpt.isPresent()){
-                User user = userOpt.get();
-                request.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
-                request.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
+            try {
+                Optional<User> userOpt = service.checkUser(email, password);
 
-                //checking stay logged in checkbox
-                if(ConstParameter.TRUE.equals(logged)){
-                    String id = Utility.uniqueId();
-                    user.setUniqueCookie(id);
-                    service.updateUser(user);
+                if (userOpt.isPresent()) {
+                    user = userOpt.get();
+                    request.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
+                    request.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
 
-                    Cookie cookie = Utility.persistingCookie(id);
-                    response.addCookie(cookie);
+                    //checking stay logged in checkbox
+                    if (ConstParameter.TRUE.equals(logged)) {
+                        String id = Utility.uniqueId();
+                        user.setUniqueCookie(id);
+                        service.updateUser(user);
 
-                    Cookie oldSession = new Cookie(Constant.OLD_SESSION, ConstParameter.TRUE);
-                    oldSession.setMaxAge(-1);
-                    response.addCookie(oldSession);
+                        Cookie cookie = Utility.persistingCookie(id);
+                        response.addCookie(cookie);
 
-                    logger.debug("singed in: " + id);
+                        Cookie oldSession = new Cookie(Constant.OLD_SESSION, ConstParameter.TRUE);
+                        oldSession.setMaxAge(-1);
+                        response.addCookie(oldSession);
+
+                        logger.debug("singed in: " + id);
+                    }
+
+                    return PropertyReader.getConfigProperty(ConstPage.HOME);
+                } else {
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_EMAIL_OR_PASSWORD);
                 }
-
-                return PropertyReader.getConfigProperty(ConstPage.HOME);
-            } else {
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_EMAIL_OR_PASSWORD);
+            } catch (ServiceException e) {
+                throw new ControllerException("Stay logged chosen: " + logged + ",\n user to update: " + user, e);
             }
         }
 

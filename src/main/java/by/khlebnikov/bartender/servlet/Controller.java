@@ -4,7 +4,9 @@ import by.khlebnikov.bartender.command.*;
 import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstPage;
+import by.khlebnikov.bartender.exception.ControllerException;
 import by.khlebnikov.bartender.reader.PropertyReader;
+import by.khlebnikov.bartender.tag.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,16 +43,29 @@ public class Controller extends HttpServlet {
         logger.debug("chosen command: " + request.getParameter(ConstParameter.COMMAND));
 
         CommandFactory client = new CommandFactory();
+
         Optional<Command> commandOpt = client.defineCommand(request);
         Command command = commandOpt.orElse(new DefaultCommand());
 
-        /*We need http response to attach cookie while logging in*/
+            /*We need http response to attach cookie while logging in*/
         if(command instanceof LoginActionCommand ||
                 command instanceof LogoutCommand){
             ((CommandWithResponse) command).setResponse(response);
         }
 
-        page = command.execute(request);
+        try{
+            page = command.execute(request);
+        } catch (ControllerException e) {
+            /*there seems to be no solid reasons to show users internal error descriptions
+             * so we simply will display a message that error happened and make a log*/
+            logger.catching(e);
+            page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+            String message = (String)request.getAttribute(ConstAttribute.MESSAGE_TYPE);
+
+            if(message == null){
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.ERROR);
+            }
+        }
 
         logger.debug("respond page : " + page);
 

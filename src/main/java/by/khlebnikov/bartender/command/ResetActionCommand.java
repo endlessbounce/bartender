@@ -1,19 +1,19 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstAttribute;
-import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.service.UserService;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.mail.Mailer;
 import by.khlebnikov.bartender.reader.PropertyReader;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.tag.MessageType;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +27,6 @@ import java.util.Properties;
  * link for changing password
  */
 public class ResetActionCommand implements Command {
-    private Logger logger = LogManager.getLogger();
     private UserService service;
 
     public ResetActionCommand() {
@@ -35,28 +34,25 @@ public class ResetActionCommand implements Command {
     }
 
     @Override
-    public String execute(HttpServletRequest request) {
+    public String execute(HttpServletRequest request) throws ControllerException {
         String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
         String email = request.getParameter(ConstParameter.EMAIL);
         String page = PropertyReader.getConfigProperty(ConstPage.RESET);
         long code = Utility.generateCode();
+        User user = null;
 
         boolean correctInput = Validator.checkString(email);
 
         if (correctInput) {
-            Optional<User> userOpt = service.findUser(email);
+            try {
+                Optional<User> userOpt = service.findUser(email);
 
-            if (userOpt.isPresent()) {
-                try {
-                    User user = userOpt.get();
+                if (userOpt.isPresent()) {
+                    user = userOpt.get();
 
                     /*make a record to subsequently be able to check the code in the link*/
-                    service.registerProspectUser(new ProspectUser(user.getName(),
-                            email,
-                            user.getHashKey(),
-                            user.getSalt(),
-                            Utility.expirationTime(),
-                            code));
+                    service.saveProspectUser(new ProspectUser(user.getName(), email, user.getHashKey(),
+                            user.getSalt(), Utility.expirationTime(), code));
 
                     Properties properties = new Properties();
                     properties.load(new FileInputStream(emailPropertyPath));
@@ -69,15 +65,16 @@ public class ResetActionCommand implements Command {
 
                     Mailer.sendEmail(email, subject, message, properties);
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.RESET_LINK_SENT);
-                } catch (MessagingException | IOException e) {
-                    logger.catching(e);
-                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.MAIL_ERROR);
-                }
 
-                page = PropertyReader.getConfigProperty(ConstPage.RESULT);
-            } else {
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
+                    page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+                } else {
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
+                }
+            } catch (MessagingException | IOException | ServiceException e) {
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.MAIL_ERROR);
+                throw new ControllerException("User: " + user, e);
             }
+
         } else {
             request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_EMAIL);
         }

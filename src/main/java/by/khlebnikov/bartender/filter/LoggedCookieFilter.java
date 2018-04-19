@@ -4,6 +4,8 @@ import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.utility.Utility;
 import org.apache.logging.log4j.LogManager;
@@ -55,12 +57,18 @@ public class LoggedCookieFilter implements Filter {
             logger.debug("case2: " + case2);
 
             if (case1 || case2) {
-                Optional<User> userOpt = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
+                Optional<User> userOpt = null;
+                try {
+                    userOpt = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
-                    httpRequest.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
+                        httpRequest.getSession().setAttribute(ConstAttribute.USER_ID, user.getId());
+                    }
+                } catch (ServiceException e) {
+                    /* we don't throw ControllerException, here it's not allowed*/
+                    logger.catching(e);
                 }
 
                 /*The cookie to mark new session*/

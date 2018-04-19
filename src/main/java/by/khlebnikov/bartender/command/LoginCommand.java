@@ -5,11 +5,10 @@ import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class LoginCommand implements Command{
+public class LoginCommand implements Command {
 
     @Override
     public String execute(HttpServletRequest request) {
-
         return PropertyReader.getConfigProperty(ConstPage.LOGIN);
     }
 }

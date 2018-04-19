@@ -5,12 +5,12 @@ import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.exception.DataAccessException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
@@ -25,26 +25,48 @@ public class UserService {
         this.passwordGenerator = new Password();
     }
 
-    public Optional<User> findUser(String email) {
+    public Optional<User> findUser(String email) throws ServiceException {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
-        return userDao.find(email, query);
+        Optional<User> userOptional;
+
+        try {
+            userOptional = userDao.find(email, query);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Email: " + email, e);
+        }
+
+        return userOptional;
     }
 
-    public boolean updateUser(User user){
-        return userDao.update(user);
+    public boolean updateUser(User user) throws ServiceException {
+        boolean result;
+
+        try {
+            result = userDao.update(user);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Updating user: " + user, e);
+        }
+
+        return result;
     }
 
-    public Optional<User> checkUser(String email, String password) {
+    public Optional<User> checkUser(String email, String password) throws ServiceException {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
-        Optional<User> userOpt = userDao.find(email, query);
+        Optional<User> userOpt;
 
-        if(userOpt.isPresent()){
+        try {
+            userOpt = userDao.find(email, query);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Looking for user with: " + email + ",\n password: " + password, e);
+        }
+
+        if (userOpt.isPresent()) {
             User user = userOpt.get();
             boolean hashMatch = passwordGenerator.isExpectedPassword(password.toCharArray(),
                     user.getSalt(),
                     user.getHashKey());
 
-            if(!hashMatch){
+            if (!hashMatch) {
                 userOpt = Optional.empty();
             }
         }
@@ -52,19 +74,32 @@ public class UserService {
         return userOpt;
     }
 
-    public Optional<User> findUserByCookie(String cookieId){
+    public Optional<User> findUserByCookie(String cookieId) throws ServiceException {
         String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
-        return userDao.find(cookieId, query);
+        Optional<User> userOptional;
+
+        try {
+            userOptional = userDao.find(cookieId, query);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Cookie: " + cookieId, e);
+        }
+
+        return userOptional;
     }
 
-    public boolean changingPasswordUser(String email, String confirmationCode) {
+    public boolean changingPasswordUser(String email, String confirmationCode) throws ServiceException {
         String dbCode = "";
+        Optional<ProspectUser> userOpt;
 
         if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
             return false;
         }
 
-        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
+        try {
+            userOpt = prospectUserDao.find(email);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Checked email: " + email + ",\n confirmation code: " + confirmationCode, e);
+        }
 
         if (userOpt.isPresent()) {
             ProspectUser user = userOpt.get();
@@ -74,18 +109,42 @@ public class UserService {
         return confirmationCode.equals(dbCode);
     }
 
-    public boolean registerUser(User user) {
-        return userDao.save(user);
+    public boolean saveUser(User user) throws ServiceException {
+        boolean result;
+
+        try {
+            result = userDao.save(user);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Saving user: " + user, e);
+        }
+
+        return result;
     }
 
-    public Optional<User> checkProspectUser(String email, String confirmationCode) {
+    public boolean saveProspectUser(ProspectUser prospectUser) throws ServiceException {
+        boolean result;
+
+        try {
+            result = prospectUserDao.save(prospectUser);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Saving prospect user: " + prospectUser, e);
+        }
+
+        return result;
+    }
+
+    public Optional<User> checkProspectUser(String email, String confirmationCode) throws ServiceException {
         Optional<User> result = Optional.empty();
+        Optional<ProspectUser> userOpt;
 
         if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
             return result;
         }
-
-        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
+        try {
+            userOpt = prospectUserDao.find(email);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Checked email: " + email + ",\n confirmation code: " + confirmationCode, e);
+        }
 
         /*check if user appealed for registration and registration time is not expired*/
         if (userOpt.isPresent()) {
@@ -93,7 +152,7 @@ public class UserService {
             String code = String.valueOf(user.getCode());
             long currentTime = Utility.currentTime();
 
-            if(confirmationCode.equals(code) && user.getExpiration() > currentTime){
+            if (confirmationCode.equals(code) && user.getExpiration() > currentTime) {
                 result = Optional.of(new User(user.getName(),
                         user.getEmail(),
                         user.getHashKey(),
@@ -104,35 +163,51 @@ public class UserService {
         return result;
     }
 
-    public boolean registerProspectUser(ProspectUser prospectUser) {
-        return prospectUserDao.save(prospectUser);
+    public boolean deleteProspectUser(String email) throws ServiceException {
+        boolean result;
+
+        try {
+            result = prospectUserDao.delete(email);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Deleting by email: " + email, e);
+        }
+
+        return result;
     }
 
-    public boolean deleteProspectUser(String email){
-        return prospectUserDao.delete(email);
-    }
+    public boolean isProspectRegistered(String email) throws ServiceException {
+        Optional<ProspectUser> userOpt;
 
-    public boolean isProspectRegistered(String email){
-        Optional<ProspectUser> userOpt = prospectUserDao.find(email);
+        try {
+            userOpt = prospectUserDao.find(email);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Checking by email: " + email, e);
+        }
+
         return userOpt.isPresent();
     }
 
-    public boolean isFavouriteCocktail(int userId, int cocktailId){
-        return userDao.isFavourite(userId, cocktailId);
+    public boolean isFavouriteCocktail(int userId, int cocktailId) throws ServiceException {
+        boolean result;
+
+        try {
+            result = userDao.isFavourite(userId, cocktailId);
+        } catch (DataAccessException e) {
+            throw new ServiceException("User id: " + userId + ",\n cocktail id" + cocktailId, e);
+        }
+
+        return result;
     }
 
-    public boolean deleteFavourite(int userId, int cocktailId){
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
-        return userDao.executeUpdateCocktail(userId, cocktailId, query);
-    }
+    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws ServiceException {
+        boolean result;
 
-    public boolean addFavourite(int userId, int cocktailId){
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
-        return userDao.executeUpdateCocktail(userId, cocktailId, query);
-    }
+        try {
+            result = userDao.executeUpdateCocktail(userId, cocktailId, query);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Query" + query, e);
+        }
 
-    public boolean deleteCreated(int userId, int cocktailId) {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_CREATED);
-        return userDao.executeUpdateCocktail(userId, cocktailId, query);
+        return result;
     }
 }

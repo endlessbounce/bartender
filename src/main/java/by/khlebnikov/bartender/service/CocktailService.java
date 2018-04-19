@@ -1,8 +1,11 @@
 package by.khlebnikov.bartender.service;
 
-import by.khlebnikov.bartender.constant.*;
-import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstQueryCocktail;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.CocktailDao;
+import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
@@ -29,16 +32,25 @@ public class CocktailService {
 
     /**
      * Finds cocktail by its id
+     *
      * @param cocktailId
      * @param language
      * @return
      */
-    public Optional<Cocktail> find(int cocktailId, String language, boolean isCreated, String query) {
-        Optional<Cocktail> cocktailOpt = cocktailDao.find(cocktailId, language, isCreated, query);
+    public Optional<Cocktail> find(int cocktailId, String language, boolean isCreated, String query) throws ServiceException {
+        Optional<Cocktail> cocktailOpt;
+        try {
+            cocktailOpt = cocktailDao.find(cocktailId, language, isCreated, query);
 
-        if (cocktailOpt.isPresent()) {
-            Cocktail cocktail = cocktailOpt.get();
-            cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+            if (cocktailOpt.isPresent()) {
+                Cocktail cocktail = cocktailOpt.get();
+                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+            }
+        } catch (DataAccessException e) {
+            throw new ServiceException("Find a cocktail with cocktail id: " + cocktailId +
+                    ",\n chosen language: " + language +
+                    ",\n is created by user: " + isCreated +
+                    ",\n query: " + query, e);
         }
 
         return cocktailOpt;
@@ -46,24 +58,35 @@ public class CocktailService {
 
     /**
      * Finds all favourite or created by user cocktails
+     *
      * @param language
      * @param query
      * @param userId
      * @return
      */
-    public List<Cocktail> findAll(String language, String query, int userId, boolean isCreated) {
-        List<Cocktail> createdList = cocktailDao.findAll(userId, query, language, isCreated);
-        fillWithIngredient(createdList, language);
+    public List<Cocktail> findAll(String language, String query, int userId, boolean isCreated) throws ServiceException {
+        List<Cocktail> createdList;
+
+        try {
+            createdList = cocktailDao.findAll(userId, query, language, isCreated);
+            fillWithIngredient(createdList, language);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Find all cocktails with user id: " + userId +
+                    ",\n language: " + language +
+                    ",\n is cocktail created by user: " + isCreated +
+                    ",\n query: " + query, e);
+        }
 
         return createdList;
     }
 
     /**
      * Finds all cocktails by parameters from the form on catalog page
+     *
      * @param params
      * @return
      */
-    public List<Cocktail> findAllMatching(MultivaluedMap params) {
+    public List<Cocktail> findAllMatching(MultivaluedMap params) throws ServiceException {
         ArrayList<String> ingredientList = new ArrayList<>();
         String drinkType = null;
         String baseDrink = null;
@@ -85,18 +108,27 @@ public class CocktailService {
         }
 
         logger.debug("request parameters: " + language +
-                ", drinkType: " + drinkType +
-                ", baseDrink: "  + baseDrink +
-                ", ingredientList: " + ingredientList );
+                ",\n drinkType: " + drinkType +
+                ",\n baseDrink: " + baseDrink +
+                ",\n ingredientList: " + ingredientList);
 
-        List<Cocktail> cocktailList = cocktailDao.findAllMatching(language,
-                drinkType,
-                baseDrink,
-                ingredientList);
+        List<Cocktail> cocktailList;
 
-        /*find each cocktail's portions with ingredients*/
-        for (Cocktail cocktail : cocktailList) {
-            cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+        try {
+            cocktailList = cocktailDao.findAllMatching(language,
+                    drinkType,
+                    baseDrink,
+                    ingredientList);
+
+            /*find each cocktail's portions with ingredients*/
+            for (Cocktail cocktail : cocktailList) {
+                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+            }
+        } catch (DataAccessException e) {
+            throw new ServiceException("Find cocktails by parameters: type of drink: " + drinkType +
+                    ", base drink: " + baseDrink +
+                    ", ingredients: " + ingredientList +
+                    ", language: " + language, e);
         }
 
         return cocktailList;
@@ -104,6 +136,7 @@ public class CocktailService {
 
     /**
      * Persists a cocktail
+     *
      * @param userId
      * @param cocktail
      * @param httpRequest
@@ -118,31 +151,42 @@ public class CocktailService {
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         String uri = cocktail.getUri();
         boolean stringOk = Validator.checkString(uri);
+        boolean result;
 
-        if(!stringOk){
+        if (!stringOk) {
             cocktail.setUri(Constant.DEFAULT_COCKTAIL);
-        }else if(uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)){
+        } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
             try {
                 cocktail.setUri(Utility.convertBase64ToImage(uri, httpRequest));
             } catch (IOException e) {
-                logger.catching(e);
-                throw new ServiceException(e);
+                throw new ServiceException("Exception while converting BASE64 to image", e);
             }
         }
 
         logger.debug("imparting cocktail to DAO: " + cocktail);
 
-        return cocktailDao.save(userId, cocktail, language);
+        try {
+            result = cocktailDao.save(userId, cocktail, language);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Save created cocktail with user id: " + userId +
+                    ",\n language" + language +
+                    ",\n cocktail:" + cocktail, e);
+        }
+
+        return result;
     }
 
     /**
      * Finds all ingredients of a cocktail
+     *
      * @param cocktailList
      * @param language
      */
-    private void fillWithIngredient(List<Cocktail> cocktailList, String language){
-        if(!cocktailList.isEmpty()){
-            cocktailList.forEach(cocktail -> cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId())));
+    private void fillWithIngredient(List<Cocktail> cocktailList, String language) throws DataAccessException {
+        if (!cocktailList.isEmpty()) {
+            for (Cocktail cocktail : cocktailList) {
+                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+            }
         }
     }
 }

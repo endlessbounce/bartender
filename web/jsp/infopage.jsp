@@ -1,4 +1,4 @@
-<%@ include file="../WEB-INF/jspf/imports.jspf"%>
+<%@ include file="../WEB-INF/jspf/imports.jspf" %>
 <html>
 <head>
     <title><fmt:message key="content.page.title.info"/></title>
@@ -21,14 +21,21 @@
 </nav>
 <div class="container mt-3">
     <div class="row">
-        <div class="col">
-            <ctg:message type="${MessageType}" locale="${locale}"/>
-            <form action="/controller">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
-                </div>
-            </form>
-        </div>
+        <c:choose>
+            <c:when test="${MessageType != null}">
+                <ctg:message type="${MessageType}" locale="${locale}"/>
+            </c:when>
+            <c:otherwise>
+                <fmt:message key="message.error"/>
+            </c:otherwise>
+        </c:choose>
+    </div>
+    <div class="row mt-3">
+        <form action="/controller">
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
+            </div>
+        </form>
     </div>
 </div>
 <%@ include file="../WEB-INF/jspf/footer.jspf" %>

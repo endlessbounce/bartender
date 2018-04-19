@@ -26,14 +26,14 @@ public class UnloggedUserRedirectFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        boolean pesrsistentUser = Utility.isLoggedUser(httpRequest);
+        boolean persistentUser = Utility.isLoggedUser(httpRequest);
         boolean inSession = ((HttpServletRequest) request).getSession().getAttribute(ConstAttribute.USER_NAME) != null;
         boolean prohibitedRequest;
 
-        logger.debug("pesrsistentUser user: " + pesrsistentUser);
+        logger.debug("pesrsistentUser user: " + persistentUser);
         logger.debug("inSession user: " + inSession);
 
-        if (!pesrsistentUser && !inSession) {
+        if (!persistentUser && !inSession) {
             String action = request.getParameter(ConstParameter.COMMAND);
             if (action != null && !action.isEmpty()) {
                 try {

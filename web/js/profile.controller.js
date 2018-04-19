@@ -4,6 +4,11 @@
             var self = this;
             self.userID = null;
 
+            /**
+             * Is called on initialization of profile page
+             * @param section - if not null, 'user cocktails' section will be active
+             * @param userID - user's ID
+             */
             self.init = function (section, userID) {
                 self.userID = userID;
                 console.log("ProfileCtrl ON_INIT: userID: " + userID + ", section: " + section);
@@ -90,6 +95,10 @@
                 self.showPages = number;
             };
 
+            /**
+             * Deletes favourite cocktail from the DB
+             * @param cocktailID
+             */
             self.unlike = function (cocktailID) {
                 console.log("unliked: " + cocktailID);
                 restService.deleteLiked(cocktailID, self.userID).then(function () {

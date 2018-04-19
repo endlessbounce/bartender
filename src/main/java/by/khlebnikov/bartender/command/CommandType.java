@@ -30,7 +30,7 @@ public enum CommandType {
     /*returns index page with chosen locale*/
     LOCALE(new LocaleCommand()),
 
-    /*returns catalog pahe*/
+    /*returns catalog page*/
     CATALOG(new CatalogCommand()),
 
     /*returns profile page*/

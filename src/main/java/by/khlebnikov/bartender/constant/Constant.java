@@ -18,6 +18,7 @@ public class Constant {
     public static final String QUESTION = "?";
     public static final String CONTENT_TYPE = "text/html; charset=UTF-8";
     public static final String DEFAULT_COCKTAIL = "/img/defaultCocktail.png";
+    public static final String URL_BARTENDER = "http://localhost:8080/controller";
     public static final int MULTIPLIER = 1000000;
     public static final int MIN_PASSWORD_LENGTH = 7;
     public static final int MAX_PASSWORD_LENGTH = 32;
@@ -27,4 +28,5 @@ public class Constant {
     public static final int ITERATIONS = 10000;
     public static final int KEY_LENGTH = 256;
     public static final int EQUALS_1 = 1;
+    public static final int ERROR_500 = 500;
 }

@@ -19,7 +19,8 @@ public enum MessageType {
     HASH_ERROR("message.hasherror"),
     INCORRECT_USER("message.incorrectuser"),
     PASSWORD_CHANGED("message.passwordchanged"),
-    COCKTAIL_NOT_FOUND("message.cocktailnotfound");
+    COCKTAIL_NOT_FOUND("message.cocktailnotfound"),
+    ERROR("message.error");
 
     private String messageKey;
 

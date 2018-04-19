@@ -1,10 +1,12 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstAttribute;
-import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstPage;
-import by.khlebnikov.bartender.service.UserService;
+import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.reader.PropertyReader;
+import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.tag.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,23 +28,30 @@ public class SetPasswordCommand implements Command {
     }
 
     @Override
-    public String execute(HttpServletRequest request) {
+    public String execute(HttpServletRequest request) throws ControllerException {
         String page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
         String confirmationCode = request.getParameter(ConstParameter.CODE);
         String email = request.getParameter(ConstParameter.EMAIL);
+        boolean correctUser = false;
 
         /*if user was really trying to change his password,
         let him do it and send him the form for it*/
-        boolean correctUser = service.changingPasswordUser(email, confirmationCode);
-        request.getSession().setAttribute(ConstParameter.EMAIL, email);
+        try {
+            correctUser = service.changingPasswordUser(email, confirmationCode);
 
-        if(!correctUser){
-            page = PropertyReader.getConfigProperty(ConstPage.RESULT);
-            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
-            logger.debug("attempt to change password from email " + email + " providing incorrect code");
+            request.getSession().setAttribute(ConstParameter.EMAIL, email);
+
+            if(!correctUser){
+                page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
+                logger.debug("attempt to change password from email " + email + " providing incorrect code");
+            }
+
+            service.deleteProspectUser(email);
+        } catch (ServiceException e) {
+            throw new ControllerException("User was trying to change password: " + correctUser, e);
         }
 
-        service.deleteProspectUser(email);
         return page;
     }
 }

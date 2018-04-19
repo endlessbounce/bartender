@@ -4,6 +4,7 @@ import by.khlebnikov.bartender.constant.ConstQueryProspect;
 import by.khlebnikov.bartender.constant.ConstTableProspect;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
+import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import org.apache.logging.log4j.LogManager;
@@ -14,77 +15,81 @@ import java.sql.*;
 import java.util.Optional;
 
 public class ProspectUserDao {
-    private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
-    public boolean save(ProspectUser prospectUser){
-        boolean result = false;
+    public boolean save(ProspectUser prospectUser) throws DataAccessException {
+        boolean result;
+        int updated = 0;
         String query = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
 
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
-        ){
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
             prepStatement.setString(1, prospectUser.getName());
             prepStatement.setString(2, prospectUser.getEmail());
             prepStatement.setBlob(3, new SerialBlob(prospectUser.getHashKey()));
             prepStatement.setBlob(4, new SerialBlob(prospectUser.getSalt()));
             prepStatement.setLong(5, prospectUser.getExpiration());
             prepStatement.setLong(6, prospectUser.getCode());
-            int updated = prepStatement.executeUpdate();
+            updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
         } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
+            throw new DataAccessException("Database response: " + updated, e);
         }
 
         return result;
     }
 
-    public Optional<ProspectUser> find(String email){
+    public Optional<ProspectUser> find(String email) throws DataAccessException {
+        ProspectUser prospectUser = null;
         Optional<ProspectUser> result = Optional.empty();
         String query = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
 
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
-        ){
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
             prepStatement.setString(1, email);
             ResultSet rs = prepStatement.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 String dbName = rs.getString(ConstTableProspect.NAME);
                 String dbEmail = rs.getString(ConstTableProspect.EMAIL);
 
                 Blob hashBlob = rs.getBlob(ConstTableProspect.HASH);
-                int lentghHash = (int)hashBlob.length();
+                int lentghHash = (int) hashBlob.length();
                 byte[] dbHash = hashBlob.getBytes(1, lentghHash);
 
                 Blob hashSalt = rs.getBlob(ConstTableProspect.SALT);
-                int lentghSalt = (int)hashSalt.length();
+                int lentghSalt = (int) hashSalt.length();
                 byte[] dbSalt = hashSalt.getBytes(1, lentghSalt);
 
                 long dbExpiration = rs.getLong(ConstTableProspect.EXPIRATION);
                 long dbCode = rs.getLong(ConstTableProspect.CODE);
-                result = Optional.of(new ProspectUser(dbName, dbEmail, dbHash, dbSalt, dbExpiration, dbCode));
+
+                prospectUser = new ProspectUser(dbName, dbEmail, dbHash, dbSalt, dbExpiration, dbCode);
+                result = Optional.of(prospectUser);
             }
 
         } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
+            throw new DataAccessException("Found prospect user: " + prospectUser, e);
         }
 
         return result;
     }
 
-    public boolean delete(String email) {
-        boolean result = false;
+    public boolean delete(String email) throws DataAccessException {
+        boolean result;
+        int updated = 0;
         String query = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
 
-        try(Connection connection = pool.getConnection();
-            PreparedStatement prepStatement = connection.prepareStatement(query)
-        ){
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
             prepStatement.setString(1, email);
-            int updated = prepStatement.executeUpdate();
+            updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
         } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
+            throw new DataAccessException("Database response: " + updated, e);
         }
 
         return result;

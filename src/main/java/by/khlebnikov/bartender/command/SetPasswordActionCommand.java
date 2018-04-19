@@ -4,6 +4,8 @@ import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
@@ -21,7 +23,6 @@ import java.util.Optional;
  * Returns result page with result message
  */
 public class SetPasswordActionCommand implements Command {
-    private Logger logger = LogManager.getLogger();
     private UserService service;
     private Password passwordGenerator;
 
@@ -31,44 +32,51 @@ public class SetPasswordActionCommand implements Command {
     }
 
     @Override
-    public String execute(HttpServletRequest request) {
+    public String execute(HttpServletRequest request) throws ControllerException {
         String page = PropertyReader.getConfigProperty(ConstPage.RESULT);
         String email = (String) request.getSession().getAttribute(ConstParameter.EMAIL);
         String password = request.getParameter(ConstParameter.PASSWORD);
         String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
+        User user = null;
 
         boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, email, password, confirmation, request);
-        Optional<User> userOpt = service.findUser(email);
 
-        if (correctInput && userOpt.isPresent()) {
-            byte [] salt = passwordGenerator.getNextSalt();
-            Optional<byte []> hashOpt = passwordGenerator.hash(password.toCharArray(), salt);
+        try{
+            Optional<User> userOpt = service.findUser(email);
 
-            if(!hashOpt.isPresent()){
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);
-                return page;
+            if (correctInput && userOpt.isPresent()) {
+                byte [] salt = passwordGenerator.getNextSalt();
+                Optional<byte []> hashOpt = passwordGenerator.hash(password.toCharArray(), salt);
+
+                if(!hashOpt.isPresent()){
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);
+                    return page;
+                }
+
+                byte [] hashKey = hashOpt.get();
+
+                /*update hash key and salt*/
+                user = userOpt.get();
+                user.setHashKey(hashKey);
+                user.setSalt(salt);
+                service.updateUser(user);
+
+                request.getSession().removeAttribute(ConstParameter.EMAIL);
+                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
+
+            } else {
+                page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
+                request.setAttribute(ConstParameter.PASSWORD, password);
+                request.setAttribute(ConstParameter.CONFIRMATION, confirmation);
+
+                if(!userOpt.isPresent()){
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
+                }
             }
-
-            byte [] hashKey = hashOpt.get();
-
-            /*update hash key and salt*/
-            User user = userOpt.get();
-            user.setHashKey(hashKey);
-            user.setSalt(salt);
-            service.updateUser(user);
-
-            request.getSession().removeAttribute(ConstParameter.EMAIL);
-            request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
-
-        } else {
-            page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
-            request.setAttribute(ConstParameter.PASSWORD, password);
-            request.setAttribute(ConstParameter.CONFIRMATION, confirmation);
-
-            if(!userOpt.isPresent()){
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
-            }
+        } catch (ServiceException e) {
+            throw new ControllerException("Updating user: " + user, e);
         }
+
 
         return page;
     }

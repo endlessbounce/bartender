@@ -2,6 +2,8 @@ package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.*;
 import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.CocktailService;
 import by.khlebnikov.bartender.tag.MessageType;
@@ -20,8 +22,8 @@ public class CocktailCommand implements Command {
     }
 
     @Override
-    public String execute(HttpServletRequest request) {
-        int id = Integer.parseInt(request.getParameter(ConstParameter.ID));
+    public String execute(HttpServletRequest request) throws ControllerException {
+        int cocktailId = Integer.parseInt(request.getParameter(ConstParameter.ID));
         boolean isCreated = false;
         String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
         String page;
@@ -33,7 +35,13 @@ public class CocktailCommand implements Command {
             query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
         }
 
-        Optional<Cocktail> cocktailOpt = cocktailService.find(id, language, isCreated, query);
+        Optional<Cocktail> cocktailOpt;
+
+        try {
+            cocktailOpt = cocktailService.find(cocktailId, language, isCreated, query);
+        } catch (ServiceException e) {
+            throw new ControllerException(e);
+        }
 
         if (cocktailOpt.isPresent()) {
             request.setAttribute(ConstParameter.COCKTAIL, cocktailOpt.get());

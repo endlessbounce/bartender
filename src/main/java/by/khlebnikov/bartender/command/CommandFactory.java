@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,7 +15,7 @@ public class CommandFactory {
         Optional<Command> current = Optional.empty();
         String action = request.getParameter(ConstParameter.COMMAND);
 
-        if (action == null || action.isEmpty()) {
+        if (!Validator.checkString(action)) {
             return current;
         }
 

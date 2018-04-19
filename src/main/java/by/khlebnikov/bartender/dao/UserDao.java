@@ -4,6 +4,7 @@ import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.constant.ConstTableUser;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
+import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
@@ -17,8 +18,8 @@ public class UserDao {
     private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
-    public boolean save(User user) {
-        boolean result = false;
+    public boolean save(User user) throws DataAccessException {
+        boolean result;
         String query = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
 
         try (Connection connection = pool.getConnection();
@@ -31,14 +32,15 @@ public class UserDao {
             int updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
         } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
+            throw new DataAccessException("User saved: " + user, e);
         }
 
         return result;
     }
 
-    public Optional<User> find(String searchParameter, String query) {
+    public Optional<User> find(String searchParameter, String query) throws DataAccessException {
         Optional<User> result = Optional.empty();
+        User user = null;
 
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -59,19 +61,19 @@ public class UserDao {
                 int saltLength = (int) saltBlob.length();
                 byte[] dbSalt = saltBlob.getBytes(1, saltLength);
 
-                User user = new User(dbName, dbEmail, dbHash, dbSalt);
+                user = new User(dbName, dbEmail, dbHash, dbSalt);
                 user.setId(dbID);
                 result = Optional.of(user);
             }
 
         } catch (SQLException | InterruptedException e) {
-            logger.catching(e);
+            throw new DataAccessException("User found: " + user, e);
         }
 
         return result;
     }
 
-    public boolean update(User user) {
+    public boolean update(User user) throws DataAccessException {
         boolean result = false;
         String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
 
@@ -86,17 +88,15 @@ public class UserDao {
             int updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
         } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
+            throw new DataAccessException("User updated: " + result, e);
         }
 
         return result;
     }
 
-    public boolean isFavourite(int userId, int cocktailId) {
+    public boolean isFavourite(int userId, int cocktailId) throws DataAccessException {
         boolean result = false;
         String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
-
-        logger.debug("isFavourite query: " + query);
 
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -111,7 +111,7 @@ public class UserDao {
                 logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
             }
         } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
+            throw new DataAccessException("Is favourite: " + result, e);
         }
 
         return result;
@@ -119,12 +119,13 @@ public class UserDao {
 
     /**
      * Works with favourite or created by user cocktails
+     *
      * @param userId
      * @param cocktailId
      * @param query
      * @return
      */
-    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) {
+    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws DataAccessException {
         int updated = 0;
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -133,7 +134,7 @@ public class UserDao {
             prepStatement.setInt(2, userId);
             updated = prepStatement.executeUpdate();
         } catch (InterruptedException | SQLException e) {
-            logger.catching(e);
+            throw new DataAccessException("BD is updated: " + updated, e);
         }
         return updated == Constant.EQUALS_1;
     }
