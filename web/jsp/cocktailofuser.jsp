@@ -41,14 +41,14 @@
                 </div>
 
                 <%--EDIT/DELETE BUTTONS--%>
-                <div class="row mt-4" id="likeButtons">
+                <div class="row mt-4" id="likeButtons" ng-show="ctrl.showButtons">
                     <c:if test="${userName != null}">
-                        <a ng-href="/controller?command=user_cocktail&id={{card.id}}">
+                        <a ng-href="/controller?command=user_cocktail&id=${e:forHtmlAttribute(cocktail.id)}">
                             <button class="btn btn-default">
                                 <img src="${ pageContext.request.contextPath }/img/edit.png" width="20" />
                             </button>
                         </a>
-                        <a class="ml-3" ng-click="ctrl.deleteCreatedC('${cocktail.id}')" ng-href="/controller?command=profile&section=created">
+                        <a ng-href="#" class="ml-3" ng-click="ctrl.deleteCreatedC('${cocktail.id}')">
                             <button class="btn btn-default">
                                 <img src="${ pageContext.request.contextPath }/img/delete.png" width="20" />
                             </button>

@@ -7,15 +7,7 @@
             self.init = function (section, userID) {
                 self.userID = userID;
                 console.log("ProfileCtrl ON_INIT: userID: " + userID + ", section: " + section);
-                //check if user was moving from a page of created by him cocktail
-                if(section == 'created'){
-                    document.getElementById("favourite").classList.remove('active');
-                    document.getElementById("favContent").classList.remove('show');
-                    document.getElementById("favContent").classList.remove('active');
-                    document.getElementById("myCocktails").classList.add('active');
-                    document.getElementById("myContent").classList.add('show');
-                    document.getElementById("myContent").classList.add('active');
-                }
+
                 //getAllFavourite & getAllCreated are called in on-init method because they use userID,
                 //and outside of this method it will be none before on-init gets userID injected
                 //get favourite cocktails on load of the page
@@ -31,6 +23,16 @@
                     console.log('getting all created ' + data)
                     document.getElementById("secondItem").style.visibility = "visible";
                 });
+
+                //check if user was moving from a page of created by him cocktail
+                if(section == 'created'){
+                    document.getElementById("favourite").classList.remove('active');
+                    document.getElementById("favContent").classList.remove('show');
+                    document.getElementById("favContent").classList.remove('active');
+                    document.getElementById("myCocktails").classList.add('active');
+                    document.getElementById("myContent").classList.add('show');
+                    document.getElementById("myContent").classList.add('active');
+                }
             }
 
             //button group show pages
@@ -78,8 +80,6 @@
             self.ingredientIsChosen = true;
             self.errorNotSaved = true;
             self.ingredientsUnique = true;
-
-            console.log("profile controller user id: " + self.userID);
 
             // ****************************************************
             // ****************FAVOURITE***************************

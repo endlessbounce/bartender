@@ -82,7 +82,9 @@
             };
 
             self.deleteCreatedCocktail = function (cocktailID, userID) {
-                var promise1 = $http.delete('http://localhost:8080/webapi/user/' + userID + '/created/' + cocktailID);
+                var path = 'http://localhost:8080/webapi/user/' + userID + '/created/' + cocktailID;
+                console.log("delete request: " + path);
+                var promise1 = $http.delete(path);
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
