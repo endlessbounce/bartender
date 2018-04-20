@@ -25,23 +25,24 @@ public class CocktailDao {
     private static String FIND_ALL_CREATED_LANG = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED_LANG);
     private static String FIND_ALL_FAVOURITE = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE);
     private static String FIND_ALL_FAVOURITE_LANG = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE_LANG);
+    private static String INGREDIENT_CREATED = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_CREATED);
+    private static String INGREDIENT = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT);
+    private static String INGREDIENT_RUS = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS);
+    private static String LAST_INSERTED_ID = PropertyReader.getQueryProperty(ConstQueryCocktail.LAST_INSERTED_ID);
+    private static String SAVE_COCKTAIL = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL);
+    private static String SAVE_COCKTAIL_RUS = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL_RUS);
+    private static String SAVE_COMBINATION = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION);
+    private static String SAVE_COMBINATION_RUS = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION_RUS);
+    private static String DELETE_FAVOURITE = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
+    private static String DELETE_CREATED = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_CREATED);
+    private static String SAVE_FAVOURITE = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
 
     // Vars ---------------------------------------------------------------------------------------
     private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
     // Actions ------------------------------------------------------------------------------------
-
-    /**
-     * Find a cocktail by its ID
-     *
-     * @param cocktailId
-     * @param language
-     * @param isCreated
-     * @param query
-     * @return
-     */
-    public Optional<Cocktail> findByCocktailId(QueryType qType, int cocktailId, String language, boolean isCreated)
+    public Optional<Cocktail> findByCocktailId(CocktailQueryType qType, int cocktailId, String language, boolean isCreated)
             throws DataAccessException {
         List<Cocktail> cocktailList = find(cocktailId, defineQuery(ConstLocale.EN.equals(language), qType), isCreated, language);
         return Optional.ofNullable(cocktailList.get(0));
@@ -56,7 +57,7 @@ public class CocktailDao {
      * @param isCreated
      * @return
      */
-    public List<Cocktail> findAllByUserId(QueryType qType, int userId, String language, boolean isCreated)
+    public List<Cocktail> findAllByUserId(CocktailQueryType qType, int userId, String language, boolean isCreated)
             throws DataAccessException {
         return find(userId, defineQuery(ConstLocale.EN.equals(language), qType), isCreated, language);
     }
@@ -74,19 +75,11 @@ public class CocktailDao {
     public List<Cocktail> findAllMatching(String language, String drinkType, String baseDrink, ArrayList<String> ingredientList)
             throws DataAccessException {
         ArrayList<Cocktail> result = new ArrayList<>();
-        boolean drinkTypeSelected = false;
-        boolean baseDrinkSelected = false;
+        boolean drinkTypeSelected = drinkType != null;
+        boolean baseDrinkSelected = baseDrink != null;
         int optionNum = ingredientList.size();
         int queryPosition = 0;
         boolean isCreated = false;
-
-        if (drinkType != null) {
-            drinkTypeSelected = true;
-        }
-
-        if (baseDrink != null) {
-            baseDrinkSelected = true;
-        }
 
         String query = Utility.buildQuery(drinkTypeSelected, baseDrinkSelected, optionNum, language);
         logger.debug("Search by parameters query: " + query);
@@ -121,75 +114,13 @@ public class CocktailDao {
         return result;
     }
 
-    /**
-     * Looks for ingredients and their portions for a given cocktail
-     *
-     * @param language   locale of user
-     * @param cocktailId id of cocktail
-     * @return the list of ingredients and proportions for a cocktail
-     */
-    public ArrayList<Portion> findIngredients(String language, int cocktailId, boolean isCreated) throws DataAccessException {
-        ArrayList<Portion> ingredientList = new ArrayList<>();
-        String query;
-        String ingredientName;
-        String amountOfIngredient;
-
-        if (ConstLocale.EN.equals(language)) {
-
-            if (isCreated) {
-                query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_CREATED);
-                amountOfIngredient = ConstTableCombination.PORTION_LANG;
-            } else {
-                query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT);
-                amountOfIngredient = ConstTableCombination.PORTION;
-            }
-
-            ingredientName = ConstTableIngredient.NAME;
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.INGREDIENT_RUS);
-            ingredientName = ConstTableIngredient.NAME_RUS;
-            amountOfIngredient = ConstTableCombination.PORTION_LANG;
-        }
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, cocktailId);
-            ResultSet resultSet = prepStatement.executeQuery();
-
-            while (resultSet.next()) {
-                Portion portion = new Portion();
-                portion.setIngredientName(resultSet.getString(ingredientName));
-                portion.setAmount(resultSet.getString(amountOfIngredient));
-                ingredientList.add(portion);
-                logger.debug("Portion found: " + portion);
-            }
-
-        } catch (SQLException | InterruptedException e) {
-            throw new DataAccessException("Find ingredients for a cocktail with: cocktail id: " + cocktailId +
-                    ", found ingredients: " + ingredientList +
-                    ", is created : " + isCreated +
-                    ", query: " + query, e);
-        }
-
-        return ingredientList;
-    }
-
     public boolean save(int userId, Cocktail cocktail, String language) throws DataAccessException {
-        boolean combinationSaved = false;
+        boolean isEnglish = ConstLocale.EN.equals(language);
         boolean cocktailSaved = false;
+        boolean combinationSaved = false;
         int savedCocktailId = 0;
-        String querySaveCocktail;
-        String querySaveCombination;
-        String queryLastSavedId = PropertyReader.getQueryProperty(ConstQueryCocktail.LAST_INSERTED_ID);
-
-        if (ConstLocale.EN.equals(language)) {
-            querySaveCocktail = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL);
-            querySaveCombination = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION);
-        } else {
-            querySaveCocktail = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COCKTAIL_RUS);
-            querySaveCombination = PropertyReader.getQueryProperty(ConstQueryCocktail.SAVE_COMBINATION_RUS);
-        }
+        String querySaveCocktail = defineQuery(isEnglish, CocktailQueryType.SAVE);
+        String querySaveCombination = defineQuery(isEnglish, CocktailQueryType.SAVE_COMB);
 
         try (Connection connection = pool.getConnection()) {
 
@@ -207,12 +138,10 @@ public class CocktailDao {
                 prepStatementCocktail.setInt(7, userId);
 
                 int firstResult = prepStatementCocktail.executeUpdate();
-
                 cocktailSaved = firstResult == Constant.EQUALS_1;
 
                 //get id of last saved cocktail
-                ResultSet resultSet = statement.executeQuery(queryLastSavedId);
-
+                ResultSet resultSet = statement.executeQuery(LAST_INSERTED_ID);
                 if (resultSet.next()) {
                     savedCocktailId = resultSet.getInt(1);
                 }
@@ -245,28 +174,67 @@ public class CocktailDao {
     }
 
     /**
-     * Works with favourite or created by user cocktails
+     * Looks for ingredients and their portions for a given cocktail
      *
-     * @param userId
-     * @param cocktailId
-     * @param query
-     * @return
+     * @param language   locale of user
+     * @param cocktailId id of cocktail
+     * @return the list of ingredients and proportions for a cocktail
      */
-    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws DataAccessException {
-        int updated = 0;
+    public ArrayList<Portion> findIngredients(String language, int cocktailId, boolean isCreated)
+            throws DataAccessException {
+        ArrayList<Portion> ingredientList = new ArrayList<>();
+        boolean isEnglish = ConstLocale.EN.equals(language);
+        String ingredientName = isEnglish ? ConstTableIngredient.NAME : ConstTableIngredient.NAME_RUS;
+        String query;
+        String ingredientAmount;
+
+        if(isEnglish && isCreated){
+            query = INGREDIENT_CREATED;
+            ingredientAmount = ConstTableCombination.PORTION_LANG;
+        } else if(isEnglish && !isCreated){
+            query = INGREDIENT;
+            ingredientAmount = ConstTableCombination.PORTION;
+        } else {
+            query = INGREDIENT_RUS;
+            ingredientAmount = ConstTableCombination.PORTION_LANG;
+        }
+
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setInt(1, cocktailId);
-            prepStatement.setInt(2, userId);
-            updated = prepStatement.executeUpdate();
-        } catch (InterruptedException | SQLException e) {
-            throw new DataAccessException("BD is updated: " + updated, e);
+            ResultSet resultSet = prepStatement.executeQuery();
+
+            while (resultSet.next()) {
+                Portion portion = new Portion();
+                portion.setIngredientName(resultSet.getString(ingredientName));
+                portion.setAmount(resultSet.getString(ingredientAmount));
+                ingredientList.add(portion);
+                logger.debug("Portion found: " + portion);
+            }
+
+        } catch (SQLException | InterruptedException e) {
+            throw new DataAccessException("Find ingredients for a cocktail with: cocktail id: " + cocktailId +
+                    ", found ingredients: " + ingredientList + ", is created : " + isCreated + ", query: " + query, e);
         }
-        return updated == Constant.EQUALS_1;
+
+        return ingredientList;
     }
 
-    private ArrayList<Cocktail> find(int id, String query, boolean isCreated, String language) throws DataAccessException {
+    public boolean deleteFavouriteCocktail(int userId, int cocktailId) throws DataAccessException {
+        return executeUpdateCocktail(userId, cocktailId, DELETE_FAVOURITE);
+    }
+
+    public boolean deleteCreatedCocktail(int userId, int cocktailId) throws DataAccessException {
+        return executeUpdateCocktail(userId, cocktailId, DELETE_CREATED);
+    }
+
+    public boolean saveFavouriteCocktail(int userId, int cocktailId) throws DataAccessException {
+        return executeUpdateCocktail(userId, cocktailId, SAVE_FAVOURITE);
+    }
+
+    private ArrayList<Cocktail> find(int id, String query, boolean isCreated, String language)
+            throws DataAccessException {
         ArrayList<Cocktail> selectedCocktail = new ArrayList<>();
 
         try (Connection connection = pool.getConnection();
@@ -289,27 +257,27 @@ public class CocktailDao {
         return selectedCocktail;
     }
 
-    private String defineQuery(boolean isEnglish, QueryType queryType) {
-        String query;
-
-        switch (queryType) {
-            case FIND:
-                query = isEnglish ? FIND : FIND_LANG;
-                break;
-            case FIND_CREATED:
-                query = isEnglish ? FIND_CREATED : FIND_LANG;
-                break;
-            case ALL_FAVOURITE:
-                query = isEnglish ? FIND_ALL_FAVOURITE : FIND_ALL_FAVOURITE_LANG;
-                break;
-            case ALL_CREATED:
-                query = isEnglish ? FIND_ALL_CREATED : FIND_ALL_CREATED_LANG;
-                break;
-            default:
-                query = Constant.EMPTY;
+    /**
+     * Works with favourite or created by user cocktails
+     *
+     * @param userId
+     * @param cocktailId
+     * @param query
+     * @return
+     */
+    private boolean executeUpdateCocktail(int userId, int cocktailId, String query)
+            throws DataAccessException {
+        int updated = 0;
+        try (Connection connection = pool.getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(query)
+        ) {
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            updated = prepStatement.executeUpdate();
+        } catch (InterruptedException | SQLException e) {
+            throw new DataAccessException("BD is updated: " + updated, e);
         }
-
-        return query;
+        return updated == Constant.EQUALS_1;
     }
 
     /**
@@ -323,33 +291,21 @@ public class CocktailDao {
     private Cocktail mapCocktailToObject(ResultSet resSet, String language, boolean isCreated)
             throws SQLException, UnsupportedEncodingException {
         Cocktail cocktail = new Cocktail();
+        boolean isEnglish = ConstLocale.EN.equals(language);
+        String base = isEnglish ? ConstTableCocktail.BASE_NAME : ConstTableCocktail.BASE_NAME_RUS;
+        String type = isEnglish ? ConstTableCocktail.GROUP_NAME : ConstTableCocktail.GROUP_NAME_RUS;
+        String name = null;
+        String recipe = null;
+        String slogan = null;
 
-        String name;
-        String recipe;
-        String slogan;
-        String base;
-        String type;
-
-        if (ConstLocale.EN.equals(language)) {
-
-            if (isCreated) {
-                name = ConstTableCocktail.NAME_LANG;
-                recipe = ConstTableCocktail.RECIPE_LANG;
-                slogan = ConstTableCocktail.SLOGAN_LANG;
-            } else {
-                name = ConstTableCocktail.NAME;
-                recipe = ConstTableCocktail.RECIPE;
-                slogan = ConstTableCocktail.SLOGAN;
-            }
-
-            base = ConstTableCocktail.BASE_NAME;
-            type = ConstTableCocktail.GROUP_NAME;
-        } else {
+        if (isEnglish && isCreated || !isEnglish) {
             name = ConstTableCocktail.NAME_LANG;
             recipe = ConstTableCocktail.RECIPE_LANG;
             slogan = ConstTableCocktail.SLOGAN_LANG;
-            base = ConstTableCocktail.BASE_NAME_RUS;
-            type = ConstTableCocktail.GROUP_NAME_RUS;
+        }else if(isEnglish && !isCreated){
+            name = ConstTableCocktail.NAME;
+            recipe = ConstTableCocktail.RECIPE;
+            slogan = ConstTableCocktail.SLOGAN;
         }
 
         cocktail.setName(resSet.getString(name));
@@ -362,5 +318,24 @@ public class CocktailDao {
         cocktail.setId(resSet.getInt(ConstTableCocktail.ID));
 
         return cocktail;
+    }
+
+    private String defineQuery(boolean isEnglish, CocktailQueryType queryType) {
+        switch (queryType) {
+            case FIND:
+                return isEnglish ? FIND : FIND_LANG;
+            case FIND_CREATED:
+                return isEnglish ? FIND_CREATED : FIND_LANG;
+            case ALL_FAVOURITE:
+                return isEnglish ? FIND_ALL_FAVOURITE : FIND_ALL_FAVOURITE_LANG;
+            case ALL_CREATED:
+                return isEnglish ? FIND_ALL_CREATED : FIND_ALL_CREATED_LANG;
+            case SAVE:
+                return isEnglish ? SAVE_COCKTAIL : SAVE_COCKTAIL_RUS;
+            case SAVE_COMB:
+                return isEnglish ? SAVE_COMBINATION : SAVE_COMBINATION_RUS;
+            default:
+                return Constant.EMPTY;
+        }
     }
 }

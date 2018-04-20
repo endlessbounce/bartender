@@ -1,7 +1,7 @@
 package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.dao.CatalogDao;
-import by.khlebnikov.bartender.dao.QueryType;
+import by.khlebnikov.bartender.dao.CocktailQueryType;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
 
@@ -17,7 +17,7 @@ public class CatalogService {
         this.dao = new CatalogDao();
     }
 
-    public ArrayList<String> findFormData(QueryType type, String language) throws ServiceException {
+    public ArrayList<String> findFormData(CocktailQueryType type, String language) throws ServiceException {
         ArrayList<String> result;
 
         try {

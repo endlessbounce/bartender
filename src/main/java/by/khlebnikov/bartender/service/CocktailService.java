@@ -4,7 +4,7 @@ import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstQueryCocktail;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.CocktailDao;
-import by.khlebnikov.bartender.dao.QueryType;
+import by.khlebnikov.bartender.dao.CocktailQueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -38,7 +38,8 @@ public class CocktailService {
      * @param language
      * @return
      */
-    public Optional<Cocktail> find(QueryType queryType, int cocktailId, String language, boolean isCreated) throws ServiceException {
+    public Optional<Cocktail> find(CocktailQueryType queryType, int cocktailId, String language, boolean isCreated)
+            throws ServiceException {
         Optional<Cocktail> cocktailOpt;
         try {
             cocktailOpt = cocktailDao.findByCocktailId(queryType, cocktailId, language, isCreated);
@@ -58,7 +59,8 @@ public class CocktailService {
     }
 
 
-    public List<Cocktail> findAll(QueryType queryType, String language, int userId, boolean isCreated) throws ServiceException {
+    public List<Cocktail> findAll(CocktailQueryType queryType, String language, int userId, boolean isCreated)
+            throws ServiceException {
         List<Cocktail> createdList;
 
         try {
@@ -131,14 +133,11 @@ public class CocktailService {
      * @return
      * @throws ServiceException
      */
-    public boolean save(int userId,
-                        Cocktail cocktail,
-                        HttpServletRequest httpRequest,
-                        MultivaluedMap params) throws ServiceException {
+    public boolean save(int userId, Cocktail cocktail, HttpServletRequest httpRequest, MultivaluedMap params)
+            throws ServiceException {
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         String uri = cocktail.getUri();
         boolean stringOk = Validator.checkString(uri);
-        boolean result;
 
         try {
             if (!stringOk) {
@@ -149,26 +148,30 @@ public class CocktailService {
 
             logger.debug("imparting cocktail to DAO: " + cocktail);
 
-            result = cocktailDao.save(userId, cocktail, language);
+            return cocktailDao.save(userId, cocktail, language);
         } catch (DataAccessException | IOException e) {
             throw new ServiceException("Save created cocktail with user id: " + userId +
                     ",\n language" + language +
                     ",\n cocktail:" + cocktail, e);
         }
-
-        return result;
     }
 
-    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws ServiceException {
-        boolean result;
-
+    public boolean executeUpdateCocktail(int userId, int cocktailId, CocktailQueryType queryType) throws ServiceException {
         try {
-            result = cocktailDao.executeUpdateCocktail(userId, cocktailId, query);
-        } catch (DataAccessException e) {
-            throw new ServiceException("Query" + query, e);
-        }
+            switch (queryType) {
+                case DELETE_CREATED:
+                    return cocktailDao.deleteCreatedCocktail(userId, cocktailId);
+                case DELETE_FAVOURITE:
+                    return cocktailDao.deleteFavouriteCocktail(userId, cocktailId);
+                case SAVE_FAVOURITE:
+                    return cocktailDao.saveFavouriteCocktail(userId, cocktailId);
+                default:
+                    return false;
+            }
 
-        return result;
+        } catch (DataAccessException e) {
+            throw new ServiceException("Query type" + queryType, e);
+        }
     }
 
     /**

@@ -2,7 +2,7 @@ package by.khlebnikov.bartender.resource;
 
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstQueryUser;
-import by.khlebnikov.bartender.dao.QueryType;
+import by.khlebnikov.bartender.dao.CocktailQueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -88,7 +88,7 @@ public class UserResource {
         boolean isCreated = false;
 
         try {
-            return cocktailService.findAll(QueryType.ALL_FAVOURITE, language, userId, isCreated);
+            return cocktailService.findAll(CocktailQueryType.ALL_FAVOURITE, language, userId, isCreated);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to find favourite cocktails for user id=" + userId, e);
         }
@@ -113,7 +113,7 @@ public class UserResource {
         boolean isCreated = true;
 
         try {
-            return cocktailService.findAll(QueryType.ALL_CREATED, language, userId, isCreated);
+            return cocktailService.findAll(CocktailQueryType.ALL_CREATED, language, userId, isCreated);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to find created cocktails for user id=" + userId, e);
         }
@@ -131,9 +131,8 @@ public class UserResource {
     public void deleteFromFavourite(
             @PathParam("userId") int userId,
             @PathParam("cocktailId") int cocktailId) throws ResourceException {
-        String queryDeleteFavourite = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
         try {
-            cocktailService.executeUpdateCocktail(userId, cocktailId, queryDeleteFavourite);
+            cocktailService.executeUpdateCocktail(userId, cocktailId, CocktailQueryType.DELETE_FAVOURITE);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to delete favourite cocktail with id: " + cocktailId +
                     " for user id: " + userId, e);
@@ -152,10 +151,9 @@ public class UserResource {
     public void deleteCreated(
             @PathParam("userId") int userId,
             @PathParam("cocktailId") int cocktailId) throws ResourceException {
-        String deleteQuery = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_CREATED);
 
         try {
-            cocktailService.executeUpdateCocktail(userId, cocktailId, deleteQuery);
+            cocktailService.executeUpdateCocktail(userId, cocktailId, CocktailQueryType.DELETE_CREATED);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to delete created cocktail with id: " + cocktailId +
                     " for user id: " + userId, e);
@@ -173,11 +171,9 @@ public class UserResource {
     @Path("/{userId}/favourite")
     public void addToFavourite(
             @PathParam("userId") int userId, Cocktail cocktail) throws ResourceException {
-        String addFavouriteQuery = PropertyReader.getQueryProperty(ConstQueryUser.SAVE_FAVOURITE);
         logger.debug("POSTing cocktail to favourite: " + cocktail);
-
         try {
-            cocktailService.executeUpdateCocktail(userId, cocktail.getId(), addFavouriteQuery);
+            cocktailService.executeUpdateCocktail(userId, cocktail.getId(), CocktailQueryType.SAVE_FAVOURITE);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to add cocktail: " + cocktail +
                     " to favourite for user id: " + userId, e);
