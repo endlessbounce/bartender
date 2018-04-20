@@ -26,6 +26,8 @@
                 <ctg:message type="${MessageType}" locale="${locale}"/>
             </c:when>
             <c:otherwise>
+                <log:debug logger="by.khlebnikov.bartender" exception="${pageContext.errorData.throwable}">
+                </log:debug>
                 <fmt:message key="message.error"/>
             </c:otherwise>
         </c:choose>

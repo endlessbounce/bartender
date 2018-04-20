@@ -2,7 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="https://www.owasp.org/index.php/OWASP_Java_Encoder_Project" prefix="e" %>
-<%@ taglib prefix="ctg" uri="customtags" %>
+<%@ taglib uri="customtags" prefix="ctg" %>
+<%@ taglib uri="http://logging.apache.org/log4j/tld/log" prefix="log" %>
 <fmt:setLocale value="${e:forHtml(locale)}" scope="session"/>
 <fmt:setBundle basename="messages"/>
 <!doctype html>
