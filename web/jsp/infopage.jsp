@@ -20,25 +20,33 @@
     </ol>
 </nav>
 <div class="container mt-3">
-    <div class="row">
         <c:choose>
             <c:when test="${MessageType != null}">
-                <ctg:message type="${MessageType}" locale="${locale}"/>
+                <div class="row">
+                    <ctg:message type="${MessageType}" locale="${locale}"/>
+                </div>
+                <div class="row mt-3">
+                    <form action="/controller">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
+                        </div>
+                    </form>
+                </div>
             </c:when>
             <c:otherwise>
                 <log:debug logger="by.khlebnikov.bartender" exception="${pageContext.errorData.throwable}">
                 </log:debug>
-                <fmt:message key="message.error"/>
+                <div class="error500">
+                    <div class="row">
+                        <form action="/controller">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </c:otherwise>
         </c:choose>
-    </div>
-    <div class="row mt-3">
-        <form action="/controller">
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary"><fmt:message key="content.page.button.backhome"/></button>
-            </div>
-        </form>
-    </div>
 </div>
 <%@ include file="../WEB-INF/jspf/footer.jspf" %>
 </body>

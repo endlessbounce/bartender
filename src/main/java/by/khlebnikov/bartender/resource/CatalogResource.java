@@ -1,11 +1,9 @@
 package by.khlebnikov.bartender.resource;
 
-import by.khlebnikov.bartender.constant.ConstLocale;
-import by.khlebnikov.bartender.constant.ConstQueryCatalog;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.FormData;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
-import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.CatalogService;
 import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
@@ -20,50 +18,37 @@ import javax.ws.rs.core.MediaType;
 @Path("/catalog/form/data")
 public class CatalogResource {
     private Logger logger = LogManager.getLogger();
-    private CatalogService service;
+    private CatalogService catalogService;
 
     public CatalogResource() {
-        this.service = new CatalogService();
+        this.catalogService = new CatalogService();
     }
 
     /**
      * Returns an entity of FormData, containing information for dropdown lists and
      * checkboxes
-     * @param locale current locale of a user
+     * @param language current language of a user
      * @return FormData entity
      * @throws ResourceException is thrown in case of internal server exception
      */
     @GET
-    @Path("/{locale}")
+    @Path("/{language}")
     @Produces(MediaType.APPLICATION_JSON)
-    public FormData getCatalogFormData(@PathParam("locale") String locale) throws ResourceException {
-        boolean correctString = Validator.checkString(locale);
+    public FormData getCatalogFormData(@PathParam("language") String language) throws ResourceException {
+        boolean correctString = Validator.checkString(language);
         FormData data = new FormData();
-        String queryIngredient;
-        String queryBase;
-        String queryType;
 
         if (correctString) {
-            locale = locale.trim();
+            language = language.trim();
 
-            if (ConstLocale.EN.equals(locale)) {
-                queryIngredient = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT);
-                queryBase = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK);
-                queryType = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE);
-            } else {
-                queryIngredient = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT_LANG);
-                queryBase = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK_LANG);
-                queryType = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE_LANG);
-            }
-
-            logger.debug("resource: /catalog/form/data" + " locale " + locale);
+            logger.debug("resource: /catalog/form/data" + " language " + language);
 
             try {
-                data.setIngredient(service.findFormData(queryIngredient));
-                data.setBaseDrink(service.findFormData(queryBase));
-                data.setDrinkType(service.findFormData(queryType));
+                data.setIngredient(catalogService.findFormData(QueryType.INGREDIENT, language));
+                data.setBaseDrink(catalogService.findFormData(QueryType.BASE_DRINK, language));
+                data.setDrinkType(catalogService.findFormData(QueryType.DRINK_GROUP, language));
             } catch (ServiceException e) {
-                throw new ResourceException("Chosen locale: " + locale, e);
+                throw new ResourceException("Chosen language: " + language, e);
             }
         }
 

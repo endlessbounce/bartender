@@ -15,30 +15,57 @@ import java.sql.*;
 import java.util.Optional;
 
 public class UserDao {
+    // Constants ----------------------------------------------------------------------------------
+    private static String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
+    private static String UPDATE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
+    private static String IS_FAVOURITE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
+    private static String FIND_BY_COOKIE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
+    private static String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
+
+    // Vars ---------------------------------------------------------------------------------------
     private Logger logger = LogManager.getLogger();
     private ConnectionPool pool = ConnectionPool.getInstance();
 
+    // Actions ------------------------------------------------------------------------------------
     public boolean save(User user) throws DataAccessException {
-        boolean result;
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
+        return executeUpdateUser(user, SAVE_QUERY);
+    }
+
+    public boolean update(User user) throws DataAccessException {
+        return executeUpdateUser(user, UPDATE_QUERY);
+    }
+
+    public Optional<User> findByCookie(String cookie) throws DataAccessException {
+        return find(cookie, FIND_BY_COOKIE_QUERY);
+    }
+
+    public Optional<User> findByEmail(String email) throws DataAccessException {
+        return find(email, FIND_BY_EMAIL_QUERY);
+    }
+
+    public boolean isFavourite(int userId, int cocktailId) throws DataAccessException {
+        boolean result = false;
 
         try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
+             PreparedStatement prepStatement = connection.prepareStatement(IS_FAVOURITE_QUERY)
         ) {
-            prepStatement.setString(1, user.getName());
-            prepStatement.setString(2, user.getEmail());
-            prepStatement.setBlob(3, new SerialBlob(user.getHashKey()));
-            prepStatement.setBlob(4, new SerialBlob(user.getSalt()));
-            int updated = prepStatement.executeUpdate();
-            result = updated == Constant.EQUALS_1;
+            prepStatement.setInt(1, cocktailId);
+            prepStatement.setInt(2, userId);
+            ResultSet resultSet = prepStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int match = resultSet.getInt(1);
+                result = match == Constant.EQUALS_1;
+                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
+            }
         } catch (InterruptedException | SQLException e) {
-            throw new DataAccessException("User saved: " + user, e);
+            throw new DataAccessException("Is favourite: " + result, e);
         }
 
         return result;
     }
 
-    public Optional<User> find(String searchParameter, String query) throws DataAccessException {
+    private Optional<User> find(String searchParameter, String query) throws DataAccessException {
         Optional<User> result = Optional.empty();
         User user = null;
 
@@ -73,9 +100,8 @@ public class UserDao {
         return result;
     }
 
-    public boolean update(User user) throws DataAccessException {
-        boolean result = false;
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
+    private boolean executeUpdateUser(User user, String query) throws DataAccessException {
+        boolean result;
 
         try (Connection connection = pool.getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
@@ -88,54 +114,9 @@ public class UserDao {
             int updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
         } catch (InterruptedException | SQLException e) {
-            throw new DataAccessException("User updated: " + result, e);
+            throw new DataAccessException("User updated: " + user, e);
         }
 
         return result;
-    }
-
-    public boolean isFavourite(int userId, int cocktailId) throws DataAccessException {
-        boolean result = false;
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
-
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, cocktailId);
-            prepStatement.setInt(2, userId);
-            ResultSet resultSet = prepStatement.executeQuery();
-
-            if (resultSet.next()) {
-                int match = resultSet.getInt(1);
-                result = match == Constant.EQUALS_1;
-                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
-            }
-        } catch (InterruptedException | SQLException e) {
-            throw new DataAccessException("Is favourite: " + result, e);
-        }
-
-        return result;
-    }
-
-    /**
-     * Works with favourite or created by user cocktails
-     *
-     * @param userId
-     * @param cocktailId
-     * @param query
-     * @return
-     */
-    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws DataAccessException {
-        int updated = 0;
-        try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
-        ) {
-            prepStatement.setInt(1, cocktailId);
-            prepStatement.setInt(2, userId);
-            updated = prepStatement.executeUpdate();
-        } catch (InterruptedException | SQLException e) {
-            throw new DataAccessException("BD is updated: " + updated, e);
-        }
-        return updated == Constant.EQUALS_1;
     }
 }

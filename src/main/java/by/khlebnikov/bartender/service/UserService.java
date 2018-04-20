@@ -1,13 +1,11 @@
 package by.khlebnikov.bartender.service;
 
-import by.khlebnikov.bartender.constant.ConstQueryUser;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
-import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.utility.Password;
 import by.khlebnikov.bartender.utility.Utility;
 import by.khlebnikov.bartender.validator.Validator;
@@ -26,11 +24,10 @@ public class UserService {
     }
 
     public Optional<User> findUser(String email) throws ServiceException {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
         Optional<User> userOptional;
 
         try {
-            userOptional = userDao.find(email, query);
+            userOptional = userDao.findByEmail(email);
         } catch (DataAccessException e) {
             throw new ServiceException("Email: " + email, e);
         }
@@ -51,11 +48,10 @@ public class UserService {
     }
 
     public Optional<User> checkUser(String email, String password) throws ServiceException {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
         Optional<User> userOpt;
 
         try {
-            userOpt = userDao.find(email, query);
+            userOpt = userDao.findByEmail(email);
         } catch (DataAccessException e) {
             throw new ServiceException("Looking for user with: " + email + ",\n password: " + password, e);
         }
@@ -75,11 +71,10 @@ public class UserService {
     }
 
     public Optional<User> findUserByCookie(String cookieId) throws ServiceException {
-        String query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
         Optional<User> userOptional;
 
         try {
-            userOptional = userDao.find(cookieId, query);
+            userOptional = userDao.findByCookie(cookieId);
         } catch (DataAccessException e) {
             throw new ServiceException("Cookie: " + cookieId, e);
         }
@@ -194,18 +189,6 @@ public class UserService {
             result = userDao.isFavourite(userId, cocktailId);
         } catch (DataAccessException e) {
             throw new ServiceException("User id: " + userId + ",\n cocktail id" + cocktailId, e);
-        }
-
-        return result;
-    }
-
-    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws ServiceException {
-        boolean result;
-
-        try {
-            result = userDao.executeUpdateCocktail(userId, cocktailId, query);
-        } catch (DataAccessException e) {
-            throw new ServiceException("Query" + query, e);
         }
 
         return result;

@@ -5,25 +5,29 @@ import by.khlebnikov.bartender.constant.ConstTableProspect;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.exception.DataAccessException;
-import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.pool.ConnectionPool;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.util.Optional;
 
 public class ProspectUserDao {
+    // Constants ----------------------------------------------------------------------------------
+    private static String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
+    private static String FIND_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
+    private static String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
+
+    // Vars ---------------------------------------------------------------------------------------
     private ConnectionPool pool = ConnectionPool.getInstance();
 
+    // Actions ------------------------------------------------------------------------------------
     public boolean save(ProspectUser prospectUser) throws DataAccessException {
         boolean result;
         int updated = 0;
-        String query = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
 
         try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
+             PreparedStatement prepStatement = connection.prepareStatement(SAVE_QUERY)
         ) {
             prepStatement.setString(1, prospectUser.getName());
             prepStatement.setString(2, prospectUser.getEmail());
@@ -43,10 +47,9 @@ public class ProspectUserDao {
     public Optional<ProspectUser> find(String email) throws DataAccessException {
         ProspectUser prospectUser = null;
         Optional<ProspectUser> result = Optional.empty();
-        String query = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
 
         try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
+             PreparedStatement prepStatement = connection.prepareStatement(FIND_QUERY)
         ) {
             prepStatement.setString(1, email);
             ResultSet rs = prepStatement.executeQuery();
@@ -56,12 +59,12 @@ public class ProspectUserDao {
                 String dbEmail = rs.getString(ConstTableProspect.EMAIL);
 
                 Blob hashBlob = rs.getBlob(ConstTableProspect.HASH);
-                int lentghHash = (int) hashBlob.length();
-                byte[] dbHash = hashBlob.getBytes(1, lentghHash);
+                int lengthHash = (int) hashBlob.length();
+                byte[] dbHash = hashBlob.getBytes(1, lengthHash);
 
                 Blob hashSalt = rs.getBlob(ConstTableProspect.SALT);
-                int lentghSalt = (int) hashSalt.length();
-                byte[] dbSalt = hashSalt.getBytes(1, lentghSalt);
+                int lengthSalt = (int) hashSalt.length();
+                byte[] dbSalt = hashSalt.getBytes(1, lengthSalt);
 
                 long dbExpiration = rs.getLong(ConstTableProspect.EXPIRATION);
                 long dbCode = rs.getLong(ConstTableProspect.CODE);
@@ -80,10 +83,9 @@ public class ProspectUserDao {
     public boolean delete(String email) throws DataAccessException {
         boolean result;
         int updated = 0;
-        String query = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
 
         try (Connection connection = pool.getConnection();
-             PreparedStatement prepStatement = connection.prepareStatement(query)
+             PreparedStatement prepStatement = connection.prepareStatement(DELETE_QUERY)
         ) {
             prepStatement.setString(1, email);
             updated = prepStatement.executeUpdate();

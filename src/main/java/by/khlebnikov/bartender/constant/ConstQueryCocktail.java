@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.constant;
 
 public class ConstQueryCocktail {
     public static final String INGREDIENT = "cocktailreposiory.ingredients";
+    public static final String INGREDIENT_CREATED = "cocktailreposiory.ingredientscreated";
     public static final String INGREDIENT_RUS = "cocktailreposiory.ingredientsrus";
 
     //query for filtering by multiple parameters

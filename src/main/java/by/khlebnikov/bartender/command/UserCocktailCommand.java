@@ -1,6 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.*;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ControllerException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -27,18 +28,11 @@ public class UserCocktailCommand implements Command {
         String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
         boolean isCreated = true;
         Optional<Cocktail> cocktailOpt;
-        String query;
         String page;
-
-        if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_CREATED_BY_ID);
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
-        }
 
         try{
             /*RU language means to fetch from the column where created cocktail has been saved*/
-            cocktailOpt = cocktailService.find(cocktailId, language, isCreated, query);
+            cocktailOpt = cocktailService.find(QueryType.FIND_CREATED, cocktailId, language, isCreated);
         } catch (ServiceException e) {
             throw new ControllerException(e);
         }

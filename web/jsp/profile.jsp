@@ -43,11 +43,22 @@
             </a>
             <a class="nav-link"
                id="newCocktail"
+               ng-hide="prof.editMode"
                data-toggle="pill"
                href="#newContent"
                role="tab"
                aria-controls="newContent"
                aria-selected="false"><fmt:message key="content.page.profile.create"/>
+            </a>
+            <a class="nav-link"
+               id="editCocktail"
+               style="visibility: hidden"
+               ng-show="prof.editMode"
+               data-toggle="pill"
+               href="#newContent"
+               role="tab"
+               aria-controls="newContent"
+               aria-selected="false"><fmt:message key="content.page.profile.edit"/>
             </a>
         </div>
 
@@ -145,16 +156,16 @@
                                    class="btn btn-primary"><fmt:message
                                         key="content.pagination.view"/>
                                 </a>
-                                <a ng-href="/controller?command=user_cocktail&id={{card.id}}">
+                                <a ng-href="#">
                                     <button class="btn btn-default"
-                                    ng-click="prof.editCreated(card.id)">
-                                        <img src="${ pageContext.request.contextPath }/img/edit.png" width="20" />
+                                            ng-click="prof.editCreated(card.id)">
+                                        <img src="${ pageContext.request.contextPath }/img/edit.png" width="20"/>
                                     </button>
                                 </a>
                                 <a ng-href="#">
                                     <button class="btn btn-default"
                                             ng-click="prof.deleteCreated(card.id)">
-                                        <img src="${ pageContext.request.contextPath }/img/delete.png" width="20" />
+                                        <img src="${ pageContext.request.contextPath }/img/delete.png" width="20"/>
                                     </button>
                                 </a>
                             </div>
@@ -162,7 +173,8 @@
                     </div>
 
                     <div class="row m-3" ng-hide="prof.createdCocktails.length <= 12">
-                        <div class="btn-toolbar" id="btngroupCreated" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-toolbar" id="btngroupCreated" role="toolbar"
+                             aria-label="Toolbar with button groups">
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <button type="button" class="btn btn-secondary" ng-click="prof.changeDisplayNumber(12)">
                                     12
@@ -233,12 +245,12 @@
                                 </div>
                                 <div class="col">
                                     <button type="button"
-                                            class="btn btn-warning"
+                                            class="btn btn-warning m-1"
                                             ng-click="prof.removeImage()"><fmt:message
                                             key="create.ingredients.removeImage"/>
                                     </button>
                                     <button type="button"
-                                            class="btn btn-warning"
+                                            class="btn btn-warning m-1"
                                             ng-click="prof.cleanFrom()"><fmt:message
                                             key="create.ingredients.cleanform"/>
                                     </button>
@@ -411,9 +423,26 @@
                         </div>
 
                         <%--SAVE BUTTON--%>
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-3"
+                             ng-hide="prof.editMode">
                             <button type="submit" class="btn btn-primary"><fmt:message
                                     key="create.save"/>
+                            </button>
+                            <small ng-hide="prof.ingredientIsChosen" class="form-text text-danger"><fmt:message
+                                    key="create.ingredientisnotchosen"/></small>
+                            <small ng-hide="prof.errorNotSaved" class="form-text text-danger"><fmt:message
+                                    key="create.error"/></small>
+                            <small ng-hide="prof.ingredientsUnique" class="form-text text-danger"><fmt:message
+                                    key="create.unique"/></small>
+                        </div>
+
+                        <%--UPDATE BUTTON--%>
+                        <div class="form-group mb-3"
+                             ng-show="prof.editMode"
+                             style="visibility: hidden"
+                             id="updateButton">
+                            <button type="submit" class="btn btn-primary"><fmt:message
+                                    key="create.update"/>
                             </button>
                             <small ng-hide="prof.ingredientIsChosen" class="form-text text-danger"><fmt:message
                                     key="create.ingredientisnotchosen"/></small>

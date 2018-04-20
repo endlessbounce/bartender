@@ -1,8 +1,8 @@
 package by.khlebnikov.bartender.resource;
 
-import by.khlebnikov.bartender.constant.ConstLocale;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstQueryUser;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -14,7 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 
@@ -38,7 +41,8 @@ public class UserResource {
 
     /**
      * Finds a favourite cocktail by its id
-     * @param userId user's ID
+     *
+     * @param userId     user's ID
      * @param cocktailId favourite cocktail's ID
      * @return Cocktail entity
      * @throws ResourceException in case of internal exception
@@ -52,7 +56,7 @@ public class UserResource {
         boolean isFavourite;
 
         try {
-            isFavourite= userService.isFavouriteCocktail(userId, cocktailId);
+            isFavourite = userService.isFavouriteCocktail(userId, cocktailId);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to figure out if cocktail + " + cocktailId +
                     " is favourite for user " + userId, e);
@@ -68,7 +72,8 @@ public class UserResource {
 
     /**
      * Finds all favourite cocktails of given user
-     * @param userId user's ID
+     *
+     * @param userId  user's ID
      * @param uriInfo info of URI to get request parameters
      * @return list of favourite cocktails
      * @throws ResourceException in case of internal exception
@@ -81,29 +86,19 @@ public class UserResource {
         MultivaluedMap params = uriInfo.getQueryParameters();
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         boolean isCreated = false;
-        List<Cocktail> cocktailList;
-        String query;
-
-        if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE);
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_FAVOURITE_LANG);
-        }
-        logger.debug("getAllFavourite: " + query);
 
         try {
-            cocktailList = cocktailService.findAll(language, query, userId, isCreated);
+            return cocktailService.findAll(QueryType.ALL_FAVOURITE, language, userId, isCreated);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to find favourite cocktails for user id=" + userId, e);
         }
-
-        return cocktailList;
     }
 
 
     /**
      * Finds all created by user cocktails
-     * @param userId user's ID
+     *
+     * @param userId  user's ID
      * @param uriInfo info of URI to get request parameters
      * @return list of created cocktails
      * @throws ResourceException in case of internal exception
@@ -116,29 +111,18 @@ public class UserResource {
         MultivaluedMap params = uriInfo.getQueryParameters();
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         boolean isCreated = true;
-        List<Cocktail> cocktailList;
-        String query;
-
-        if (ConstLocale.EN.equals(language)) {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED);
-        } else {
-            query = PropertyReader.getQueryProperty(ConstQueryUser.FIND_ALL_CREATED_LANG);
-        }
-        logger.debug("findAllCreated: " + query);
 
         try {
-            cocktailList = cocktailService.findAll(language, query, userId, isCreated);
+            return cocktailService.findAll(QueryType.ALL_CREATED, language, userId, isCreated);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to find created cocktails for user id=" + userId, e);
         }
-
-
-        return cocktailList;
     }
 
     /**
      * Deletes chosen cocktail from list of favourite ones
-     * @param userId user's ID
+     *
+     * @param userId     user's ID
      * @param cocktailId cocktail's ID
      * @throws ResourceException in case of internal exception
      */
@@ -149,7 +133,7 @@ public class UserResource {
             @PathParam("cocktailId") int cocktailId) throws ResourceException {
         String queryDeleteFavourite = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_FAVOURITE);
         try {
-            userService.executeUpdateCocktail(userId, cocktailId, queryDeleteFavourite);
+            cocktailService.executeUpdateCocktail(userId, cocktailId, queryDeleteFavourite);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to delete favourite cocktail with id: " + cocktailId +
                     " for user id: " + userId, e);
@@ -158,7 +142,8 @@ public class UserResource {
 
     /**
      * Deletes a cocktail from the list of created ones
-     * @param userId user's ID
+     *
+     * @param userId     user's ID
      * @param cocktailId cocktail's ID
      * @throws ResourceException in case of internal exception
      */
@@ -170,7 +155,7 @@ public class UserResource {
         String deleteQuery = PropertyReader.getQueryProperty(ConstQueryUser.DELETE_CREATED);
 
         try {
-            userService.executeUpdateCocktail(userId, cocktailId, deleteQuery);
+            cocktailService.executeUpdateCocktail(userId, cocktailId, deleteQuery);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to delete created cocktail with id: " + cocktailId +
                     " for user id: " + userId, e);
@@ -179,7 +164,8 @@ public class UserResource {
 
     /**
      * Saves favourite cocktail to the database
-     * @param userId user's ID
+     *
+     * @param userId   user's ID
      * @param cocktail cocktail entity
      * @throws ResourceException in case of internal exception
      */
@@ -191,7 +177,7 @@ public class UserResource {
         logger.debug("POSTing cocktail to favourite: " + cocktail);
 
         try {
-            userService.executeUpdateCocktail(userId, cocktail.getId(), addFavouriteQuery);
+            cocktailService.executeUpdateCocktail(userId, cocktail.getId(), addFavouriteQuery);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to add cocktail: " + cocktail +
                     " to favourite for user id: " + userId, e);
@@ -200,8 +186,9 @@ public class UserResource {
 
     /**
      * Saves created by user cocktail to the database
-     * @param userId user's ID
-     * @param uriInfo info of URI to get request parameters
+     *
+     * @param userId   user's ID
+     * @param uriInfo  info of URI to get request parameters
      * @param cocktail cocktail entity
      * @throws ResourceException in case of internal exception
      */
@@ -218,7 +205,26 @@ public class UserResource {
         try {
             cocktailService.save(userId, cocktail, httpRequest, params);
         } catch (ServiceException e) {
-            throw new ResourceException("", e);
+            throw new ResourceException(e);
+        }
+    }
+
+    @PUT
+    @Path("/{userId}/created/{cocktailId}")
+    public void updateCreated(
+            @PathParam("userId") int userId,
+            @PathParam("cocktailId") int cocktailId,
+            @Context UriInfo uriInfo,
+            Cocktail cocktail) throws ResourceException {
+        logger.debug("POSTing created cocktail for user: " + userId + " .... " + cocktail);
+
+        MultivaluedMap params = uriInfo.getQueryParameters();
+
+        try {
+            cocktailService.save(userId, cocktail, httpRequest, params);
+        } catch (ServiceException e) {
+            throw new ResourceException("Error while updating cocktail id=" + cocktail +
+                    " for user id=" + userId, e);
         }
     }
 }

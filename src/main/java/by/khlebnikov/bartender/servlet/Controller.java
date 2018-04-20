@@ -57,14 +57,9 @@ public class Controller extends HttpServlet {
             page = command.execute(request);
         } catch (ControllerException e) {
             /*there seems to be no solid reasons to show users internal error descriptions
-             * so we simply will display a message that error happened and make a log*/
+             * so we simply will display a message that error happened and make a log in JSP*/
             logger.catching(e);
             page = PropertyReader.getConfigProperty(ConstPage.RESULT);
-            String message = (String)request.getAttribute(ConstAttribute.MESSAGE_TYPE);
-
-            if(message == null){
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.ERROR);
-            }
         }
 
         logger.debug("respond page : " + page);

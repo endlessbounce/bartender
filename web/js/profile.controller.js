@@ -85,6 +85,7 @@
             self.ingredientIsChosen = true;
             self.errorNotSaved = true;
             self.ingredientsUnique = true;
+            self.editMode = false;
 
             // ****************************************************
             // ****************FAVOURITE***************************
@@ -263,8 +264,15 @@
                     console.log(JSON.stringify(self.selectedBaseCocktail));
 
                     //send data to the server
-                    restService.addCreated(self.selectedBaseCocktail, self.userID)
-                        .then(function () {
+                    var promise;
+
+                    if(self.editMode){
+                        promise = restService.updateCreated(self.selectedBaseCocktail, self.userID);
+                    }else{
+                        promise = restService.addCreated(self.selectedBaseCocktail, self.userID);
+                    }
+
+                    promise.then(function () {
                             //update list of created cocktails
                             restService.getAllCreated(self.userID).then(function (data) {
                                 self.createdCocktails = data;
@@ -373,7 +381,12 @@
             }
 
             self.cleanCreateSection = function () {
-                document.getElementById("newCocktail").classList.remove('active');
+                if(self.editMode){
+                    document.getElementById("editCocktail").classList.remove('active');
+                }else{
+                    document.getElementById("newCocktail").classList.remove('active');
+                }
+
                 document.getElementById("newContent").classList.remove('show');
                 document.getElementById("newContent").classList.remove('active');
                 self.cleanFrom();
@@ -414,7 +427,34 @@
             }
 
             self.editCreated = function (cocktailID) {
+                document.getElementById("editCocktail").style.visibility = "visible";
+                document.getElementById("updateButton").style.visibility = "visible";
+                var i;
+                for(i = 0; i < self.createdCocktails.length; i++){
+                    if(self.createdCocktails[i].id == cocktailID){
+                        console.log("editing cocktail: " + JSON.stringify(self.createdCocktails[i]));
+                        self.selectedBaseCocktail = self.createdCocktails[i];
+                        document.getElementById('cocktailImage').src = self.selectedBaseCocktail.uri;
+                        self.pictureVisible = true;
+                    }
+                }
 
+                self.updateName();
+                self.updateSlogan();
+                self.updateTextarea();
+                var ingredients = self.selectedBaseCocktail.ingredientList.length;
+                for(i = 0; i < ingredients; i++){
+                    self.updatePortion(i);
+                }
+                self.ingredientsLeft = 20 - ingredients;
+
+                document.getElementById("myCocktails").classList.remove('active');
+                document.getElementById("myContent").classList.remove('show');
+                document.getElementById("myContent").classList.remove('active');
+                document.getElementById("editCocktail").classList.add('active');
+                document.getElementById("newContent").classList.add('show');
+                document.getElementById("newContent").classList.add('active');
+                self.editMode = true;
             }
         })//directive for binding file input and model. this allows to use ng-change and dynamically
         //display new uploaded image

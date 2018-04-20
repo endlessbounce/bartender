@@ -4,6 +4,7 @@ import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstQueryCocktail;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.CocktailDao;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -37,44 +38,36 @@ public class CocktailService {
      * @param language
      * @return
      */
-    public Optional<Cocktail> find(int cocktailId, String language, boolean isCreated, String query) throws ServiceException {
+    public Optional<Cocktail> find(QueryType queryType, int cocktailId, String language, boolean isCreated) throws ServiceException {
         Optional<Cocktail> cocktailOpt;
         try {
-            cocktailOpt = cocktailDao.find(cocktailId, language, isCreated, query);
+            cocktailOpt = cocktailDao.findByCocktailId(queryType, cocktailId, language, isCreated);
 
             if (cocktailOpt.isPresent()) {
                 Cocktail cocktail = cocktailOpt.get();
-                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId(), isCreated));
             }
         } catch (DataAccessException e) {
             throw new ServiceException("Find a cocktail with cocktail id: " + cocktailId +
                     ",\n chosen language: " + language +
                     ",\n is created by user: " + isCreated +
-                    ",\n query: " + query, e);
+                    ",\n query type: " + queryType, e);
         }
 
         return cocktailOpt;
     }
 
-    /**
-     * Finds all favourite or created by user cocktails
-     *
-     * @param language
-     * @param query
-     * @param userId
-     * @return
-     */
-    public List<Cocktail> findAll(String language, String query, int userId, boolean isCreated) throws ServiceException {
+
+    public List<Cocktail> findAll(QueryType queryType, String language, int userId, boolean isCreated) throws ServiceException {
         List<Cocktail> createdList;
 
         try {
-            createdList = cocktailDao.findAll(userId, query, language, isCreated);
-            fillWithIngredient(createdList, language);
+            createdList = cocktailDao.findAllByUserId(queryType, userId, language, isCreated);
+            fillWithIngredient(createdList, language, isCreated);
         } catch (DataAccessException e) {
             throw new ServiceException("Find all cocktails with user id: " + userId +
                     ",\n language: " + language +
-                    ",\n is cocktail created by user: " + isCreated +
-                    ",\n query: " + query, e);
+                    ",\n is cocktail created by user: " + isCreated, e);
         }
 
         return createdList;
@@ -91,6 +84,7 @@ public class CocktailService {
         String drinkType = null;
         String baseDrink = null;
         String language = null;
+        boolean isCreated = false;
 
         for (Object key : params.keySet()) {
             if (ConstQueryCocktail.DRINK_TYPE.equals(key)) {
@@ -115,15 +109,8 @@ public class CocktailService {
         List<Cocktail> cocktailList;
 
         try {
-            cocktailList = cocktailDao.findAllMatching(language,
-                    drinkType,
-                    baseDrink,
-                    ingredientList);
-
-            /*find each cocktail's portions with ingredients*/
-            for (Cocktail cocktail : cocktailList) {
-                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
-            }
+            cocktailList = cocktailDao.findAllMatching(language, drinkType, baseDrink, ingredientList);
+            fillWithIngredient(cocktailList, language, isCreated);
         } catch (DataAccessException e) {
             throw new ServiceException("Find cocktails by parameters: type of drink: " + drinkType +
                     ", base drink: " + baseDrink +
@@ -153,24 +140,32 @@ public class CocktailService {
         boolean stringOk = Validator.checkString(uri);
         boolean result;
 
-        if (!stringOk) {
-            cocktail.setUri(Constant.DEFAULT_COCKTAIL);
-        } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
-            try {
-                cocktail.setUri(Utility.convertBase64ToImage(uri, httpRequest));
-            } catch (IOException e) {
-                throw new ServiceException("Exception while converting BASE64 to image", e);
-            }
-        }
-
-        logger.debug("imparting cocktail to DAO: " + cocktail);
-
         try {
+            if (!stringOk) {
+                cocktail.setUri(Constant.DEFAULT_COCKTAIL);
+            } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
+                cocktail.setUri(Utility.convertBase64ToImage(uri, httpRequest));
+            }
+
+            logger.debug("imparting cocktail to DAO: " + cocktail);
+
             result = cocktailDao.save(userId, cocktail, language);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | IOException e) {
             throw new ServiceException("Save created cocktail with user id: " + userId +
                     ",\n language" + language +
                     ",\n cocktail:" + cocktail, e);
+        }
+
+        return result;
+    }
+
+    public boolean executeUpdateCocktail(int userId, int cocktailId, String query) throws ServiceException {
+        boolean result;
+
+        try {
+            result = cocktailDao.executeUpdateCocktail(userId, cocktailId, query);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Query" + query, e);
         }
 
         return result;
@@ -182,10 +177,10 @@ public class CocktailService {
      * @param cocktailList
      * @param language
      */
-    private void fillWithIngredient(List<Cocktail> cocktailList, String language) throws DataAccessException {
+    private void fillWithIngredient(List<Cocktail> cocktailList, String language, boolean isCreated) throws DataAccessException {
         if (!cocktailList.isEmpty()) {
             for (Cocktail cocktail : cocktailList) {
-                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId()));
+                cocktail.setIngredientList(cocktailDao.findIngredients(language, cocktail.getId(), isCreated));
             }
         }
     }

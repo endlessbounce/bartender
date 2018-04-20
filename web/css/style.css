@@ -1,0 +1,33 @@
+.container {
+    min-height: 650px;
+}
+
+.ingredient {
+    height: 300px;
+    overflow:auto;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+.checkIngredient{
+    margin-left: 3px;
+}
+
+.fixed{
+    position: fixed;
+}
+
+.error404{
+    background: #3f5d81 url(http://localhost:8080/img/error404.png) no-repeat 50% 50%;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0px;
+}
+
+.error500{
+    background: url(http://localhost:8080/img/error500.png) no-repeat 50% 50%;
+    width: 100%;
+    height: 650px;
+    margin: 0px;
+}
