@@ -1,5 +1,6 @@
 package by.khlebnikov.bartender.tag;
 
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.servlet.jsp.JspException;
@@ -7,9 +8,11 @@ import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 
 public class MessageTag extends TagSupport {
+    // Vars ---------------------------------------------------------------------------------------
     private MessageType type;
-    private String locale = "";
+    private String locale = Constant.EMPTY;
 
+    // Actions ------------------------------------------------------------------------------------
     public void setType(MessageType type) {
         this.type = type;
     }
@@ -21,7 +24,7 @@ public class MessageTag extends TagSupport {
     @Override
     public int doStartTag() throws JspException {
         try {
-            String message = "";
+            String message = Constant.EMPTY;
             if (type != null) {
                 message = PropertyReader.getMessageProperty(type.getMessageKey(), locale);
             }

@@ -14,9 +14,9 @@ import java.util.Optional;
 
 public class ProspectUserDao {
     // Constants ----------------------------------------------------------------------------------
-    private static String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
-    private static String FIND_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
-    private static String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
+    private static final String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
+    private static final String FIND_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
+    private static final String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
 
     // Vars ---------------------------------------------------------------------------------------
     private ConnectionPool pool = ConnectionPool.getInstance();

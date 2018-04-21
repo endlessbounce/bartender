@@ -16,12 +16,12 @@ import java.util.ArrayList;
 
 public class CatalogDao {
     // Constants ----------------------------------------------------------------------------------
-    private static String QUERY_INGREDIENT = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT);
-    private static String QUERY_INGREDIENT_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT_LANG);
-    private static String QUERY_BASE = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK);
-    private static String QUERY_BASE_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK_LANG);
-    private static String QUERY_TYPE = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE);
-    private static String QUERY_TYPE_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE_LANG);
+    private static final String QUERY_INGREDIENT = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT);
+    private static final String QUERY_INGREDIENT_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT_LANG);
+    private static final String QUERY_BASE = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK);
+    private static final String QUERY_BASE_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.BASE_DRINK_LANG);
+    private static final String QUERY_TYPE = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE);
+    private static final String QUERY_TYPE_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE_LANG);
 
     // Vars ---------------------------------------------------------------------------------------
     private Logger logger = LogManager.getLogger();
@@ -40,6 +40,7 @@ public class CatalogDao {
         return ConstLocale.EN.equals(language) ? findFormData(QUERY_TYPE) : findFormData(QUERY_TYPE_LANG);
     }
 
+    // Helper methods ------------------------------------------------------------------------
     private ArrayList<String> findFormData(String query) throws DataAccessException {
         ArrayList<String> result = new ArrayList<>();
 

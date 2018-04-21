@@ -36,4 +36,8 @@ public class ConstQueryCocktail {
     public static final String SAVE_COMBINATION_RUS = "cocktaildao.savecombinationrus";
     public static final String LAST_INSERTED_ID = "cocktaildao.lastinsertedid";
 
+    //Update created cocktail
+    public static final String UPDATE_CREATED = "cocktaildao.update";
+    public static final String UPDATE_CREATED_LANG = "cocktaildao.updatelang";
+    public static final String DELETE_PORTION = "cocktaildao.deleteportion";
 }

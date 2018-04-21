@@ -1,7 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.*;
-import by.khlebnikov.bartender.dao.CocktailQueryType;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ControllerException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -32,7 +32,7 @@ public class CocktailCommand implements Command {
         Optional<Cocktail> cocktailOpt;
 
         try {
-            cocktailOpt = cocktailService.find(CocktailQueryType.FIND, cocktailId, language, isCreated);
+            cocktailOpt = cocktailService.find(QueryType.FIND, cocktailId, language, isCreated);
         } catch (ServiceException e) {
             throw new ControllerException(e);
         }

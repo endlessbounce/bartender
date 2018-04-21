@@ -13,16 +13,19 @@ import by.khlebnikov.bartender.validator.Validator;
 import java.util.Optional;
 
 public class UserService {
+    // Vars ---------------------------------------------------------------------------------------
     private UserDao userDao;
     private ProspectUserDao prospectUserDao;
     private Password passwordGenerator;
 
+    // Constructors -------------------------------------------------------------------------------
     public UserService() {
         this.userDao = new UserDao();
         this.prospectUserDao = new ProspectUserDao();
         this.passwordGenerator = new Password();
     }
 
+    // Actions ------------------------------------------------------------------------------------
     public Optional<User> findUser(String email) throws ServiceException {
         Optional<User> userOptional;
 

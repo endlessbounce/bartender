@@ -1,6 +1,6 @@
 package by.khlebnikov.bartender.resource;
 
-import by.khlebnikov.bartender.dao.CocktailQueryType;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.FormData;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -44,9 +44,9 @@ public class CatalogResource {
             logger.debug("resource: /catalog/form/data" + " language " + language);
 
             try {
-                data.setIngredient(catalogService.findFormData(CocktailQueryType.INGREDIENT, language));
-                data.setBaseDrink(catalogService.findFormData(CocktailQueryType.BASE_DRINK, language));
-                data.setDrinkType(catalogService.findFormData(CocktailQueryType.DRINK_GROUP, language));
+                data.setIngredient(catalogService.findFormData(QueryType.INGREDIENT, language));
+                data.setBaseDrink(catalogService.findFormData(QueryType.BASE_DRINK, language));
+                data.setDrinkType(catalogService.findFormData(QueryType.DRINK_GROUP, language));
             } catch (ServiceException e) {
                 throw new ResourceException("Chosen language: " + language, e);
             }

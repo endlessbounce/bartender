@@ -129,7 +129,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log("ERROR: " + response.data);
                 });
                 return promise2;
             };

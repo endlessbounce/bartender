@@ -1,7 +1,7 @@
 package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.dao.CatalogDao;
-import by.khlebnikov.bartender.dao.CocktailQueryType;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
 
@@ -11,13 +11,16 @@ import java.util.ArrayList;
  * Returns data to fill in cocktail selection forms.
  */
 public class CatalogService {
+    // Vars ---------------------------------------------------------------------------------------
     private CatalogDao dao;
 
+    // Constructors -------------------------------------------------------------------------------
     public CatalogService() {
         this.dao = new CatalogDao();
     }
 
-    public ArrayList<String> findFormData(CocktailQueryType type, String language) throws ServiceException {
+    // Actions ------------------------------------------------------------------------------------
+    public ArrayList<String> findFormData(QueryType type, String language) throws ServiceException {
         ArrayList<String> result;
 
         try {

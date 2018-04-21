@@ -4,42 +4,6 @@
             var self = this;
             self.userID = null;
 
-            /**
-             * Is called on initialization of profile page
-             * @param section - if not null, 'user cocktails' section will be active
-             * @param userID - user's ID
-             */
-            self.init = function (section, userID) {
-                self.userID = userID;
-                console.log("ProfileCtrl ON_INIT: userID: " + userID + ", section: " + section);
-
-                //getAllFavourite & getAllCreated are called in on-init method because they use userID,
-                //and outside of this method it will be none before on-init gets userID injected
-                //get favourite cocktails on load of the page
-                restService.getAllFavourite(self.userID).then(function (data) {
-                    self.cocktails = data;
-                    console.log('getting all favourite ' + data)
-                    document.getElementById("firstItem").style.visibility = "visible";
-                });
-
-                //get all created by user cocktails on load of the page
-                restService.getAllCreated(self.userID).then(function (data) {
-                    self.createdCocktails = data;
-                    console.log('getting all created ' + data)
-                    document.getElementById("secondItem").style.visibility = "visible";
-                });
-
-                //check if user was moving from a page of created by him cocktail
-                if(section == 'created'){
-                    document.getElementById("favourite").classList.remove('active');
-                    document.getElementById("favContent").classList.remove('show');
-                    document.getElementById("favContent").classList.remove('active');
-                    document.getElementById("myCocktails").classList.add('active');
-                    document.getElementById("myContent").classList.add('show');
-                    document.getElementById("myContent").classList.add('active');
-                }
-            }
-
             //button group show pages
             self.showPages = 12;
 
@@ -257,44 +221,49 @@
                 } else {
                     self.checkIngredients();
                 }
+                console.log("saving: " + self.pictureValidSize + " " +
+                    self.ingredientsUnique + " " +
+                    self.ingredientIsChosen)
 
                 if (self.pictureValidSize &&
                     self.ingredientsUnique &&
                     self.ingredientIsChosen) {
-                    console.log(JSON.stringify(self.selectedBaseCocktail));
+                    console.log("SUBMITTED cocktail: " + JSON.stringify(self.selectedBaseCocktail));
 
                     //send data to the server
                     var promise;
 
-                    if(self.editMode){
+                    if (self.editMode) {
                         promise = restService.updateCreated(self.selectedBaseCocktail, self.userID);
-                    }else{
+                    } else {
                         promise = restService.addCreated(self.selectedBaseCocktail, self.userID);
                     }
 
                     promise.then(function () {
-                            //update list of created cocktails
-                            restService.getAllCreated(self.userID).then(function (data) {
-                                self.createdCocktails = data;
-                                document.getElementById("secondItem").style.visibility = "visible";
-                            });
-
-                            //cleaning of the section
-                            self.cleanCreateSection();
-
-                            //moving view to "my cocktails" pill
-                            document.getElementById("myCocktails").classList.add('active');
-                            document.getElementById("myContent").classList.add('show');
-                            document.getElementById("myContent").classList.add('active');
-
-                        }, function (data) {
-                            //show a message if an error happened on server side
-                            console.log(data);
-                            self.errorNotSaved = false;
-                            setTimeout(function () {
-                                self.errorNotSaved = true;
-                            }, 5000);
+                        //update list of created cocktails
+                        restService.getAllCreated(self.userID).then(function (data) {
+                            self.createdCocktails = data;
+                            document.getElementById("secondItem").style.visibility = "visible";
                         });
+                        //cleaning of the section
+                        self.cleanCreateSection();
+
+                        //moving view to "my cocktails" pill
+                        document.getElementById("myCocktails").classList.add('active');
+                        document.getElementById("myContent").classList.add('show');
+                        document.getElementById("myContent").classList.add('active');
+
+                        if (self.editMode) {
+                            self.editMode = false;
+                        }
+                    }, function (data) {
+                        //show a message if an error happened on server side
+                        console.log(data);
+                        self.errorNotSaved = false;
+                        setTimeout(function () {
+                            self.errorNotSaved = true;
+                        }, 5000);
+                    });
                 }
             }
 
@@ -381,9 +350,9 @@
             }
 
             self.cleanCreateSection = function () {
-                if(self.editMode){
+                if (self.editMode) {
                     document.getElementById("editCocktail").classList.remove('active');
-                }else{
+                } else {
                     document.getElementById("newCocktail").classList.remove('active');
                 }
 
@@ -418,20 +387,24 @@
                 console.log("deleting: " + cocktailID);
                 restService.deleteCreatedCocktail(cocktailID, self.userID).then(function () {
 
-                        restService.getAllCreated(self.userID).then(function (data) {
-                            console.log("updating created cocktails: " + data);
-                            self.createdCocktails = data;
-                        });
-
+                    restService.getAllCreated(self.userID).then(function (data) {
+                        console.log("updating created cocktails: " + data);
+                        self.createdCocktails = data;
                     });
+
+                });
             }
 
             self.editCreated = function (cocktailID) {
                 document.getElementById("editCocktail").style.visibility = "visible";
                 document.getElementById("updateButton").style.visibility = "visible";
+                console.log("self.createdCocktails.length: " + self.createdCocktails.length);
+                console.log("self.createdCocktails: " + JSON.stringify(self.createdCocktails));
+                console.log("id to edit: " + cocktailID);
+
                 var i;
-                for(i = 0; i < self.createdCocktails.length; i++){
-                    if(self.createdCocktails[i].id == cocktailID){
+                for (i = 0; i < self.createdCocktails.length; i++) {
+                    if (self.createdCocktails[i].id == cocktailID) {
                         console.log("editing cocktail: " + JSON.stringify(self.createdCocktails[i]));
                         self.selectedBaseCocktail = self.createdCocktails[i];
                         document.getElementById('cocktailImage').src = self.selectedBaseCocktail.uri;
@@ -443,7 +416,7 @@
                 self.updateSlogan();
                 self.updateTextarea();
                 var ingredients = self.selectedBaseCocktail.ingredientList.length;
-                for(i = 0; i < ingredients; i++){
+                for (i = 0; i < ingredients; i++) {
                     self.updatePortion(i);
                 }
                 self.ingredientsLeft = 20 - ingredients;
@@ -455,6 +428,50 @@
                 document.getElementById("newContent").classList.add('show');
                 document.getElementById("newContent").classList.add('active');
                 self.editMode = true;
+            }
+
+            /**
+             * Is called on initialization of profile page
+             * @param section - if not null, 'user cocktails' section will be active
+             * @param userID - user's ID
+             */
+            self.init = function (section, userID, cocktailId) {
+                self.userID = userID;
+                console.log("ProfileCtrl ON_INIT: userID: " + userID + ", section: " + section + ", ID to edit: "  + cocktailId);
+
+                //getAllFavourite & getAllCreated are called in on-init method because they use userID,
+                //and outside of this method it will be none before on-init gets userID injected
+                //get favourite cocktails on load of the page
+                restService.getAllFavourite(self.userID).then(function (data) {
+                    self.cocktails = data;
+                    console.log('getting all favourite ' + data)
+                    document.getElementById("firstItem").style.visibility = "visible";
+                });
+
+                //get all created by user cocktails on load of the page
+                restService.getAllCreated(self.userID).then(function (data) {
+                    self.createdCocktails = data;
+                    console.log('getting all created ' + data)
+                    document.getElementById("secondItem").style.visibility = "visible";
+
+                    var created = section == 'created';
+                    var edit = section == 'edit' && cocktailId != null;
+
+                    //check if user was moving from a page of created by him cocktail
+                    if(created || edit){
+                        document.getElementById("favourite").classList.remove('active');
+                        document.getElementById("favContent").classList.remove('show');
+                        document.getElementById("favContent").classList.remove('active');
+                        if (created) {
+                            document.getElementById("myCocktails").classList.add('active');
+                            document.getElementById("myContent").classList.add('show');
+                            document.getElementById("myContent").classList.add('active');
+                        }else if(edit){
+                            console.log("edit a cocktail from page: " + cocktailId + " of user : " + self.userID);
+                            self.editCreated(cocktailId);
+                        }
+                    }
+                });
             }
         })//directive for binding file input and model. this allows to use ng-change and dynamically
         //display new uploaded image

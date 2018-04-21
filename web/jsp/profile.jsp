@@ -19,7 +19,7 @@
         <li class="breadcrumb-item active" aria-current="page"><fmt:message key="crumb.profile"/></li>
     </ol>
 </nav>
-<div class="container mt-3" ng-controller="ProfileCtrl as prof" ng-init="prof.init('${section}', '${userID}')">
+<div class="container mt-3" ng-controller="ProfileCtrl as prof" ng-init="prof.init('${section}', '${userID}', '${editedID}')">
     <div class="row">
         <%--PILLS--%>
         <div class="col-md-3 nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
@@ -156,18 +156,15 @@
                                    class="btn btn-primary"><fmt:message
                                         key="content.pagination.view"/>
                                 </a>
-                                <a ng-href="#">
-                                    <button class="btn btn-default"
-                                            ng-click="prof.editCreated(card.id)">
-                                        <img src="${ pageContext.request.contextPath }/img/edit.png" width="20"/>
-                                    </button>
-                                </a>
-                                <a ng-href="#">
-                                    <button class="btn btn-default"
-                                            ng-click="prof.deleteCreated(card.id)">
-                                        <img src="${ pageContext.request.contextPath }/img/delete.png" width="20"/>
-                                    </button>
-                                </a>
+
+                                <button class="btn btn-outline-info" ng-click="prof.editCreated(card.id)">
+                                    <img src="${ pageContext.request.contextPath }/img/edit.png" width="20"/>
+                                </button>
+
+                                <button class="btn btn-outline-info" ng-click="prof.deleteCreated(card.id)">
+                                    <img src="${ pageContext.request.contextPath }/img/delete.png" width="20"/>
+                                </button>
+
                             </div>
                         </div>
                     </div>

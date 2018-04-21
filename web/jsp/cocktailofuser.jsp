@@ -17,7 +17,8 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/controller"><fmt:message key="crumb.bartender"/></a></li>
         <li class="breadcrumb-item"><a href="/controller?command=profile"><fmt:message key="crumb.profile"/></a></li>
-        <li class="breadcrumb-item"><a href="/controller?command=profile&section=created"><fmt:message key="crumb.usercocktail"/></a></li>
+        <li class="breadcrumb-item"><a href="/controller?command=profile&section=created"><fmt:message
+                key="crumb.usercocktail"/></a></li>
         <li class="breadcrumb-item active" aria-current="page">${cocktail.name}</li>
     </ol>
 </nav>
@@ -37,22 +38,22 @@
 
                 <%--IIMAGE--%>
                 <div class="row">
-                    <img src="${ pageContext.request.contextPath }${cocktail.uri}" class="img-fluid img-thumbnail" alt="Responsive image">
+                    <img src="${ pageContext.request.contextPath }${cocktail.uri}" class="img-fluid img-thumbnail"
+                         alt="Responsive image">
                 </div>
 
                 <%--EDIT/DELETE BUTTONS--%>
                 <div class="row mt-4" id="likeButtons" ng-show="ctrl.showButtons">
                     <c:if test="${userName != null}">
-                        <a ng-href="/controller?command=user_cocktail&id=${e:forHtmlAttribute(cocktail.id)}">
-                            <button class="btn btn-default">
-                                <img src="${ pageContext.request.contextPath }/img/edit.png" width="20" />
-                            </button>
-                        </a>
-                        <a ng-href="#" class="ml-3" ng-click="ctrl.deleteCreatedC('${cocktail.id}')">
-                            <button class="btn btn-default">
-                                <img src="${ pageContext.request.contextPath }/img/delete.png" width="20" />
-                            </button>
-                        </a>
+
+                        <button class="btn btn-outline-info" ng-click="ctrl.editCreatedC('${cocktail.id}')">
+                            <img src="${ pageContext.request.contextPath }/img/edit.png" width="20"/>
+                        </button>
+
+                        <button class="btn btn-outline-info ml-3" ng-click="ctrl.deleteCreatedC('${cocktail.id}')">
+                            <img src="${ pageContext.request.contextPath }/img/delete.png" width="20"/>
+                        </button>
+
                     </c:if>
                 </div>
             </div>

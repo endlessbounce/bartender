@@ -16,11 +16,11 @@ import java.util.Optional;
 
 public class UserDao {
     // Constants ----------------------------------------------------------------------------------
-    private static String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
-    private static String UPDATE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
-    private static String IS_FAVOURITE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
-    private static String FIND_BY_COOKIE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
-    private static String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
+    private static final String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
+    private static final String UPDATE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
+    private static final String IS_FAVOURITE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
+    private static final String FIND_BY_COOKIE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
+    private static final String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
 
     // Vars ---------------------------------------------------------------------------------------
     private Logger logger = LogManager.getLogger();
@@ -65,6 +65,7 @@ public class UserDao {
         return result;
     }
 
+    // Helper methods -----------------------------------------------------------------------------
     private Optional<User> find(String searchParameter, String query) throws DataAccessException {
         Optional<User> result = Optional.empty();
         User user = null;

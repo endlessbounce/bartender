@@ -1,7 +1,7 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.*;
-import by.khlebnikov.bartender.dao.CocktailQueryType;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.ControllerException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -32,7 +32,7 @@ public class UserCocktailCommand implements Command {
 
         try{
             /*RU language means to fetch from the column where created cocktail has been saved*/
-            cocktailOpt = cocktailService.find(CocktailQueryType.FIND_CREATED, cocktailId, language, isCreated);
+            cocktailOpt = cocktailService.find(QueryType.FIND_CREATED, cocktailId, language, isCreated);
         } catch (ServiceException e) {
             throw new ControllerException(e);
         }

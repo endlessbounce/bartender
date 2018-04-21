@@ -19,5 +19,9 @@
                         $window.location.href = '/controller?command=profile&section=created';
                     });
             }
+
+            self.editCreatedC = function (cocktailID) {
+                $window.location.href = '/controller?command=profile&section=edit&editedID=' + cocktailID;
+            }
         });
 })();

@@ -7,6 +7,7 @@ import by.khlebnikov.bartender.tag.MessageType;
 import javax.servlet.http.HttpServletRequest;
 
 public class Validator {
+    // Actions ---------------------------------------------------------------------------------------
     public static boolean checkString(String string) {
         return string != null && !string.isEmpty();
     }

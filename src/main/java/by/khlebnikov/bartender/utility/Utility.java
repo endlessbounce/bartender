@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.util.Calendar;
@@ -18,19 +19,19 @@ import java.util.UUID;
 
 public class Utility {
     // Constants ----------------------------------------------------------------------------------
-    private static String GROUP_AND_BASE = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_AND_BASE);
-    private static String ALL_INGRED_QUERY = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY);
-    private static String ALL_INGRED_QUERY_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY_LANG);
-    private static String GROUP_PART = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART);
-    private static String GROUP_PART_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART_LANG);
-    private static String BASE_PART = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART);
-    private static String BASE_PART_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART_LANG);
-    private static String SUBQUERY_PART_1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1);
-    private static String SUBQUERY_PART_1_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1_LANG);
-    private static String SUBQUERY_PART_2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2);
-    private static String SUBQUERY_PART_2_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2_LANG);
-    private static String SUBQUERY_PART_3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3);
-    private static String SUBQUERY_PART_3_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3_LANG);
+    private static final String GROUP_AND_BASE = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_AND_BASE);
+    private static final String ALL_INGRED_QUERY = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY);
+    private static final String ALL_INGRED_QUERY_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.ALL_INGRED_QUERY_LANG);
+    private static final String GROUP_PART = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART);
+    private static final String GROUP_PART_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.GROUP_PART_LANG);
+    private static final String BASE_PART = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART);
+    private static final String BASE_PART_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.BASE_PART_LANG);
+    private static final String SUBQUERY_PART_1 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1);
+    private static final String SUBQUERY_PART_1_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_1_LANG);
+    private static final String SUBQUERY_PART_2 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2);
+    private static final String SUBQUERY_PART_2_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_2_LANG);
+    private static final String SUBQUERY_PART_3 = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3);
+    private static final String SUBQUERY_PART_3_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.SUBQUERY_PART_3_LANG);
 
     // Actions ------------------------------------------------------------------------------------
     public static long expirationTime() {
@@ -122,14 +123,14 @@ public class Utility {
                 .toString();
     }
 
-    public static String convertBase64ToImage(String base64String, HttpServletRequest httpRequest) throws IOException {
+    public static String convertBase64ToImage(String base64String, String relativePath) throws IOException {
         String[] partArr = base64String.split(Constant.COMMA);
         String base64Image = partArr[1];
 
         String extension = partArr[0].replace(Constant.BASE64_START, Constant.DOT)
                 .replace(Constant.BASE64, Constant.EMPTY);
 
-        String relativePath = httpRequest.getServletContext().getRealPath(Constant.EMPTY);
+
         String imagePath = Constant.IMG_FOLDER + Utility.uniqueId() + extension;
 
         File outputFile = new File(relativePath + imagePath);

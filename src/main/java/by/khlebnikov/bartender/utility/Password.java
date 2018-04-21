@@ -23,9 +23,11 @@ import java.util.Random;
  * still considered robust. The hashed value has 256 bits.
  */
 public class Password {
+    // Vars ---------------------------------------------------------------------------------------
     private Logger logger = LogManager.getLogger();
     private Random random = new SecureRandom();
 
+    // Actions ------------------------------------------------------------------------------------
     /**
      * Returns a random salt to be used to hash a password.
      *
