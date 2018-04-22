@@ -14,8 +14,6 @@
             self.hidePop = function () {
                 var property = window.getComputedStyle(document.querySelector('#pop')).zIndex
 
-                console.log("color: " + property);
-
                 if(property != 15){
                     self.showPopUp = false;
                 }
