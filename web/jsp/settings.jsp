@@ -1,5 +1,5 @@
 <%@ include file="../WEB-INF/jspf/imports.jspf" %>
-<html>
+<html ng-app="catalog">
 <head>
     <title><fmt:message key="content.page.title.settings"/></title>
     <%@ include file="../WEB-INF/jspf/headcontent.jspf" %>

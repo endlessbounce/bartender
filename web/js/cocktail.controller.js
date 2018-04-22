@@ -13,7 +13,13 @@
                 if (data.id != 0) {
                     self.isFavourite = true;
                 }
-                document.getElementById("likeButtons").style.visibility = "visible";
+
+                var likeButtons = document.getElementById("likeButtons");
+
+                if(likeButtons){
+                    likeButtons.style.visibility = "visible";
+                }
+
             });
 
             self.like = function () {

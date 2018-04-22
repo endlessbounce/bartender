@@ -49,6 +49,10 @@
     visibility: hidden;
 }
 
+.searchPopActive {
+    z-index: 15;
+}
+
 /*SEARCH BAR SHOW ALL LINE*/
 .showall {
     padding: .375rem .75rem;
@@ -88,4 +92,3 @@
 .searchItemsActive a{
     color: #fefefe;
 }
-
