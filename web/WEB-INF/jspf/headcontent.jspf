@@ -6,6 +6,7 @@
 <link rel="shortcut icon" href="${ pageContext.request.contextPath }/img/icon.png"/>
 <script src="${ pageContext.request.contextPath }/js/angular.js"></script>
 <script src="${ pageContext.request.contextPath }/js/dirPagination.js"></script>
+<script src="${ pageContext.request.contextPath }/js/search.module.js"></script>
 <script src="${ pageContext.request.contextPath }/js/app.js"></script>
 <script src="${ pageContext.request.contextPath }/js/catalog.service.js"></script>
 <script src="${ pageContext.request.contextPath }/js/catalog.controller.js"></script>

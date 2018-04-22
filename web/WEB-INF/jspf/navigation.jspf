@@ -1,6 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">
-        <img src="${ pageContext.request.contextPath }/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        <img src="${ pageContext.request.contextPath }/img/logo.png" width="30" height="30"
+             class="d-inline-block align-top" alt="">
         <fmt:message key="header.name"/>
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -11,19 +12,20 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/controller"><fmt:message key="content.page.home"/> <span class="sr-only">(current)</span></a>
+                <a class="nav-link" ng-href="/controller"><fmt:message key="content.page.home"/> <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/controller?command=catalog"><fmt:message key="content.page.catalog"/></a>
+                <a class="nav-link" ng-href="/controller?command=catalog"><fmt:message key="content.page.catalog"/></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/controller?command=glossary"><fmt:message key="content.page.glossary"/></a>
+                <a class="nav-link" ng-href="/controller?command=glossary"><fmt:message
+                        key="content.page.glossary"/></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/controller?command=register"><fmt:message key="content.page.signup"/></a>
+                <a class="nav-link" ng-href="/controller?command=register"><fmt:message key="content.page.signup"/></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/controller?command=login"><fmt:message key="content.page.login"/></a>
+                <a class="nav-link" ng-href="/controller?command=login"><fmt:message key="content.page.login"/></a>
             </li>
 
             <%--change language--%>
@@ -33,16 +35,59 @@
                     ${e:forHtmlContent(ChosenLocale)}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="/controller?command=locale&locale=en_US"><fmt:message key="content.language.eng"/></a>
-                    <a class="dropdown-item" href="/controller?command=locale&locale=ru_RU"><fmt:message key="content.language.rus"/></a>
+                    <a class="dropdown-item" ng-href="/controller?command=locale&locale=en_US"><fmt:message
+                            key="content.language.eng"/></a>
+                    <a class="dropdown-item" ng-href="/controller?command=locale&locale=ru_RU"><fmt:message
+                            key="content.language.rus"/></a>
                 </div>
             </li>
         </ul>
 
         <%--search form--%>
-        <form class="form-inline my-2 my-lg-0" action="controller">
+        <form class="form-inline my-2 my-lg-0" action="/controller">
             <input type="hidden" name="command" value="search">
-            <input class="form-control mr-sm-2" type="search" name="quicksearch" placeholder="<fmt:message key="content.page.searchbar"/>" aria-label="Search">
+            <div ng-controller="SearchCtrl as sch" ng-init="sch.initF()">
+                <div>
+                    <input class="form-control mr-sm-2"
+                           type="search"
+                           id="searchInput"
+                           name="quicksearch"
+                           ng-model="sch.searchText"
+                           ng-focus="sch.showHidePop()"
+                           ng-blur="sch.showHidePop()"
+                           ng-keydown="sch.hidePopUpKey($event)"
+                           placeholder="<fmt:message key="content.page.searchbar"/>"
+                           aria-label="Search"
+                           data-toggle="tooltip"
+                           data-placement="left"
+                           data-trigger="hover"
+                           data-delay='{"show":"700", "hide":"100"}'
+                           title="<fmt:message key="content.page.tip"/>">
+                </div>
+                <div class="searchPop"
+                     ng-controller="CatalogCtrl as cat"
+                     ng-show="sch.showPopUp"
+                     id="pop">
+                    <p class="font-weight-light showall mb-2"
+                       id="fixedItem"
+                       ng-mouseenter="sch.changeBckd('fixedItem')"
+                       ng-mouseleave="sch.changeBckd('fixedItem')">
+                        <a ng-href="/controller?command=search"><fmt:message
+                                key="content.page.showall"/>
+                        </a>
+                    </p>
+                    <div ng-repeat="cocktail in cat.cocktails | filter: {name:sch.searchText} | limitTo: 4 track by $index">
+                        <p class="text-lowercase font-weight-light text-truncate searchItems"
+                           id="p{{$index}}"
+                           ng-mouseenter="sch.changeBckd('p' + $index)"
+                           ng-mouseleave="sch.changeBckd('p' + $index)">
+                            <a ng-href="#">
+                                {{cocktail.name}}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
             <button class="btn btn-outline-light my-2 my-sm-0" type="submit"><fmt:message
                     key="content.page.search"/></button>
         </form>

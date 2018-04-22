@@ -4,20 +4,20 @@
 
 .ingredient {
     height: 300px;
-    overflow:auto;
+    overflow: auto;
     border: 1px solid #ced4da;
     border-radius: .25rem;
 }
 
-.checkIngredient{
+.checkIngredient {
     margin-left: 3px;
 }
 
-.fixed{
+.fixed {
     position: fixed;
 }
 
-.error404{
+.error404 {
     background: #3f5d81 url(http://localhost:8080/img/error404.png) no-repeat 50% 50%;
     width: 100%;
     height: 100%;
@@ -25,9 +25,67 @@
     margin: 0px;
 }
 
-.error500{
+.error500 {
     background: url(http://localhost:8080/img/error500.png) no-repeat 50% 50%;
     width: 100%;
     height: 650px;
     margin: 0px;
 }
+
+.searchPop {
+    z-index: 10;
+    position: absolute;
+    background: #fff;
+    width: 227px;
+    border-radius: .25rem;
+    color: #495057;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    margin-top: 5px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+    max-height: 214px;
+    visibility: hidden;
+}
+
+/*SEARCH BAR SHOW ALL LINE*/
+.showall {
+    padding: .375rem .75rem;
+    margin: 0;
+    width: 227px;
+    background: #778899;
+}
+
+.showall a {
+    color: whitesmoke;
+    text-decoration: none;
+}
+
+
+.showAllActive {
+    background: #B0C4DE;
+    cursor: pointer;
+}
+
+/*SEARCH BAR FILTERED LINES*/
+.searchItems {
+    padding: .375rem .75rem;
+    margin: 0;
+    width: 227px;
+}
+
+.searchItems a {
+    color: #1d2124;
+    text-decoration: none;
+}
+
+.searchItemsActive {
+    background: #B0C4DE;
+    cursor: pointer;
+}
+
+.searchItemsActive a{
+    color: #fefefe;
+}
+
