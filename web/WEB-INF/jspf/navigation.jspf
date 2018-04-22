@@ -70,18 +70,15 @@
                     <p class="font-weight-light showall mb-2"
                        id="fixedItem"
                        ng-mouseenter="sch.changeBckd('fixedItem')"
-                       ng-mouseleave="sch.changeBckd('fixedItem')">
-                        <a ng-href="/controller?command=search"><fmt:message key="content.page.showall"/></a>
+                       ng-mouseleave="sch.changeBckd('fixedItem')"
+                       ng-click="sch.browseAll()"><fmt:message key="content.page.showall"/>
                     </p>
                     <div ng-repeat="cocktail in cat.cocktails | filter: {name:sch.searchText} | limitTo: 4 track by $index">
                         <p class="text-lowercase font-weight-light text-truncate searchItems"
                            id="p{{$index}}"
                            ng-mouseenter="sch.changeBckd('p' + $index)"
-                           ng-mouseleave="sch.changeBckd('p' + $index)">
-                            <a ng-href="#"
-                               ng-click="sch.browseCocktail(cocktail.id)">
-                                {{cocktail.name}}
-                            </a>
+                           ng-mouseleave="sch.changeBckd('p' + $index)"
+                           ng-click="sch.browseCocktail(cocktail.id)">{{cocktail.name}}
                         </p>
                     </div>
                 </div>

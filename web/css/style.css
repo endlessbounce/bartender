@@ -59,13 +59,9 @@
     margin: 0;
     width: 227px;
     background: #778899;
-}
-
-.showall a {
-    color: whitesmoke;
     text-decoration: none;
+    color: whitesmoke;
 }
-
 
 .showAllActive {
     background: #B0C4DE;
@@ -77,18 +73,13 @@
     padding: .375rem .75rem;
     margin: 0;
     width: 227px;
-}
-
-.searchItems a {
     color: #1d2124;
     text-decoration: none;
 }
 
 .searchItemsActive {
     background: #B0C4DE;
+    color: #fefefe;
     cursor: pointer;
 }
 
-.searchItemsActive a{
-    color: #fefefe;
-}

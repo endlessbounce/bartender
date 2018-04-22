@@ -7,6 +7,9 @@ public enum CommandType {
     /* BUTTON: sends login data (email and password) to server*/
     LOGIN_ACTION(new LoginActionCommand()),
 
+    /* BUTTON: sends login data (email and password) to server*/
+    SEARCH(new SearchCommand()),
+
     /*logs out the user*/
     LOGOUT(new LogoutCommand()),
 

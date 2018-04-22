@@ -67,5 +67,11 @@
                 document.getElementById("searchInput").blur();
                 $window.location.href = '/controller?command=cocktail&id=' + cocktailId;
             }
+
+            self.browseAll = function () {
+                self.showPopUp = false;
+                document.getElementById("searchInput").blur();
+                $window.location.href = '/controller?command=search';
+            }
         })
 })();
