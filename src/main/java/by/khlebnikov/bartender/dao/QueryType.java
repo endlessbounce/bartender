@@ -5,6 +5,7 @@ package by.khlebnikov.bartender.dao;
  */
 public enum QueryType {
 
+    // Constants ----------------------------------------------------------------------------------
     /* indicates query from 'ingredient' table */
     INGREDIENT,
 

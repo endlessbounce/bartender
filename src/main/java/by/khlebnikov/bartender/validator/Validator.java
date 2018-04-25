@@ -6,12 +6,33 @@ import by.khlebnikov.bartender.tag.MessageType;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Class validating submitted by a user data
+ */
 public class Validator {
+
     // Actions ---------------------------------------------------------------------------------------
+
+    /**
+     * Validates if the string is not null nor empty
+     *
+     * @param string submitted string
+     * @return true if the string is valid, false otherwise
+     */
     public static boolean checkString(String string) {
         return string != null && !string.isEmpty();
     }
 
+    /**
+     * Checks submitted by a user registration
+     *
+     * @param name         submitted name
+     * @param email        submitted email
+     * @param password     submitted password
+     * @param confirmation submitted confirmation
+     * @param request      HttpServletRequest
+     * @return true if all fields are valid, false if any is invalid
+     */
     public static boolean checkRegistrationData(String name,
                                                 String email,
                                                 String password,
@@ -45,6 +66,14 @@ public class Validator {
         return valid;
     }
 
+    /**
+     * Checks submitted by a user login data
+     *
+     * @param email    submitted email
+     * @param password submitted password
+     * @param request  HttpServletRequest
+     * @return true if all fields are valid, false if any is invalid
+     */
     public static boolean checkLoginData(String email, String password, HttpServletRequest request) {
         boolean valid = true;
         MessageType message = null;

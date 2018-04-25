@@ -1,19 +1,30 @@
 package by.khlebnikov.bartender.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Arrays;
 
+/**
+ * This class represents the Prospect User model. Prospect user is a perspective user, who is trying
+ * to register into the system, but has not confirmed his registration via email yet.
+ */
 @XmlRootElement
-public class ProspectUser {
+public class ProspectUser implements Serializable {
+
+    // Constants ----------------------------------------------------------------------------------
+    private static final long serialVersionUID = 1L;
+
+    // Properties ---------------------------------------------------------------------------------
     private String name;
     private String email;
-    private byte [] hashKey;
-    private byte [] salt;
+    private byte[] hashKey;
+    private byte[] salt;
     private long expiration;
     private long code;
 
-    /*no-arg constructor is used by Jesrsey, etc.*/
-    public ProspectUser() { }
+    // Constructors -------------------------------------------------------------------------------
+    public ProspectUser() {
+    }
 
     public ProspectUser(String name, String email, byte[] hashKey, byte[] salt, long expiration, long code) {
         this.name = name;
@@ -24,6 +35,7 @@ public class ProspectUser {
         this.code = code;
     }
 
+    // Getters and Setters ------------------------------------------------------------------------
     public String getName() {
         return name;
     }
@@ -72,6 +84,14 @@ public class ProspectUser {
         this.code = code;
     }
 
+    // Object overrides ---------------------------------------------------------------------------
+
+    /**
+     * The prospect user email is unique for each Prospect User.
+     * So this should compare Prospect User by email only.
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -79,26 +99,25 @@ public class ProspectUser {
 
         ProspectUser that = (ProspectUser) o;
 
-        if (expiration != that.expiration) return false;
-        if (code != that.code) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        if (!Arrays.equals(hashKey, that.hashKey)) return false;
-        return Arrays.equals(salt, that.salt);
+        return email != null ? email.equals(that.email) : that.email == null;
     }
 
+    /**
+     * The prospect user email is unique for each Prospect User.
+     * So Prospect User with same email should return same hashcode.
+     *
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(hashKey);
-        result = 31 * result + Arrays.hashCode(salt);
-        result = 31 * result + (int) (expiration ^ (expiration >>> 32));
-        result = 31 * result + (int) (code ^ (code >>> 32));
-        return result;
+        return email != null ? email.hashCode() : 0;
     }
 
-    @Override
+    /**
+     * Returns the String representation of this Prospect User.
+     *
+     * @see java.lang.Object#toString()
+     */
     public String toString() {
         return "ProspectUser{" +
                 "name='" + name + '\'' +

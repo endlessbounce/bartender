@@ -1,8 +1,6 @@
 package by.khlebnikov.bartender.utility;
 
 import by.khlebnikov.bartender.constant.Constant;
-import by.khlebnikov.bartender.exception.ControllerException;
-import by.khlebnikov.bartender.exception.ServiceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,12 +20,14 @@ import java.util.Random;
  * although not the best for hashing password (vs. bcrypt) is
  * still considered robust. The hashed value has 256 bits.
  */
-public class Password {
+public class HashCoder {
+
     // Vars ---------------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
+    private static Logger logger = LogManager.getLogger();
     private Random random = new SecureRandom();
 
     // Actions ------------------------------------------------------------------------------------
+
     /**
      * Returns a random salt to be used to hash a password.
      *
@@ -68,7 +68,7 @@ public class Password {
 
     /**
      * Returns true if the given password and salt match the hashed value, false otherwise.<br>
-     * Note - side effect: the password is destroyed (the char[] is filled with zeros)
+     * Side effect: the password is destroyed (the char[] is filled with zeros)
      *
      * @param password     the password to check
      * @param salt         the salt used to hash the password
@@ -78,7 +78,7 @@ public class Password {
     public boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
         boolean equals = true;
         Optional<byte[]> passwordHashOpt = hash(password, salt);
-        byte [] passwordHash = passwordHashOpt.orElse(new byte[0]);
+        byte[] passwordHash = passwordHashOpt.orElse(new byte[0]);
 
         /*destroy password*/
         Arrays.fill(password, Character.MIN_VALUE);

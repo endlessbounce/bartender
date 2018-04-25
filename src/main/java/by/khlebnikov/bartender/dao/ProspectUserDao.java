@@ -12,21 +12,30 @@ import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Class providing methods to access the database and retrieve information about prospect users
+ */
 public class ProspectUserDao {
+
     // Constants ----------------------------------------------------------------------------------
     private static final String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.ADD);
     private static final String FIND_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.FIND);
     private static final String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryProspect.DELETE);
 
-    // Vars ---------------------------------------------------------------------------------------
-    private ConnectionPool pool = ConnectionPool.getInstance();
-
     // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Saves prospect user to the database
+     *
+     * @param prospectUser user to save
+     * @return true if the user has been saved successfully, otherwise false
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean save(ProspectUser prospectUser) throws DataAccessException {
         boolean result;
         int updated = 0;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(SAVE_QUERY)
         ) {
             prepStatement.setString(1, prospectUser.getName());
@@ -37,18 +46,25 @@ public class ProspectUserDao {
             prepStatement.setLong(6, prospectUser.getCode());
             updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Database response: " + updated, e);
         }
 
         return result;
     }
 
+    /**
+     * Finds prospect user by his email
+     *
+     * @param email email of a prospect user
+     * @return Optional of prospect user
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public Optional<ProspectUser> find(String email) throws DataAccessException {
         ProspectUser prospectUser = null;
         Optional<ProspectUser> result = Optional.empty();
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(FIND_QUERY)
         ) {
             prepStatement.setString(1, email);
@@ -73,27 +89,35 @@ public class ProspectUserDao {
                 result = Optional.of(prospectUser);
             }
 
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Found prospect user: " + prospectUser, e);
         }
 
         return result;
     }
 
+    /**
+     * Deletes prospect user from the database
+     *
+     * @param email email of a prospect user
+     * @return true if the user has been removed from the database successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean delete(String email) throws DataAccessException {
         boolean result;
         int updated = 0;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(DELETE_QUERY)
         ) {
             prepStatement.setString(1, email);
             updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Database response: " + updated, e);
         }
 
         return result;
     }
+
 }

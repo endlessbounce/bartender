@@ -13,12 +13,15 @@ import javax.ws.rs.ext.Provider;
  * with a JSON object
  */
 @Provider
-public class ResourceExceptionMapper implements ExceptionMapper<Throwable>{
+public class ResourceExceptionMapper implements ExceptionMapper<Throwable> {
+
+    // Actions ------------------------------------------------------------------------------------
 
     /**
      * Catches all internal exceptions
-     * @param ex
-     * @return
+     *
+     * @param ex any exception thrown
+     * @return Response object containing ErrorMessage object with the description of an error
      */
     @Override
     public Response toResponse(Throwable ex) {

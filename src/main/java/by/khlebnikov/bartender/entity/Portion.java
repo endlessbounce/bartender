@@ -1,21 +1,33 @@
 package by.khlebnikov.bartender.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
+/**
+ * This class represents the Portion model. All cocktails have a list of Portions.
+ * A Portion is an ingredient and its amount for a given cocktail.
+ */
 @XmlRootElement
-public class Portion {
+public class Portion implements Serializable {
+
+    // Constants ----------------------------------------------------------------------------------
+    private static final long serialVersionUID = 1L;
+
+    // Properties ---------------------------------------------------------------------------------
     private int id;
     private String ingredientName;
     private String amount;
 
-    /*no-arg constructor is used by Jesrsey, etc.*/
-    public Portion() { }
+    // Constructors -------------------------------------------------------------------------------
+    public Portion() {
+    }
 
     public Portion(String ingredientName, String amount) {
         this.ingredientName = ingredientName;
         this.amount = amount;
     }
 
+    // Getters and Setters ------------------------------------------------------------------------
     public int getId() {
         return id;
     }
@@ -40,6 +52,13 @@ public class Portion {
         this.amount = amount;
     }
 
+    // Object overrides ---------------------------------------------------------------------------
+
+    /**
+     * Compares this Portion to another one.
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,6 +72,11 @@ public class Portion {
         return amount != null ? amount.equals(portion.amount) : portion.amount == null;
     }
 
+    /**
+     * Returns the hashcode for this Portion.
+     *
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
         int result = id;
@@ -61,6 +85,11 @@ public class Portion {
         return result;
     }
 
+    /**
+     * Returns the String representation of this Portion.
+     *
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return "Ingredient'" + ingredientName + '\'' +

@@ -2,14 +2,16 @@ package by.khlebnikov.bartender.filter;
 
 import by.khlebnikov.bartender.command.CommandType;
 import by.khlebnikov.bartender.constant.ConstAttribute;
+import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
-import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.utility.CookieHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -18,19 +20,41 @@ import java.io.IOException;
  */
 @WebFilter(urlPatterns = {"/controller"})
 public class UnloggedUserRedirectFilter implements Filter {
-    private Logger logger = LogManager.getLogger();
 
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
+
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Is not implemented
+     *
+     * @param config
+     * @throws ServletException
+     */
+    @Override
     public void init(FilterConfig config) throws ServletException {
     }
 
+    /**
+     * Redirects unlogged users trying to access resources that are allowed only for logged users
+     *
+     * @param request
+     * @param response
+     * @param next
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain next)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        boolean persistentUser = Utility.isLoggedUser(httpRequest);
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        boolean persistentUser = CookieHandler.isLoggedUser(httpRequest);
         boolean inSession = ((HttpServletRequest) request).getSession().getAttribute(ConstAttribute.USER_NAME) != null;
         boolean prohibitedRequest;
 
-        logger.debug("pesrsistentUser user: " + persistentUser);
+        logger.debug("persistentUser user: " + persistentUser);
         logger.debug("inSession user: " + inSession);
 
         if (!persistentUser && !inSession) {
@@ -58,7 +82,9 @@ public class UnloggedUserRedirectFilter implements Filter {
                     }
 
                     if (prohibitedRequest) {
-                        httpRequest.setAttribute(ConstAttribute.PROHIBITED, ConstParameter.TRUE);
+                        httpResponse.sendRedirect(httpRequest.getContextPath() + ConstPage.INDEX);
+                        logger.debug("redirecting prohibited request from unlogged user");
+                        return;
                     }
 
                 } catch (IllegalArgumentException e) {
@@ -70,6 +96,10 @@ public class UnloggedUserRedirectFilter implements Filter {
         next.doFilter(request, response);
     }
 
+    /**
+     * Is not implemented
+     */
+    @Override
     public void destroy() {
     }
 }

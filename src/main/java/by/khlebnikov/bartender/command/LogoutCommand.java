@@ -4,7 +4,7 @@ import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -16,17 +16,32 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
+/**
+ * Class implementing logging out command
+ */
 public class LogoutCommand implements Command, CommandWithResponse {
-    private Logger logger = LogManager.getLogger();
+
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
     private UserService service;
     private HttpServletResponse response;
 
+    // Constructors -------------------------------------------------------------------------------
     public LogoutCommand() {
         this.service = new UserService();
     }
 
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Deletes all cookies of a logged user and invalidates the session
+     *
+     * @param request HttpServletRequest request
+     * @return null so controller redirects the user to the index page
+     * @throws CommandException is thrown if an exception on lower levels happens
+     */
     @Override
-    public String execute(HttpServletRequest request) throws ControllerException {
+    public String execute(HttpServletRequest request) throws CommandException {
         Cookie[] cookieArr = request.getCookies();
         HttpSession session = request.getSession();
         User user = null;
@@ -45,7 +60,7 @@ public class LogoutCommand implements Command, CommandWithResponse {
                             service.updateUser(user);
                         }
                     } catch (ServiceException e) {
-                        throw new ControllerException("Cookie name: " + cookie.getName() + ",\nuser: " + user, e);
+                        throw new CommandException("Cookie name: " + cookie.getName() + ",\nuser: " + user, e);
                     }
 
 
@@ -73,12 +88,18 @@ public class LogoutCommand implements Command, CommandWithResponse {
 
         /*create new session with chosen locale*/
         session = request.getSession(true);
-        session.setAttribute(ConstParameter.LOCALE, locale);
         session.setAttribute(ConstAttribute.CHOSEN_LANGUAGE, chosenLanguage);
+        session.setAttribute(ConstParameter.LOCALE, locale);
 
         return null;
     }
 
+    /**
+     * Sets response instance, which is used to attach cookies in case if user preferred to
+     * stay logged in the system
+     *
+     * @param response HttpServletResponse response
+     */
     @Override
     public void setResponse(HttpServletResponse response) {
         this.response = response;

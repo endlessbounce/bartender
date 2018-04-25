@@ -20,27 +20,30 @@ public class CatalogService {
     }
 
     // Actions ------------------------------------------------------------------------------------
-    public ArrayList<String> findFormData(QueryType type, String language) throws ServiceException {
-        ArrayList<String> result;
 
+    /**
+     * Finds form data according to the QueryType: base drink or drink group for dropdowns,
+     * and ingredients for checkboxes.
+     *
+     * @param type     of query
+     * @param language current location of a user
+     * @return list of items for the form
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
+    public ArrayList<String> findFormData(QueryType type, String language) throws ServiceException {
         try {
             switch (type) {
                 case BASE_DRINK:
-                    result = dao.findBaseDrink(language);
-                    break;
+                    return dao.findBaseDrink(language);
                 case INGREDIENT:
-                    result = dao.findIngredient(language);
-                    break;
+                    return dao.findIngredient(language);
                 case DRINK_GROUP:
-                    result = dao.findDrinkGroup(language);
-                    break;
+                    return dao.findDrinkGroup(language);
                 default:
-                    result = new ArrayList<>();
+                    return new ArrayList<>();
             }
         } catch (DataAccessException e) {
             throw new ServiceException("Chosen data type: " + type + ",\n language: " + language, e);
         }
-
-        return result;
     }
 }

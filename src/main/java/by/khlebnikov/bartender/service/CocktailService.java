@@ -8,13 +8,12 @@ import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
-import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.utility.Converter;
 import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,11 +21,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Works with cocktails
+ * Class representing service layer for work with cocktail data
  */
 public class CocktailService {
+
     // Vars ----------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
+    private static Logger logger = LogManager.getLogger();
     private CocktailDao cocktailDao;
 
     // Constructors --------------------------------------------------------------------------
@@ -35,12 +35,16 @@ public class CocktailService {
     }
 
     // Actions -------------------------------------------------------------------------------
+
     /**
-     * Finds cocktail by its id
+     * Finds a cocktail by its id
      *
-     * @param cocktailId
-     * @param language
-     * @return
+     * @param queryType  type of query (find classic or find created cocktail)
+     * @param cocktailId cocktail's ID
+     * @param language   current user's location
+     * @param isCreated  true if the cocktail is created, false if it's classic
+     * @return Optional of a Cocktail if it has been found, or an empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying layers
      */
     public Optional<Cocktail> find(QueryType queryType, int cocktailId, String language, boolean isCreated)
             throws ServiceException {
@@ -62,7 +66,16 @@ public class CocktailService {
         return cocktailOpt;
     }
 
-
+    /**
+     * Finds all favourite or created cocktails
+     *
+     * @param queryType type of query
+     * @param language  current locale of a user
+     * @param userId    user's ID
+     * @param isCreated true if the cocktail is created, false if it's classic
+     * @return list of cocktails found
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
     public List<Cocktail> findAll(QueryType queryType, String language, int userId, boolean isCreated)
             throws ServiceException {
         List<Cocktail> createdList;
@@ -80,12 +93,15 @@ public class CocktailService {
     }
 
     /**
-     * Finds all cocktails by parameters from the form on catalog page
+     * Finds all cocktails matching to selected options from catalog page (i.e. ingredients, base drink,
+     * group)
      *
-     * @param params
-     * @return
+     * @param params MultivaluedMap of parameters of cocktails selected by user
+     * @return list of matching cocktails
+     * @throws ServiceException is thrown in case of an error in the underlying layers
      */
     public List<Cocktail> findAllMatching(MultivaluedMap params) throws ServiceException {
+        List<Cocktail> cocktailList;
         ArrayList<String> ingredientList = new ArrayList<>();
         String drinkType = null;
         String baseDrink = null;
@@ -107,36 +123,60 @@ public class CocktailService {
             }
         }
 
-        logger.debug("request parameters: " + language +
-                ",\n drinkType: " + drinkType +
-                ",\n baseDrink: " + baseDrink +
-                ",\n ingredientList: " + ingredientList);
-
-        List<Cocktail> cocktailList;
+        logger.debug("request parameters: " + language + ",\n drinkType: " + drinkType +
+                ",\n baseDrink: " + baseDrink + ",\n ingredientList: " + ingredientList);
 
         try {
             cocktailList = cocktailDao.findAllMatching(language, drinkType, baseDrink, ingredientList);
             fillWithIngredient(cocktailList, language, isCreated);
         } catch (DataAccessException e) {
             throw new ServiceException("Find cocktails by parameters: type of drink: " + drinkType +
-                    ", base drink: " + baseDrink +
-                    ", ingredients: " + ingredientList +
-                    ", language: " + language, e);
+                    ", base drink: " + baseDrink + ", ingredients: " + ingredientList + ", language: " + language, e);
         }
 
         return cocktailList;
     }
 
+    /**
+     * Saves given cocktail to the databse
+     *
+     * @param userId      user's ID
+     * @param cocktail    cocktail to save
+     * @param params      MultivaluedMap containing parameters of request
+     * @param httpRequest HttpServletRequest
+     * @return true in case of successful save into the database, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
     public boolean saveCreated(int userId, Cocktail cocktail, MultivaluedMap params, HttpServletRequest httpRequest)
             throws ServiceException {
         return executeUpdateCocktail(userId, QueryType.SAVE, cocktail, params, httpRequest);
     }
 
-    public boolean updateCreated(int userId, Cocktail cocktail, MultivaluedMap params,  HttpServletRequest httpRequest)
+    /**
+     * Updates created cocktail
+     *
+     * @param userId      user's ID
+     * @param cocktail    cocktail to update
+     * @param params      MultivaluedMap containing parameters of request
+     * @param httpRequest HttpServletRequest
+     * @return true in case of successful update into the database, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
+    public boolean updateCreated(int userId, Cocktail cocktail, MultivaluedMap params, HttpServletRequest httpRequest)
             throws ServiceException {
         return executeUpdateCocktail(userId, QueryType.UPDATE, cocktail, params, httpRequest);
     }
 
+    /**
+     * Executes delete operation over created and favourite cocktails,
+     * and also save operation over favourite cocktails
+     *
+     * @param userId     user's ID
+     * @param cocktailId cocktail's ID
+     * @param queryType  type of query
+     * @return true in case of successful update into the database, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
     public boolean executeUpdateCocktail(int userId, int cocktailId, QueryType queryType)
             throws ServiceException {
         try {
@@ -157,7 +197,19 @@ public class CocktailService {
     }
 
     // Helper methods ------------------------------------------------------------------------
-    private boolean executeUpdateCocktail(int userId, QueryType queryType, Cocktail cocktail, MultivaluedMap params,  HttpServletRequest httpRequest)
+
+    /**
+     * Executes save or update operation over given created cocktail
+     *
+     * @param userId      user's ID
+     * @param queryType   type of query (save or update)
+     * @param cocktail    created cocktail to save or update
+     * @param params      MultivaluedMap parameters or request (with locale)
+     * @param httpRequest HttpServletRequest
+     * @return true in case of successful update into the database, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying layers
+     */
+    private boolean executeUpdateCocktail(int userId, QueryType queryType, Cocktail cocktail, MultivaluedMap params, HttpServletRequest httpRequest)
             throws ServiceException {
         String relativePath = httpRequest.getServletContext().getRealPath(Constant.EMPTY);
         String language = (String) params.getFirst(ConstParameter.LOCALE);
@@ -168,7 +220,7 @@ public class CocktailService {
             if (!stringOk) {
                 cocktail.setUri(Constant.DEFAULT_COCKTAIL);
             } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
-                cocktail.setUri(Utility.convertBase64ToImage(uri, relativePath));
+                cocktail.setUri(Converter.convertBase64ToImage(uri, relativePath));
             }
 
             logger.debug("imparting cocktail to DAO: " + cocktail + ", Query type: " + queryType);
@@ -188,10 +240,12 @@ public class CocktailService {
     }
 
     /**
-     * Finds all ingredients of a cocktail
+     * Fills all the cocktails' lists of ingredients with their's portions
      *
-     * @param cocktailList
-     * @param language
+     * @param cocktailList list of cocktails
+     * @param language     current location of a user
+     * @param isCreated    true if the cocktail is created, false if it's classic
+     * @throws DataAccessException is thrown in case of an error in the underlying layers
      */
     private void fillWithIngredient(List<Cocktail> cocktailList, String language, boolean isCreated) throws DataAccessException {
         if (!cocktailList.isEmpty()) {

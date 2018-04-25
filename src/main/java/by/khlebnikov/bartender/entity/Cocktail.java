@@ -1,12 +1,20 @@
 package by.khlebnikov.bartender.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.ArrayList;
-//TODO sql.Date
 import java.util.Date;
 
+/**
+ * This class represents the Cocktail model.
+ */
 @XmlRootElement
-public class Cocktail {
+public class Cocktail implements Serializable {
+
+    // Constants ----------------------------------------------------------------------------------
+    private static final long serialVersionUID = 1L;
+
+    // Properties ---------------------------------------------------------------------------------
     private int id;
     private String name;
     private String recipe;
@@ -17,15 +25,12 @@ public class Cocktail {
     private ArrayList<Portion> ingredientList;
     private Date creationDate;
 
-    /*no-arg constructor is used by Jesrsey, etc.*/
-    public Cocktail() { }
+    // Constructors -------------------------------------------------------------------------------
+    public Cocktail() {
+    }
 
-    public Cocktail(String name,
-                    String recipe,
-                    String baseDrink,
-                    String type,
-                    String uri,
-                    ArrayList<Portion> ingredientList) {
+    public Cocktail(String name, String recipe, String baseDrink,
+                    String type, String uri, ArrayList<Portion> ingredientList) {
         this.name = name;
         this.recipe = recipe;
         this.baseDrink = baseDrink;
@@ -34,6 +39,7 @@ public class Cocktail {
         this.ingredientList = ingredientList;
     }
 
+    // Getters and Setters ------------------------------------------------------------------------
     public int getId() {
         return id;
     }
@@ -106,6 +112,13 @@ public class Cocktail {
         this.slogan = slogan;
     }
 
+    // Object overrides ---------------------------------------------------------------------------
+
+    /**
+     * The cocktail ID is unique for each Cocktail. So this should compare Cocktail by ID only.
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,27 +126,24 @@ public class Cocktail {
 
         Cocktail cocktail = (Cocktail) o;
 
-        if (id != cocktail.id) return false;
-        if (name != null ? !name.equals(cocktail.name) : cocktail.name != null) return false;
-        if (recipe != null ? !recipe.equals(cocktail.recipe) : cocktail.recipe != null) return false;
-        if (baseDrink != null ? !baseDrink.equals(cocktail.baseDrink) : cocktail.baseDrink != null) return false;
-        if (type != null ? !type.equals(cocktail.type) : cocktail.type != null) return false;
-        if (uri != null ? !uri.equals(cocktail.uri) : cocktail.uri != null) return false;
-        return ingredientList != null ? ingredientList.equals(cocktail.ingredientList) : cocktail.ingredientList == null;
+        return id == cocktail.id;
     }
 
+    /**
+     * The cocktail ID is unique for each Cocktail. Cocktail with same ID should return same hashcode.
+     *
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (recipe != null ? recipe.hashCode() : 0);
-        result = 31 * result + (baseDrink != null ? baseDrink.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (uri != null ? uri.hashCode() : 0);
-        result = 31 * result + (ingredientList != null ? ingredientList.hashCode() : 0);
-        return result;
+        return id;
     }
 
+    /**
+     * Returns the String representation of this Cocktail.
+     *
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return "Cocktail{" +

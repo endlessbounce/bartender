@@ -6,13 +6,14 @@ import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.mail.Mailer;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.tag.MessageType;
-import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.utility.CodeGenerator;
+import by.khlebnikov.bartender.utility.TimeGenerator;
 import by.khlebnikov.bartender.validator.Validator;
 
 import javax.mail.MessagingException;
@@ -23,25 +24,36 @@ import java.util.Optional;
 import java.util.Properties;
 
 /**
- * Receives email and validates it, then sends to user's email
- * link for changing password
+ * Class providing reset password functionality
  */
 public class ResetActionCommand implements Command {
+
+    // Vars ---------------------------------------------------------------------------------------
     private UserService service;
 
+    // Constructors -------------------------------------------------------------------------------
     public ResetActionCommand() {
         this.service = new UserService();
     }
 
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Receives an email submitted by user and validates it. If this user is registered
+     * sends there a link for resetting his password
+     *
+     * @param request HttpServletRequest request
+     * @return result page if the user was registered or reset page with a failure message
+     * @throws CommandException is thrown if an exception on lower levels happens
+     */
     @Override
-    public String execute(HttpServletRequest request) throws ControllerException {
+    public String execute(HttpServletRequest request) throws CommandException {
         String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
         String email = request.getParameter(ConstParameter.EMAIL);
-        String page = PropertyReader.getConfigProperty(ConstPage.RESET);
-        long code = Utility.generateCode();
-        User user = null;
-
+        String page = ConstPage.RESET;
         boolean correctInput = Validator.checkString(email);
+        long code = CodeGenerator.generateCode();
+        User user = null;
 
         if (correctInput) {
             try {
@@ -50,9 +62,9 @@ public class ResetActionCommand implements Command {
                 if (userOpt.isPresent()) {
                     user = userOpt.get();
 
-                    /*make a record to subsequently be able to check the code in the link*/
+                    /*make a record to further be able to check the code in the link*/
                     service.saveProspectUser(new ProspectUser(user.getName(), email, user.getHashKey(),
-                            user.getSalt(), Utility.expirationTime(), code));
+                            user.getSalt(), TimeGenerator.expirationTime(), code));
 
                     Properties properties = new Properties();
                     properties.load(new FileInputStream(emailPropertyPath));
@@ -66,13 +78,13 @@ public class ResetActionCommand implements Command {
                     Mailer.sendEmail(email, subject, message, properties);
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.RESET_LINK_SENT);
 
-                    page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+                    page = ConstPage.RESULT;
                 } else {
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
                 }
             } catch (MessagingException | IOException | ServiceException e) {
                 request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.MAIL_ERROR);
-                throw new ControllerException("User: " + user, e);
+                throw new CommandException("User: " + user, e);
             }
 
         } else {

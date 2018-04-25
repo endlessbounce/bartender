@@ -1,31 +1,39 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.validator.Validator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
+/**
+ * Class with a method to define chosen by a user action command
+ */
 public class CommandFactory {
-    private Logger logger = LogManager.getLogger();
 
-    public Optional<Command> defineCommand(HttpServletRequest request){
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Defines chosen by a user command
+     *
+     * @param request HttpServletRequest request
+     * @return a command if there's a match, or an empty Optional
+     */
+    public Optional<Command> defineCommand(HttpServletRequest request) throws CommandException {
         Optional<Command> current = Optional.empty();
         String action = request.getParameter(ConstParameter.COMMAND);
 
-        if (!Validator.checkString(action)) {
-            return current;
-        }
-
-        try {
-            CommandType currentEnum = CommandType.valueOf(action.toUpperCase());
-            current = Optional.of(currentEnum.getCommand());
-        } catch (IllegalArgumentException e) {
-            logger.catching(e);
+        if (Validator.checkString(action)) {
+            try {
+                CommandType chosenCommand = CommandType.valueOf(action.toUpperCase());
+                current = Optional.of(chosenCommand.getCommand());
+            } catch (IllegalArgumentException e) {
+                throw new CommandException("Action doesn't exist: " + action, e);
+            }
         }
 
         return current;
     }
+
 }

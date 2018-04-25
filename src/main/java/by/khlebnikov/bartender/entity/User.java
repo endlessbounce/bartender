@@ -1,20 +1,29 @@
 package by.khlebnikov.bartender.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 
+/**
+ * This class represent the User model.
+ */
 @XmlRootElement
-public class User {
+public class User implements Serializable{
+
+    // Constants ----------------------------------------------------------------------------------
+    private static final long serialVersionUID = 1L;
+
+    // Properties ---------------------------------------------------------------------------------
     private int id;
     private String name;
     private String email;
     private byte[] hashKey;
     private byte[] salt;
-    private Date reistrationDate;
+    private Date registrationDate;
     private String uniqueCookie;
 
-    /*no-arg constructor is used by Jesrsey, etc.*/
+    // Constructors -------------------------------------------------------------------------------
     public User() { }
 
     public User(String name, String email, byte[] hashKey, byte[] salt) {
@@ -24,6 +33,7 @@ public class User {
         this.salt = salt;
     }
 
+    // Getters and Setters ------------------------------------------------------------------------
     public String getName() {
         return name;
     }
@@ -56,12 +66,12 @@ public class User {
         this.salt = salt;
     }
 
-    public Date getReistrationDate() {
-        return reistrationDate;
+    public Date getRegistrationDate() {
+        return registrationDate;
     }
 
-    public void setReistrationDate(Date reistrationDate) {
-        this.reistrationDate = reistrationDate;
+    public void setRegistrationDate(Date registrationDate) {
+        this.registrationDate = registrationDate;
     }
 
     public String getUniqueCookie() {
@@ -80,6 +90,12 @@ public class User {
         this.id = id;
     }
 
+    // Object overrides ---------------------------------------------------------------------------
+
+    /**
+     * The user ID is unique for each User. So this should compare User by ID only.
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -87,23 +103,23 @@ public class User {
 
         User user = (User) o;
 
-        if (name != null ? !name.equals(user.name) : user.name != null) return false;
-        if (email != null ? !email.equals(user.email) : user.email != null) return false;
-        if (!Arrays.equals(hashKey, user.hashKey)) return false;
-        if (!Arrays.equals(salt, user.salt)) return false;
-        return uniqueCookie != null ? uniqueCookie.equals(user.uniqueCookie) : user.uniqueCookie == null;
+        return id == user.id;
     }
 
+    /**
+     * The user ID is unique for each User. So User with same ID should return same hashcode.
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(hashKey);
-        result = 31 * result + Arrays.hashCode(salt);
-        result = 31 * result + (uniqueCookie != null ? uniqueCookie.hashCode() : 0);
-        return result;
+        return id;
     }
 
+    /**
+     * Returns the String representation of this User.
+     *
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return "User{" +
@@ -112,7 +128,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", hashKey=" + Arrays.toString(hashKey) +
                 ", salt=" + Arrays.toString(salt) +
-                ", reistrationDate=" + reistrationDate +
+                ", registrationDate=" + registrationDate +
                 ", uniqueCookie='" + uniqueCookie + '\'' +
                 '}';
     }

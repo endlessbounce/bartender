@@ -2,21 +2,28 @@ package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
-import by.khlebnikov.bartender.reader.PropertyReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Class rendering profile page to a logged user
+ */
 public class ProfileCommand implements Command {
-    private Logger logger = LogManager.getLogger();
+
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
+
+    // Actions ------------------------------------------------------------------------------------
 
     /**
-     * Returns address of profile page. If user moves there from created
-     * cocktail page, checks SECTION parameter to switch the right section on profile
-     * page.
-     * @param request
-     * @return
+     * Returns the address of the profile page. If user moves there from created
+     * cocktail page, checks SECTION parameter to switch to the right section on the profile
+     * page (either 'edit' cocktail or 'created cocktails').
+     *
+     * @param request HttpServletRequest request
+     * @return the profile page path
      */
     @Override
     public String execute(HttpServletRequest request) {
@@ -27,11 +34,11 @@ public class ProfileCommand implements Command {
 
         if (ConstParameter.CREATED.equals(section)) {
             request.setAttribute(ConstParameter.SECTION, ConstParameter.CREATED);
-        } else if (ConstParameter.EDIT.equals(section)){
+        } else if (ConstParameter.EDIT.equals(section)) {
             request.setAttribute(ConstParameter.SECTION, ConstParameter.EDIT);
             request.setAttribute(ConstParameter.EDITED_ID, editedId);
         }
 
-        return PropertyReader.getConfigProperty(ConstPage.PROFILE);
+        return ConstPage.PROFILE;
     }
 }

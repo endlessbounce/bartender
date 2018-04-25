@@ -15,18 +15,27 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * Class providing a resource to get form data for catalog page (dropdowns and checkboxes)
+ */
 @Path("/catalog/form/data")
 public class CatalogResource {
-    private Logger logger = LogManager.getLogger();
+
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
     private CatalogService catalogService;
 
+    // Constructors -------------------------------------------------------------------------------
     public CatalogResource() {
         this.catalogService = new CatalogService();
     }
 
+    // Resources ----------------------------------------------------------------------------------
+
     /**
      * Returns an entity of FormData, containing information for dropdown lists and
      * checkboxes
+     *
      * @param language current language of a user
      * @return FormData entity
      * @throws ResourceException is thrown in case of internal server exception
@@ -41,8 +50,6 @@ public class CatalogResource {
         if (correctString) {
             language = language.trim();
 
-            logger.debug("resource: /catalog/form/data" + " language " + language);
-
             try {
                 data.setIngredient(catalogService.findFormData(QueryType.INGREDIENT, language));
                 data.setBaseDrink(catalogService.findFormData(QueryType.BASE_DRINK, language));
@@ -52,7 +59,8 @@ public class CatalogResource {
             }
         }
 
-        logger.debug(data.toString());
+        logger.debug("resource: /catalog/form/data" + " language " + language +
+                       "\nreturn FormData: " + data.toString());
         return data;
     }
 }

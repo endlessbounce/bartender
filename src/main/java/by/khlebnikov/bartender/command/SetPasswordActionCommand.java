@@ -1,82 +1,87 @@
 package by.khlebnikov.bartender.command;
 
 import by.khlebnikov.bartender.constant.ConstAttribute;
-import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.constant.ConstPage;
+import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.entity.User;
-import by.khlebnikov.bartender.exception.ControllerException;
+import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
-import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.tag.MessageType;
-import by.khlebnikov.bartender.utility.Password;
+import by.khlebnikov.bartender.utility.HashCoder;
 import by.khlebnikov.bartender.validator.Validator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
- * Checks if new password and its confirmation match,
- * then updates user's record in the database.
- * Returns result page with result message
+ * Class to reset users' passwords (update records in the database)
  */
 public class SetPasswordActionCommand implements Command {
-    private UserService service;
-    private Password passwordGenerator;
 
+    // Vars ---------------------------------------------------------------------------------------
+    private UserService service;
+    private HashCoder hashCoder;
+
+    // Constructors -------------------------------------------------------------------------------
     public SetPasswordActionCommand() {
         this.service = new UserService();
-        this.passwordGenerator = new Password();
+        this.hashCoder = new HashCoder();
     }
 
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Checks if a new password and its confirmation match. If so,
+     * updates the user's record in the database. Returns result page with a message
+     *
+     * @param request HttpServletRequest request
+     * @return the result page with a message
+     * @throws CommandException is thrown if an exception on lower levels happens
+     */
     @Override
-    public String execute(HttpServletRequest request) throws ControllerException {
-        String page = PropertyReader.getConfigProperty(ConstPage.RESULT);
+    public String execute(HttpServletRequest request) throws CommandException {
+        String page = ConstPage.RESULT;
         String email = (String) request.getSession().getAttribute(ConstParameter.EMAIL);
         String password = request.getParameter(ConstParameter.PASSWORD);
         String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
+        boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, email, password, confirmation, request);
         User user = null;
 
-        boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, email, password, confirmation, request);
-
-        try{
+        try {
             Optional<User> userOpt = service.findUser(email);
 
             if (correctInput && userOpt.isPresent()) {
-                byte [] salt = passwordGenerator.getNextSalt();
-                Optional<byte []> hashOpt = passwordGenerator.hash(password.toCharArray(), salt);
+                byte[] salt = hashCoder.getNextSalt();
+                Optional<byte[]> hashOpt = hashCoder.hash(password.toCharArray(), salt);
 
-                if(!hashOpt.isPresent()){
+                if (hashOpt.isPresent()) {
+                    byte[] hashKey = hashOpt.get();
+
+                    /*update hash key and salt*/
+                    user = userOpt.get();
+                    user.setHashKey(hashKey);
+                    user.setSalt(salt);
+                    service.updateUser(user);
+
+                    request.getSession().removeAttribute(ConstParameter.EMAIL);
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
+                } else {
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);
-                    return page;
                 }
 
-                byte [] hashKey = hashOpt.get();
-
-                /*update hash key and salt*/
-                user = userOpt.get();
-                user.setHashKey(hashKey);
-                user.setSalt(salt);
-                service.updateUser(user);
-
-                request.getSession().removeAttribute(ConstParameter.EMAIL);
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
-
             } else {
-                page = PropertyReader.getConfigProperty(ConstPage.SET_PASSWORD);
+                page = ConstPage.SET_PASSWORD;
                 request.setAttribute(ConstParameter.PASSWORD, password);
                 request.setAttribute(ConstParameter.CONFIRMATION, confirmation);
 
-                if(!userOpt.isPresent()){
+                if (!userOpt.isPresent()) {
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.USER_NOT_REGISTERED);
                 }
             }
         } catch (ServiceException e) {
-            throw new ControllerException("Updating user: " + user, e);
+            throw new CommandException("Updating user: " + user, e);
         }
-
 
         return page;
     }

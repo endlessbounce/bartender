@@ -15,29 +15,37 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
- * Jersey creates new resources for every request
+ * Class providing a resource to obtaining all cocktails' data.
  */
 @Path("/cocktails")
 public class CocktailResource {
+
+    // Vars ---------------------------------------------------------------------------------------
     private CocktailService cocktailService;
 
+    // Constructors -------------------------------------------------------------------------------
     public CocktailResource() {
         this.cocktailService = new CocktailService();
     }
 
-    /*map method to an HTTP method*/
+    // Resources ----------------------------------------------------------------------------------
+
+    /**
+     * Receives a string of parameters chosen by a user to filter cocktails
+     *
+     * @param uriInfo URI Info containing request parameters
+     * @return a list of matching to the parameters cocktails
+     * @throws ResourceException
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Cocktail> getCocktail(@Context UriInfo uriInfo) throws ResourceException {
         MultivaluedMap params = uriInfo.getQueryParameters();
-        List<Cocktail> cocktailList;
 
         try {
-            cocktailList = cocktailService.findAllMatching(params);
+            return cocktailService.findAllMatching(params);
         } catch (ServiceException e) {
             throw new ResourceException("Exception while reading cocktails", e);
         }
-
-        return cocktailList;
     }
 }

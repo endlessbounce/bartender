@@ -14,7 +14,11 @@ import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Class providing methods to access the database and retrieve information about users
+ */
 public class UserDao {
+
     // Constants ----------------------------------------------------------------------------------
     private static final String SAVE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.ADD);
     private static final String UPDATE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.UPDATE);
@@ -23,30 +27,66 @@ public class UserDao {
     private static final String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
 
     // Vars ---------------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
-    private ConnectionPool pool = ConnectionPool.getInstance();
+    private static Logger logger = LogManager.getLogger();
 
     // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Saves user to the database
+     *
+     * @param user user to save
+     * @return true if the user has been saved successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean save(User user) throws DataAccessException {
         return executeUpdateUser(user, SAVE_QUERY);
     }
 
+    /**
+     * Updates user to the database
+     *
+     * @param user user to update
+     * @return true if the user has been updated successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean update(User user) throws DataAccessException {
         return executeUpdateUser(user, UPDATE_QUERY);
     }
 
+    /**
+     * Finds user by cookie
+     *
+     * @param cookie persistent cookie, used to track long sessions (stay in the system option)
+     * @return optional of User, or empty if not found
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public Optional<User> findByCookie(String cookie) throws DataAccessException {
         return find(cookie, FIND_BY_COOKIE_QUERY);
     }
 
+    /**
+     * Finds user by email
+     *
+     * @param email user's email
+     * @return optional of User, or empty if not found
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public Optional<User> findByEmail(String email) throws DataAccessException {
         return find(email, FIND_BY_EMAIL_QUERY);
     }
 
+    /**
+     * Checks if a cocktail has been added by a user to his list of favourite cocktails
+     *
+     * @param userId     user's ID
+     * @param cocktailId cocktail's ID
+     * @return true if the cocktail is user's favourite, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean isFavourite(int userId, int cocktailId) throws DataAccessException {
         boolean result = false;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(IS_FAVOURITE_QUERY)
         ) {
             prepStatement.setInt(1, cocktailId);
@@ -58,7 +98,7 @@ public class UserDao {
                 result = match == Constant.EQUALS_1;
                 logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
             }
-        } catch (InterruptedException | SQLException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Is favourite: " + result, e);
         }
 
@@ -66,11 +106,20 @@ public class UserDao {
     }
 
     // Helper methods -----------------------------------------------------------------------------
+
+    /**
+     * Finds a user by a search parameter according to the query
+     *
+     * @param searchParameter either email or cookie
+     * @param query           chosen query
+     * @return Optional of a user, or an empty one
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     private Optional<User> find(String searchParameter, String query) throws DataAccessException {
         Optional<User> result = Optional.empty();
         User user = null;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setString(1, searchParameter);
@@ -94,17 +143,25 @@ public class UserDao {
                 result = Optional.of(user);
             }
 
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("User found: " + user, e);
         }
 
         return result;
     }
 
+    /**
+     * Saves or updates a user
+     *
+     * @param user  user to save/update
+     * @param query query to execute
+     * @return true if the database has been updated successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     private boolean executeUpdateUser(User user, String query) throws DataAccessException {
         boolean result;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setString(1, user.getName());
@@ -114,10 +171,11 @@ public class UserDao {
             prepStatement.setString(5, user.getEmail());
             int updated = prepStatement.executeUpdate();
             result = updated == Constant.EQUALS_1;
-        } catch (InterruptedException | SQLException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("User updated: " + user, e);
         }
 
         return result;
     }
+
 }

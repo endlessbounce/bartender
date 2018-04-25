@@ -1,55 +1,75 @@
 package by.khlebnikov.bartender.service;
 
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
-import by.khlebnikov.bartender.utility.Password;
-import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.utility.HashCoder;
+import by.khlebnikov.bartender.utility.TimeGenerator;
 import by.khlebnikov.bartender.validator.Validator;
 
 import java.util.Optional;
 
+/**
+ * Class representing service layer for User and Prospect User models.
+ */
 public class UserService {
+
     // Vars ---------------------------------------------------------------------------------------
     private UserDao userDao;
     private ProspectUserDao prospectUserDao;
-    private Password passwordGenerator;
+    private HashCoder hashCoder;
 
     // Constructors -------------------------------------------------------------------------------
     public UserService() {
         this.userDao = new UserDao();
         this.prospectUserDao = new ProspectUserDao();
-        this.passwordGenerator = new Password();
+        this.hashCoder = new HashCoder();
     }
 
     // Actions ------------------------------------------------------------------------------------
-    public Optional<User> findUser(String email) throws ServiceException {
-        Optional<User> userOptional;
 
+    /**
+     * Finds user by email
+     *
+     * @param email of a user
+     * @return Optional of a User if he has been found, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public Optional<User> findUser(String email) throws ServiceException {
         try {
-            userOptional = userDao.findByEmail(email);
+            return userDao.findByEmail(email);
         } catch (DataAccessException e) {
             throw new ServiceException("Email: " + email, e);
         }
-
-        return userOptional;
     }
 
+    /**
+     * Updates a user
+     *
+     * @param user to update
+     * @return true if the user has been updated successfully, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean updateUser(User user) throws ServiceException {
-        boolean result;
-
         try {
-            result = userDao.update(user);
+            return userDao.update(user);
         } catch (DataAccessException e) {
             throw new ServiceException("Updating user: " + user, e);
         }
-
-        return result;
     }
 
+    /**
+     * Checks if a user is registered and if submitted data matches to the data from the database
+     *
+     * @param email    email of the user
+     * @param password password of the user
+     * @return Optional of a User if he is registered, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public Optional<User> checkUser(String email, String password) throws ServiceException {
         Optional<User> userOpt;
 
@@ -61,7 +81,7 @@ public class UserService {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            boolean hashMatch = passwordGenerator.isExpectedPassword(password.toCharArray(),
+            boolean hashMatch = hashCoder.isExpectedPassword(password.toCharArray(),
                     user.getSalt(),
                     user.getHashKey());
 
@@ -73,20 +93,32 @@ public class UserService {
         return userOpt;
     }
 
+    /**
+     * Finds a user by persistent (long-session) cookie
+     *
+     * @param cookieId persistent cookie's ID
+     * @return Optional of a User if he has been found, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public Optional<User> findUserByCookie(String cookieId) throws ServiceException {
-        Optional<User> userOptional;
-
         try {
-            userOptional = userDao.findByCookie(cookieId);
+            return userDao.findByCookie(cookieId);
         } catch (DataAccessException e) {
             throw new ServiceException("Cookie: " + cookieId, e);
         }
-
-        return userOptional;
     }
 
-    public boolean changingPasswordUser(String email, String confirmationCode) throws ServiceException {
-        String dbCode = "";
+    /**
+     * Checks if a user is the correct user that was trying to change his password.
+     * Compares code that was sent to him via email to the one stored into the database.
+     *
+     * @param email            user's email
+     * @param confirmationCode code that was sent to this user via email to confirm a password reset
+     * @return true if the user is correct, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public boolean isResettingUser(String email, String confirmationCode) throws ServiceException {
+        String dbCode = Constant.EMPTY;
         Optional<ProspectUser> userOpt;
 
         if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
@@ -107,30 +139,44 @@ public class UserService {
         return confirmationCode.equals(dbCode);
     }
 
+    /**
+     * Saves user to the database
+     *
+     * @param user to save to the database
+     * @return true if the user has been saved to the database successfully, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean saveUser(User user) throws ServiceException {
-        boolean result;
-
         try {
-            result = userDao.save(user);
+            return userDao.save(user);
         } catch (DataAccessException e) {
             throw new ServiceException("Saving user: " + user, e);
         }
-
-        return result;
     }
 
+    /**
+     * Saves prospect user to the database
+     *
+     * @param prospectUser to save to the database
+     * @return true if the prospect user has been saved to the database successfully, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean saveProspectUser(ProspectUser prospectUser) throws ServiceException {
-        boolean result;
-
         try {
-            result = prospectUserDao.save(prospectUser);
+            return prospectUserDao.save(prospectUser);
         } catch (DataAccessException e) {
             throw new ServiceException("Saving prospect user: " + prospectUser, e);
         }
-
-        return result;
     }
 
+    /**
+     * Checks if this prospect user has appealed for registration and registration time is not expired
+     *
+     * @param email            email of the prospect user
+     * @param confirmationCode confirmation code that has been send to this prospect user via email
+     * @return Optional of a User if the prospect was trying to register, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public Optional<User> checkProspectUser(String email, String confirmationCode) throws ServiceException {
         Optional<User> result = Optional.empty();
         Optional<ProspectUser> userOpt;
@@ -144,11 +190,10 @@ public class UserService {
             throw new ServiceException("Checked email: " + email + ",\n confirmation code: " + confirmationCode, e);
         }
 
-        /*check if user appealed for registration and registration time is not expired*/
         if (userOpt.isPresent()) {
             ProspectUser user = userOpt.get();
             String code = String.valueOf(user.getCode());
-            long currentTime = Utility.currentTime();
+            long currentTime = TimeGenerator.currentTime();
 
             if (confirmationCode.equals(code) && user.getExpiration() > currentTime) {
                 result = Optional.of(new User(user.getName(),
@@ -161,39 +206,49 @@ public class UserService {
         return result;
     }
 
+    /**
+     * Deletes prospect user from the database
+     *
+     * @param email of the prospect user
+     * @return true if the prospect has been deleted successfully, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean deleteProspectUser(String email) throws ServiceException {
-        boolean result;
-
         try {
-            result = prospectUserDao.delete(email);
+            return prospectUserDao.delete(email);
         } catch (DataAccessException e) {
             throw new ServiceException("Deleting by email: " + email, e);
         }
-
-        return result;
     }
 
+    /**
+     * Checks if such prospect user is registered
+     *
+     * @param email email of a prospect user
+     * @return true if the prospect user is registered, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean isProspectRegistered(String email) throws ServiceException {
-        Optional<ProspectUser> userOpt;
-
         try {
-            userOpt = prospectUserDao.find(email);
+            return prospectUserDao.find(email).isPresent();
         } catch (DataAccessException e) {
             throw new ServiceException("Checking by email: " + email, e);
         }
-
-        return userOpt.isPresent();
     }
 
+    /**
+     * Checks if this cocktail is in the list of the favourite ones of the user
+     *
+     * @param userId     user's ID
+     * @param cocktailId cocktail's ID
+     * @return true if the cocktail is favourite, false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
     public boolean isFavouriteCocktail(int userId, int cocktailId) throws ServiceException {
-        boolean result;
-
         try {
-            result = userDao.isFavourite(userId, cocktailId);
+            return userDao.isFavourite(userId, cocktailId);
         } catch (DataAccessException e) {
             throw new ServiceException("User id: " + userId + ",\n cocktail id" + cocktailId, e);
         }
-
-        return result;
     }
 }

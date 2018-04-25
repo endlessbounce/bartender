@@ -1,6 +1,11 @@
 package by.khlebnikov.bartender.tag;
 
+/**
+ * Enum containing keys of message properties to display via custom MessageTag
+ */
 public enum MessageType {
+
+    // Constants ----------------------------------------------------------------------------------
     REGISTRATION_ERROR("message.registrationerror"),
     REGISTRATION_SUCCESS("message.registrationSuccess"),
     INCORRECT_CONFIRMATION("message.incorrectconfirmation"),
@@ -22,12 +27,15 @@ public enum MessageType {
     COCKTAIL_NOT_FOUND("message.cocktailnotfound"),
     ERROR("message.error");
 
+    // Vars ---------------------------------------------------------------------------------------
     private String messageKey;
 
+    // Constructors -------------------------------------------------------------------------------
     MessageType(String messageKey) {
         this.messageKey = messageKey;
     }
 
+    // Getters ------------------------------------------------------------------------------------
     public String getMessageKey() {
         return messageKey;
     }

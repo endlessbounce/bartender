@@ -1,6 +1,11 @@
 package by.khlebnikov.bartender.constant;
 
-public class Constant {
+/**
+ * Constant utility class containing general constants of the application.
+ */
+public final class Constant {
+
+    // Constants ----------------------------------------------------------------------------------
     public static final String EMAIL_PROPERTY_PATH = "/WEB-INF/classes/email.properties";
     public static final String OLD_SESSION = "oldSession";
     public static final String UTF8 = "UTF-8";
@@ -29,4 +34,9 @@ public class Constant {
     public static final int KEY_LENGTH = 256;
     public static final int EQUALS_1 = 1;
     public static final int ERROR_500 = 500;
+
+    // Constructors -------------------------------------------------------------------------------
+    private Constant() {
+    }
+
 }

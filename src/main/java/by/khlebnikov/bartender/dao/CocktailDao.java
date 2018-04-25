@@ -6,7 +6,7 @@ import by.khlebnikov.bartender.entity.Portion;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
-import by.khlebnikov.bartender.utility.Utility;
+import by.khlebnikov.bartender.utility.QueryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class providing methods to access the database and retrieve information about cocktails
+ */
 public class CocktailDao {
+
     // Constants ----------------------------------------------------------------------------------
     private static final String FIND = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID);
     private static final String FIND_LANG = PropertyReader.getQueryProperty(ConstQueryCocktail.FIND_BY_ID_LANG);
@@ -41,26 +45,47 @@ public class CocktailDao {
     private static final String DELETE_PORTION = PropertyReader.getQueryProperty(ConstQueryCocktail.DELETE_PORTION);
 
     // Vars ---------------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
-    private ConnectionPool pool = ConnectionPool.getInstance();
+    private static Logger logger = LogManager.getLogger();
 
     // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Finds a cocktail by its ID
+     *
+     * @param qType      type of query
+     * @param cocktailId ID of cocktail
+     * @param language   current language of a user
+     * @param isCreated  true if a cocktail has been created by a user, otherwise false
+     * @return empty Optional of the cocktail was not found, otherwise chosen cocktail within Optional
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public Optional<Cocktail> findByCocktailId(QueryType qType, int cocktailId, String language, boolean isCreated)
             throws DataAccessException {
         List<Cocktail> cocktailList = find(cocktailId, defineQuery(ConstLocale.EN.equals(language), qType), isCreated, language);
         return Optional.ofNullable(cocktailList.get(0));
     }
 
+    /**
+     * Finds all cocktails by user ID (either favourite or created)
+     *
+     * @param qType     type of query
+     * @param userId    ID id a user
+     * @param language  current language of a user
+     * @param isCreated true if a cocktail has been created by a user, otherwise false
+     * @return list of cocktails matched
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public List<Cocktail> findAllByUserId(QueryType qType, int userId, String language, boolean isCreated)
             throws DataAccessException {
         return find(userId, defineQuery(ConstLocale.EN.equals(language), qType), isCreated, language);
     }
 
     /**
-     * As user may choose different number of parameters for cocktail,
+     * Finds all cocktails matching selected parameters.
+     * As user may choose different number of parameters for a cocktail,
      * we need to build request each time.
      *
-     * @param language       locale of the user
+     * @param language       current language of a user
      * @param drinkType      chosen (or not) drink type
      * @param baseDrink      chosen (or not) base drink
      * @param ingredientList chosen ingredients
@@ -75,10 +100,10 @@ public class CocktailDao {
         int queryPosition = 0;
         boolean isCreated = false;
 
-        String query = Utility.buildQuery(drinkTypeSelected, baseDrinkSelected, optionNum, language);
+        String query = QueryBuilder.build(drinkTypeSelected, baseDrinkSelected, optionNum, language);
         logger.debug("Search by parameters query: " + query);
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             if (drinkTypeSelected) {
@@ -100,7 +125,7 @@ public class CocktailDao {
             while (resSet.next()) {
                 result.add(mapCocktailToObject(resSet, language, isCreated));
             }
-        } catch (SQLException | InterruptedException | UnsupportedEncodingException e) {
+        } catch (SQLException | UnsupportedEncodingException e) {
             throw new DataAccessException("Cocktails found: " + result +
                     ",\n query: " + query, e);
         }
@@ -108,6 +133,15 @@ public class CocktailDao {
         return result;
     }
 
+    /**
+     * Finds all ingredients that a cocktail includes
+     *
+     * @param language   current language of a user
+     * @param cocktailId ID of cocktail
+     * @param isCreated  true if a cocktail has been created by a user, otherwise false
+     * @return a list of portions for a cocktail (ingredients and amounts)
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public ArrayList<Portion> findIngredients(String language, int cocktailId, boolean isCreated)
             throws DataAccessException {
         ArrayList<Portion> ingredientList = new ArrayList<>();
@@ -127,7 +161,7 @@ public class CocktailDao {
             ingredientAmount = ConstTableCombination.PORTION_LANG;
         }
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setInt(1, cocktailId);
@@ -142,7 +176,7 @@ public class CocktailDao {
                 logger.debug("Portion found: " + portion);
             }
 
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Find ingredients for a cocktail with: cocktail id: " + cocktailId +
                     ", found ingredients: " + ingredientList + ", is created : " + isCreated + ", query: " + query, e);
         }
@@ -150,6 +184,15 @@ public class CocktailDao {
         return ingredientList;
     }
 
+    /**
+     * Saves created by a user cocktail to the database
+     *
+     * @param userId   ID of a user
+     * @param cocktail cocktail to save
+     * @param language chosen current language of a user
+     * @return true if the cocktail has been saved successfully, otherwise false
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean saveCreated(int userId, Cocktail cocktail, String language) throws DataAccessException {
         boolean isEnglish = ConstLocale.EN.equals(language);
         String queryCocktail = defineQuery(isEnglish, QueryType.SAVE);
@@ -157,10 +200,27 @@ public class CocktailDao {
         return executeUpdateCocktail(userId, cocktail, queryCocktail, queryCombination, false);
     }
 
+    /**
+     * Saves liked by a user cocktail to the database
+     *
+     * @param userId     ID of a user
+     * @param cocktailId ID of a cocktail
+     * @return true if the cocktail has been saved to 'favourite' table, otherwise false
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean saveFavourite(int userId, int cocktailId) throws DataAccessException {
         return executeUpdateCocktail(userId, cocktailId, SAVE_FAVOURITE);
     }
 
+    /**
+     * Updates created by a user cocktail
+     *
+     * @param userId   ID of a user
+     * @param cocktail cocktail to update
+     * @param language chosen current language of a user
+     * @return true if the cocktail has been updated successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean updateCreated(int userId, Cocktail cocktail, String language) throws DataAccessException {
         boolean isEnglish = ConstLocale.EN.equals(language);
         String queryCocktail = defineQuery(isEnglish, QueryType.UPDATE);
@@ -168,20 +228,47 @@ public class CocktailDao {
         return executeUpdateCocktail(userId, cocktail, queryCocktail, queryCombination, true);
     }
 
+    /**
+     * Deletes created by a user cocktail
+     *
+     * @param userId     ID of a user
+     * @param cocktailId ID of a cocktail to delete
+     * @return true if the cocktail has been deleted successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean deleteCreated(int userId, int cocktailId) throws DataAccessException {
         return executeUpdateCocktail(userId, cocktailId, DELETE_CREATED);
     }
 
+    /**
+     * Removes a cocktail from the list of user's favourite cocktails
+     *
+     * @param userId     ID of a user
+     * @param cocktailId ID of a cocktail to remove
+     * @return true if the cocktail has been removed successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public boolean deleteFavourite(int userId, int cocktailId) throws DataAccessException {
         return executeUpdateCocktail(userId, cocktailId, DELETE_FAVOURITE);
     }
 
-    // Helper methods ------------------------------------------------------------------------
+    // Helper methods -----------------------------------------------------------------------------
+
+    /**
+     * Finds cocktails either by their ID or user's ID
+     *
+     * @param id        of a cocktail or a user, depending on the query
+     * @param query     query to execute
+     * @param isCreated true if a cocktail is created, and false otherwise (vintage cocktail)
+     * @param language  current language of a user
+     * @return list of cocktails found
+     * @throws DataAccessException
+     */
     private ArrayList<Cocktail> find(int id, String query, boolean isCreated, String language)
             throws DataAccessException {
         ArrayList<Cocktail> selectedCocktail = new ArrayList<>();
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setInt(1, id);
@@ -190,7 +277,7 @@ public class CocktailDao {
             while (resSet.next()) {
                 selectedCocktail.add(mapCocktailToObject(resSet, language, isCreated));
             }
-        } catch (SQLException | InterruptedException | UnsupportedEncodingException e) {
+        } catch (SQLException | UnsupportedEncodingException e) {
             throw new DataAccessException("Find by id: " + id +
                     ", chosen language: " + language +
                     ", created by user cocktail: " + isCreated +
@@ -202,34 +289,45 @@ public class CocktailDao {
     }
 
     /**
-     * Works with favourite or created by user cocktails
+     * Executes delete favourite or created cocktail operations, and save favourite operation
      *
-     * @param userId
-     * @param cocktailId
-     * @param query
-     * @return
+     * @param userId     ID of a user
+     * @param cocktailId ID of a cocktail
+     * @param query      query to execute
+     * @return true if the database has been updated successfully, false otherwise
      */
     private boolean executeUpdateCocktail(int userId, int cocktailId, String query)
             throws DataAccessException {
         int updated = 0;
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setInt(1, cocktailId);
             prepStatement.setInt(2, userId);
             updated = prepStatement.executeUpdate();
-        } catch (InterruptedException | SQLException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("BD is updated: " + updated, e);
         }
         return updated == Constant.EQUALS_1;
     }
 
+    /**
+     * Executes update / save operations
+     *
+     * @param userId        ID of a user
+     * @param cocktail      cocktail to save / uprate
+     * @param queryCocktail query to save the cocktail
+     * @param queryComb     query to save portions of ingredients
+     * @param isUpdate      true if it's update query, false if it's save query
+     * @return true if the cocktail has been updated / saved successfully, false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     private boolean executeUpdateCocktail(int userId, Cocktail cocktail, String queryCocktail, String queryComb, boolean isUpdate)
             throws DataAccessException {
         boolean cocktailSaved = false;
         boolean combinationSaved = false;
 
-        try (Connection connection = pool.getConnection()) {
+        try (Connection connection = ConnectionPool.getInstance().getConnection()) {
 
             try (PreparedStatement prepStCocktail = connection.prepareStatement(queryCocktail);
                  PreparedStatement prepStComb = connection.prepareStatement(queryComb);
@@ -274,24 +372,25 @@ public class CocktailDao {
      * Saves portions of a cocktail into the database. Statement being equal to null indicates
      * that a cocktail is being updated, and there's no need to get its ID from the database as it's
      * already present in the cocktail entity
-     * @param cocktail to save / update
-     * @param statement for execution LAST_INSERTED_ID query
+     *
+     * @param cocktail          cocktail to save / update
+     * @param statement         for execution LAST_INSERTED_ID query
      * @param prepStCombination for multiple execution of INSERT queries into 'combination' table
-     * @return
-     * @throws SQLException
+     * @return true if the portion has been saved successfully, false otherwise
+     * @throws SQLException is thrown when a database error occurs
      */
     private boolean savePortion(Cocktail cocktail, Statement statement, PreparedStatement prepStCombination)
             throws SQLException {
         int savedId = 0;
         boolean combinationSaved = true;
 
-        if(statement != null){
+        if (statement != null) {
             ResultSet resultSet = statement.executeQuery(LAST_INSERTED_ID);
             if (resultSet.next()) {
                 savedId = resultSet.getInt(1);
                 logger.debug("saved/updated cocktail's id: " + savedId);
             }
-        }else{
+        } else {
             savedId = cocktail.getId();
         }
 
@@ -315,16 +414,16 @@ public class CocktailDao {
      * @param cocktail          cocktail being edited
      * @param prepStCombination prepared statement
      * @return boolean result if records have been updated or not
-     * @throws SQLException
-     * @throws InterruptedException
+     * @throws SQLException         is thrown when a database error occurs
+     * @throws InterruptedException is thrown when a database error occurs
      */
     private boolean updatePortion(Cocktail cocktail, PreparedStatement prepStCombination)
-            throws SQLException, InterruptedException {
+            throws SQLException, InterruptedException, DataAccessException {
         boolean deleted;
         boolean saved;
         int updated;
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(DELETE_PORTION)
         ) {
             prepStatement.setInt(1, cocktail.getId());
@@ -338,12 +437,12 @@ public class CocktailDao {
     }
 
     /**
-     * Private method to read cocktails from ResultSet
+     * Read cocktails from ResultSet
      *
      * @param resSet   ResultSet of a query
-     * @param language Locale language
-     * @return read Cocktail
-     * @throws SQLException is handled in on this level
+     * @param language current language of a user
+     * @return mapped to object cocktail
+     * @throws SQLException is thrown when a database error occurs
      */
     private Cocktail mapCocktailToObject(ResultSet resSet, String language, boolean isCreated)
             throws SQLException, UnsupportedEncodingException {
@@ -377,6 +476,13 @@ public class CocktailDao {
         return cocktail;
     }
 
+    /**
+     * Defines query by its type and language
+     *
+     * @param isEnglish true if current locale is English, false otherwise
+     * @param queryType type of a query
+     * @return selected query
+     */
     private String defineQuery(boolean isEnglish, QueryType queryType) {
         switch (queryType) {
             case FIND:

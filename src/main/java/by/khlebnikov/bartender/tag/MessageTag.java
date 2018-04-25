@@ -7,12 +7,16 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 
+/**
+ * Class representing the MessageTag
+ */
 public class MessageTag extends TagSupport {
+
     // Vars ---------------------------------------------------------------------------------------
     private MessageType type;
     private String locale = Constant.EMPTY;
 
-    // Actions ------------------------------------------------------------------------------------
+    // Setters ------------------------------------------------------------------------------------
     public void setType(MessageType type) {
         this.type = type;
     }
@@ -21,6 +25,13 @@ public class MessageTag extends TagSupport {
         this.locale = locale;
     }
 
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Creates a custom tag to show context messages to users
+     * @return
+     * @throws JspException
+     */
     @Override
     public int doStartTag() throws JspException {
         try {

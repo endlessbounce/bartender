@@ -5,6 +5,7 @@ import by.khlebnikov.bartender.reader.PropertyReader;
 
 import javax.servlet.http.HttpServletRequest;
 
+//TODO
 public class SettingCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {

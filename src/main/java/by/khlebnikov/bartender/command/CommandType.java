@@ -1,6 +1,11 @@
 package by.khlebnikov.bartender.command;
 
+/**
+ * Enum containing all types of possible actions (commands)
+ */
 public enum CommandType {
+
+    // Constants ----------------------------------------------------------------------------------
     /*returns the page with login form*/
     LOGIN(new LoginCommand()),
 
@@ -58,12 +63,15 @@ public enum CommandType {
     /*Returns the page with a chosen cocktail*/
     COCKTAIL(new CocktailCommand());
 
+    // Vars ---------------------------------------------------------------------------------------
     private Command command;
 
+    // Constructors -------------------------------------------------------------------------------
     CommandType(Command command) {
         this.command = command;
     }
 
+    // Actions ------------------------------------------------------------------------------------
     public Command getCommand() {
         return command;
     }

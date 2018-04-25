@@ -1,6 +1,11 @@
 package by.khlebnikov.bartender.constant;
 
-public class ConstParameter {
+/**
+ * Constant utility class containing general parameter names to be attached to requests.
+ */
+public final class ConstParameter {
+
+    // Constants ----------------------------------------------------------------------------------
     public static final String CODE_REQ = "&code=";
     public static final String EMAIL_REQ = "&email=";
     public static final String LOCALE = "locale";
@@ -18,6 +23,10 @@ public class ConstParameter {
     public static final String CREATED = "created";
     public static final String EDIT = "edit";
     public static final String EDITED_ID = "editedID";
-    //cocktail params
     public static final String COCKTAIL = "cocktail";
+    public static final String INDEX = "INDEX_PATH";
+
+    // Constructors -------------------------------------------------------------------------------
+    private ConstParameter() {
+    }
 }

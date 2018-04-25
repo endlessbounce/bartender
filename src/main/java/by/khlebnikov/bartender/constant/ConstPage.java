@@ -1,17 +1,27 @@
 package by.khlebnikov.bartender.constant;
 
-public class ConstPage {
-    public static final String HOME = "path.page.home";
-    public static final String INDEX = "path.page.index";
-    public static final String LOGIN = "path.page.login";
-    public static final String RESET = "path.page.reset";
-    public static final String SET_PASSWORD = "path.page.setnewpassword";
-    public static final String RESULT = "path.page.result";
-    public static final String REGISTRATION = "path.page.registration";
-    public static final String CATALOG = "path.page.catalog";
-    public static final String SETTINGS = "path.page.settings";
-    public static final String PROFILE = "path.page.profile";
-    public static final String GLOSSARY = "path.page.glossary";
-    public static final String COCKTAIL = "path.page.cocktail";
-    public static final String USER_COCKTAIL = "path.page.usercocktail";
+/**
+ * Constant utility class containing paths to JSPs.
+ */
+public final class ConstPage {
+
+    // Constants ----------------------------------------------------------------------------------
+    public static final String HOME = "/jsp/home.jsp";
+    public static final String INDEX = "/index.jsp";
+    public static final String LOGIN = "/jsp/login.jsp";
+    public static final String RESET = "/jsp/reset.jsp";
+    public static final String SET_PASSWORD = "/jsp/setnewpassword.jsp";
+    public static final String RESULT = "/jsp/infopage.jsp";
+    public static final String REGISTRATION = "/jsp/registration.jsp";
+    public static final String CATALOG = "/jsp/catalog.jsp";
+    public static final String SETTINGS = "/jsp/settings.jsp";
+    public static final String PROFILE = "/jsp/profile.jsp";
+    public static final String GLOSSARY = "/jsp/glossary.jsp";
+    public static final String COCKTAIL = "/jsp/cocktail.jsp";
+    public static final String USER_COCKTAIL = "/jsp/cocktailofuser.jsp";
+
+    // Constructors -------------------------------------------------------------------------------
+    private ConstPage() {
+    }
+
 }

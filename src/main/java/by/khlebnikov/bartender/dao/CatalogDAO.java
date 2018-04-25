@@ -14,7 +14,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+/**
+ * Class providing methods to access the database to retrieve information for catalog page
+ */
 public class CatalogDao {
+
     // Constants ----------------------------------------------------------------------------------
     private static final String QUERY_INGREDIENT = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT);
     private static final String QUERY_INGREDIENT_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.INGREDIENT_LANG);
@@ -24,27 +28,56 @@ public class CatalogDao {
     private static final String QUERY_TYPE_LANG = PropertyReader.getQueryProperty(ConstQueryCatalog.DRINK_TYPE_LANG);
 
     // Vars ---------------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
-    private ConnectionPool pool = ConnectionPool.getInstance();
+    private static Logger logger = LogManager.getLogger();
 
     // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Finds all ingredients for the given language
+     *
+     * @param language current language of the user
+     * @return list of ingredients
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public ArrayList<String> findIngredient(String language) throws DataAccessException {
         return ConstLocale.EN.equals(language) ? findFormData(QUERY_INGREDIENT) : findFormData(QUERY_INGREDIENT_LANG);
     }
 
+    /**
+     * Finds all names of base drinks for the given language
+     *
+     * @param language current language of the user
+     * @return list of base drinks
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public ArrayList<String> findBaseDrink(String language) throws DataAccessException {
         return ConstLocale.EN.equals(language) ? findFormData(QUERY_BASE) : findFormData(QUERY_BASE_LANG);
     }
 
+    /**
+     * Finds all drink groups for the given language
+     *
+     * @param language current language of the user
+     * @return list of drink groups
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     public ArrayList<String> findDrinkGroup(String language) throws DataAccessException {
         return ConstLocale.EN.equals(language) ? findFormData(QUERY_TYPE) : findFormData(QUERY_TYPE_LANG);
     }
 
     // Helper methods ------------------------------------------------------------------------
+
+    /**
+     * Executes a query and returns a list of required items
+     *
+     * @param query chosen query
+     * @return list of items
+     * @throws DataAccessException is thrown when a database error occurs
+     */
     private ArrayList<String> findFormData(String query) throws DataAccessException {
         ArrayList<String> result = new ArrayList<>();
 
-        try (Connection connection = pool.getConnection();
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
              Statement statement = connection.createStatement()
         ) {
             ResultSet rs = statement.executeQuery(query);
@@ -54,7 +87,7 @@ public class CatalogDao {
             }
 
             logger.debug("Form data read: " + result);
-        } catch (SQLException | InterruptedException e) {
+        } catch (SQLException e) {
             throw new DataAccessException("Form data found: " + result, e);
         }
 

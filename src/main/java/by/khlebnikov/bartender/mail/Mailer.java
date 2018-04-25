@@ -10,9 +10,25 @@ import javax.mail.internet.MimeMessage;
 import java.util.Date;
 import java.util.Properties;
 
+/**
+ * Class providing mailing functions to the application
+ */
 public class Mailer {
-    private static final Logger LOGGER = LogManager.getLogger();
 
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
+
+    // Actions ------------------------------------------------------------------------------------
+
+    /**
+     * Prepares and sends a letter to a given email
+     *
+     * @param toAddress  receiver's address
+     * @param subject    subject of the letter
+     * @param message    massage of the letter
+     * @param properties containing email configurations
+     * @throws MessagingException is thrown in case of mailing error
+     */
     public static void sendEmail(String toAddress,
                                  String subject,
                                  String message,
@@ -29,7 +45,7 @@ public class Mailer {
         };
 
         Session session = Session.getInstance(properties, auth);
-        LOGGER.debug("Mail session started");
+        logger.debug("Mail session started");
 
         Message msg = new MimeMessage(session);
 
@@ -39,9 +55,10 @@ public class Mailer {
         msg.setSubject(subject);
         msg.setSentDate(new Date());
         msg.setText(message);
-        LOGGER.debug("Message is ready");
+        logger.debug("Message is ready");
 
         Transport.send(msg);
     }
+
 }
 

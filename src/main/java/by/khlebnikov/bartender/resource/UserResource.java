@@ -18,7 +18,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-
 /**
  * User resource provides API to work with cocktail and user data
  */
@@ -26,20 +25,22 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
-    // Vars ----------------------------------------------------------------------------------
-    private Logger logger = LogManager.getLogger();
+
+    // Vars ---------------------------------------------------------------------------------------
+    private static Logger logger = LogManager.getLogger();
     private UserService userService;
     private CocktailService cocktailService;
     @Context
     private HttpServletRequest httpRequest;
 
-    // Constructors --------------------------------------------------------------------------
+    // Constructors -------------------------------------------------------------------------------
     public UserResource() {
         this.userService = new UserService();
         this.cocktailService = new CocktailService();
     }
 
-    // Actions -------------------------------------------------------------------------------
+    // Resources ----------------------------------------------------------------------------------
+
     /**
      * Finds a favourite cocktail by its id
      *
@@ -206,6 +207,15 @@ public class UserResource {
         }
     }
 
+    /**
+     * Updates created by a user cocktail
+     *
+     * @param userId     user's ID
+     * @param cocktailId cocktail's ID
+     * @param uriInfo    info of URI to get request parameters from
+     * @param cocktail   cocktail to update
+     * @throws ResourceException
+     */
     @PUT
     @Path("/{userId}/created/{cocktailId}")
     public void updateCreated(
