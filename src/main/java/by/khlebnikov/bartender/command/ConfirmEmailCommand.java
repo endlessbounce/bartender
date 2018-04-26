@@ -42,7 +42,7 @@ public class ConfirmEmailCommand implements Command {
 
     /**
      * When a user submits his data with the registration form,
-     * sends a link to user's email, after following which it makes a new record
+     * method sends a link to user's email, after following which it makes a new record
      * in the database (registers the user) or discards the request for registration if registration
      * time is out.
      *

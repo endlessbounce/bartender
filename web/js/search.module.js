@@ -66,10 +66,10 @@
                 $window.location.href = '/controller?command=cocktail&id=' + cocktailId;
             }
 
-            self.browseAll = function () {
+            self.browseAll = function (searchText) {
                 self.showPopUp = false;
                 document.getElementById("searchInput").blur();
-                $window.location.href = '/controller?command=search';
+                $window.location.href = '/controller?command=search&text=' + searchText;
             }
         })
 })();

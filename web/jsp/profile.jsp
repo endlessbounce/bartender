@@ -137,7 +137,7 @@
                     <div class="row">
                         <%--CARDS--%>
                         <div class="card float-left m-2" style="width: 16rem;"
-                             dir-paginate="card in prof.createdCocktails | orderBy : 'id' : reverse | itemsPerPage: prof.showPages"
+                             dir-paginate="card in prof.createdCocktails | orderBy : '-id' | itemsPerPage: prof.showPages"
                              pagination-id="second">
                             <img class="card-img-top"
                                  height="159.85px"

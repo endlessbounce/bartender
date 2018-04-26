@@ -24,7 +24,7 @@ public class Validator {
     }
 
     /**
-     * Checks submitted by a user registration
+     * Checks submitted by a user registration data
      *
      * @param name         submitted name
      * @param email        submitted email

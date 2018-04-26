@@ -24,6 +24,7 @@ public final class ConstParameter {
     public static final String EDIT = "edit";
     public static final String EDITED_ID = "editedID";
     public static final String COCKTAIL = "cocktail";
+    public static final String TEXT = "text";
     public static final String INDEX = "INDEX_PATH";
 
     // Constructors -------------------------------------------------------------------------------

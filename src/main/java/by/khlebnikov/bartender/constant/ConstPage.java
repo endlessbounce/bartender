@@ -19,6 +19,7 @@ public final class ConstPage {
     public static final String GLOSSARY = "/jsp/glossary.jsp";
     public static final String COCKTAIL = "/jsp/cocktail.jsp";
     public static final String USER_COCKTAIL = "/jsp/cocktailofuser.jsp";
+    public static final String SEARCH_RESULT = "/jsp/searchresults.jsp";
 
     // Constructors -------------------------------------------------------------------------------
     private ConstPage() {

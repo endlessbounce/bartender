@@ -9,6 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 public class SettingCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) {
-        return PropertyReader.getConfigProperty(ConstPage.SETTINGS);
+        return ConstPage.SETTINGS;
     }
 }

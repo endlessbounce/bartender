@@ -21,50 +21,55 @@
 </nav>
 <div class="container mt-3">
     <div class="row">
-        <div class="col">
-            <h4><fmt:message key="message.enternewpassword"/></h4>
-            <div class="input-group">
-                <form action="controller" method="post">
-                    <input class="form-control" type="hidden" name="command" value="set_new_action"/>
+        <h4><fmt:message key="message.enternewpassword"/></h4>
+    </div>
 
-                    <div class="form-group">
-                        <label for="password" class="control-label"><fmt:message
-                                key="content.page.registration.password"/></label>
-                        <div class="form-inline row">
-                            <div class="form-group col-sm-6">
-                                <input type="password"
-                                       class="form-control"
-                                <%--minlength="7"--%>
-                                <%--maxlength="32"--%>
-                                       name="password"
-                                       id="password"
-                                       placeholder="<fmt:message
+    <div class="row">
+        <form action="controller" method="post" style="width: 100%;">
+            <input class="form-control" type="hidden" name="command" value="set_new_action"/>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="password"><fmt:message key="content.page.registration.password"/></label>
+                    <input type="password"
+                           class="form-control"
+                           minlength="7"
+                           maxlength="32"
+                           name="password"
+                           id="password"
+                           placeholder="<fmt:message
                                 key="content.placeholder.password"/>"
-                                       value="${password}"
-                                <%--required--%>
-                                >
-                                <div class="help-block"><fmt:message key="content.page.registration.min"/></div>
-                            </div>
-                            <div class="form-group col-sm-6">
-                                <input type="password"
-                                       class="form-control"
-                                       name="confirmation"
-                                       placeholder="<fmt:message
+                           value="${password}"
+                           required>
+                    <small id="passwordHelpBlock" class="form-text text-muted">
+                        <fmt:message key="content.page.registration.min"/>
+                    </small>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="confirm"><fmt:message key="content.page.registration.confirmation"/></label>
+                    <input type="password"
+                           id="confirm"
+                           class="form-control"
+                           name="confirmation"
+                           placeholder="<fmt:message
                                 key="content.placeholder.confirmpassword"/>"
-                                       value="${confirmation}"
-                                <%--required--%>
-                                >
-                            </div>
-                        </div>
-                    </div>
-                    <ctg:message type="${MessageType}" locale="${locale}"/>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary"><fmt:message
-                                key="content.page.button.submit"/></button>
-                    </div>
-                </form>
+                           value="${confirmation}"
+                           required>
+                </div>
             </div>
-        </div>
+
+            <div class="form-row">
+                <ctg:message type="${MessageType}" locale="${locale}"/>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary"><fmt:message
+                            key="content.page.button.submit"/></button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <%@ include file="../WEB-INF/jspf/footer.jspf" %>
