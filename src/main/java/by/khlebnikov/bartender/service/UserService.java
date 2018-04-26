@@ -222,6 +222,20 @@ public class UserService {
     }
 
     /**
+     * Deletes a user from the database and all his data
+     * @param userId of the user
+     * @return true if the operation succeeded and false otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public boolean deleteUser(int userId) throws ServiceException {
+        try {
+            return userDao.delete(userId);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Deleting user id: " + userId, e);
+        }
+    }
+
+    /**
      * Checks if such prospect user is registered
      *
      * @param email email of a prospect user

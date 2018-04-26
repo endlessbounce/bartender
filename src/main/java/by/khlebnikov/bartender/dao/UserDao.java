@@ -25,9 +25,7 @@ public class UserDao {
     private static final String IS_FAVOURITE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
     private static final String FIND_BY_COOKIE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
     private static final String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
-
-    // Vars ---------------------------------------------------------------------------------------
-    private static Logger logger = LogManager.getLogger();
+    private static final String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.DELETE);
 
     // Actions ------------------------------------------------------------------------------------
 
@@ -76,6 +74,24 @@ public class UserDao {
     }
 
     /**
+     * Deletes a user from the database and all his data
+     *
+     * @param userId of the user
+     * @return true if the operation succeeded and false otherwise
+     * @throws DataAccessException is thrown when a database error occurs
+     */
+    public boolean delete(int userId) throws DataAccessException {
+        try (Connection connection = ConnectionPool.getInstance().getConnection();
+             PreparedStatement prepStatement = connection.prepareStatement(DELETE_QUERY)
+        ) {
+            prepStatement.setInt(1, userId);
+            return prepStatement.executeUpdate() == Constant.EQUALS_1;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    /**
      * Checks if a cocktail has been added by a user to his list of favourite cocktails
      *
      * @param userId     user's ID
@@ -84,25 +100,18 @@ public class UserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     public boolean isFavourite(int userId, int cocktailId) throws DataAccessException {
-        boolean result = false;
-
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(IS_FAVOURITE_QUERY)
         ) {
             prepStatement.setInt(1, cocktailId);
             prepStatement.setInt(2, userId);
             ResultSet resultSet = prepStatement.executeQuery();
+            resultSet.next();
 
-            if (resultSet.next()) {
-                int match = resultSet.getInt(1);
-                result = match == Constant.EQUALS_1;
-                logger.debug("result: " + result + " user " + userId + " likes cocktail " + cocktailId);
-            }
+            return resultSet.getInt(1) == Constant.EQUALS_1;
         } catch (SQLException e) {
-            throw new DataAccessException("Is favourite: " + result, e);
+            throw new DataAccessException(e);
         }
-
-        return result;
     }
 
     // Helper methods -----------------------------------------------------------------------------
@@ -159,8 +168,6 @@ public class UserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     private boolean executeUpdateUser(User user, String query) throws DataAccessException {
-        boolean result;
-
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
@@ -169,13 +176,11 @@ public class UserDao {
             prepStatement.setBlob(3, new SerialBlob(user.getSalt()));
             prepStatement.setString(4, user.getUniqueCookie());
             prepStatement.setString(5, user.getEmail());
-            int updated = prepStatement.executeUpdate();
-            result = updated == Constant.EQUALS_1;
+
+            return prepStatement.executeUpdate() == Constant.EQUALS_1;
         } catch (SQLException e) {
             throw new DataAccessException("User updated: " + user, e);
         }
-
-        return result;
     }
 
 }

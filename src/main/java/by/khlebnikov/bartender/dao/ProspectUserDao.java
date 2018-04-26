@@ -104,20 +104,14 @@ public class ProspectUserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     public boolean delete(String email) throws DataAccessException {
-        boolean result;
-        int updated = 0;
-
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(DELETE_QUERY)
         ) {
             prepStatement.setString(1, email);
-            updated = prepStatement.executeUpdate();
-            result = updated == Constant.EQUALS_1;
+            return prepStatement.executeUpdate() == Constant.EQUALS_1;
         } catch (SQLException e) {
-            throw new DataAccessException("Database response: " + updated, e);
+            throw new DataAccessException(e);
         }
-
-        return result;
     }
 
 }

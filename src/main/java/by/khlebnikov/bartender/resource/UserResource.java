@@ -234,4 +234,21 @@ public class UserResource {
                     " for user id=" + userId, e);
         }
     }
+
+    /**
+     * Deletes a user from the database
+     *
+     * @param userId user's ID
+     * @throws ResourceException in case of internal exception
+     */
+    @DELETE
+    @Path("/{userId}")
+    public void deleteUser(
+            @PathParam("userId") int userId) throws ResourceException {
+        try {
+            userService.deleteUser(userId);
+        } catch (ServiceException e) {
+            throw new ResourceException("Failed to delete user id:" + userId, e);
+        }
+    }
 }

@@ -8,6 +8,7 @@ public final class ConstQueryUser {
     // Constants ----------------------------------------------------------------------------------
     public static final String ADD = "userdao.save";
     public static final String FIND_BY_EMAIL = "userdao.findbyemail";
+    public static final String DELETE = "userdao.delete";
     public static final String UPDATE = "userdao.update";
     public static final String FIND_BY_COOKIE = "userdao.findbycookie";
     public static final String IS_FAVOURITE = "userdao.isfavourite";

@@ -16,8 +16,8 @@
                 /*calls are asynchronous so .get() and .then() return promises */
                 var promise1 = $http.get('http://localhost:8080/webapi/catalog/form/data/' + lang);
                 var promise2 = promise1.then(function (response) {
-                        return response.data;
-                    });
+                    return response.data;
+                });
                 return promise2;
             };
 
@@ -134,5 +134,16 @@
                 return promise2;
             };
 
+            self.deleteUser = function (userID) {
+                var path = 'http://localhost:8080/webapi/user/' + userID;
+                console.log("delete user: " + path);
+                var promise1 = $http.delete(path);
+                var promise2 = promise1.then(function (response) {
+                    return response.data;
+                }, function (response) {
+                    console.log(response.data)
+                });
+                return promise2;
+            }
         });
 })();
