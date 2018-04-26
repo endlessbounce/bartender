@@ -1,8 +1,12 @@
 package by.khlebnikov.bartender.resource;
 
+import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.constant.ConstQueryCocktail;
+import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
+import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.CocktailService;
@@ -17,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * User resource provides API to work with cocktail and user data
@@ -249,6 +254,63 @@ public class UserResource {
             userService.deleteUser(userId);
         } catch (ServiceException e) {
             throw new ResourceException("Failed to delete user id:" + userId, e);
+        }
+    }
+
+    /**
+     * Updates created by a user cocktail
+     *
+     * @param userId     user's ID
+     * @param cocktailId cocktail's ID
+     * @param uriInfo    info of URI to get request parameters from
+     * @param cocktail   cocktail to update
+     * @throws ResourceException
+     */
+    @PUT
+    @Path("/{userId}")
+    public void updateUser(
+            @PathParam("userId") int userId,
+            @Context UriInfo uriInfo,
+            User user) throws ResourceException {
+        MultivaluedMap params = uriInfo.getQueryParameters();
+        boolean isNameChanged = false;
+        boolean isUpdated;
+        String value;
+
+        try {
+            Optional<User> userOptional = userService.findUserById(Integer.toString(userId));
+
+            if (userOptional.isPresent()) {
+                User oldUser = userOptional.get();
+
+                for (Object key : params.keySet()) {
+                    value = (String) params.getFirst(key);
+
+                    switch (value) {
+                        case ConstParameter.NAME:
+                            oldUser.setName(user.getName());
+                            isNameChanged = true;
+                            break;
+                        case ConstParameter.PASSWORD:
+
+                            break;
+                        case ConstParameter.EMAIL:
+                            oldUser.setEmail(user.getEmail());
+                            break;
+                    }
+                }
+
+                isUpdated = userService.updateUser(oldUser);
+
+                if (isNameChanged && isUpdated) {
+                    httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
+                } else if(!isUpdated){
+                    throw new ResourceException("User wasn't updated: " + user);
+                }
+            }
+
+        } catch (ServiceException e) {
+            throw new ResourceException("Error updating user: " + user, e);
         }
     }
 }

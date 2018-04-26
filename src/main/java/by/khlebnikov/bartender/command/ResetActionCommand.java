@@ -57,7 +57,7 @@ public class ResetActionCommand implements Command {
 
         if (correctInput) {
             try {
-                Optional<User> userOpt = service.findUser(email);
+                Optional<User> userOpt = service.findUserByEmail(email);
 
                 if (userOpt.isPresent()) {
                     user = userOpt.get();

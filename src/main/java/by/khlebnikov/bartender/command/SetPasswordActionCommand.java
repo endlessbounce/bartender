@@ -49,7 +49,7 @@ public class SetPasswordActionCommand implements Command {
         User user = null;
 
         try {
-            Optional<User> userOpt = service.findUser(email);
+            Optional<User> userOpt = service.findUserByEmail(email);
 
             if (correctInput && userOpt.isPresent()) {
                 byte[] salt = hashCoder.getNextSalt();

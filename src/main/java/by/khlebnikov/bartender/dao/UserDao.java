@@ -25,6 +25,7 @@ public class UserDao {
     private static final String IS_FAVOURITE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.IS_FAVOURITE);
     private static final String FIND_BY_COOKIE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_COOKIE);
     private static final String FIND_BY_EMAIL_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_EMAIL);
+    private static final String FIND_BY_ID_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.FIND_BY_ID);
     private static final String DELETE_QUERY = PropertyReader.getQueryProperty(ConstQueryUser.DELETE);
 
     // Actions ------------------------------------------------------------------------------------
@@ -37,7 +38,8 @@ public class UserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     public boolean save(User user) throws DataAccessException {
-        return executeUpdateUser(user, SAVE_QUERY);
+        boolean isSave = true;
+        return executeUpdateUser(user, SAVE_QUERY, isSave);
     }
 
     /**
@@ -48,11 +50,12 @@ public class UserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     public boolean update(User user) throws DataAccessException {
-        return executeUpdateUser(user, UPDATE_QUERY);
+        boolean isSave = false;
+        return executeUpdateUser(user, UPDATE_QUERY, isSave);
     }
 
     /**
-     * Finds user by cookie
+     * Finds user by cookie. This method is used to restore long-sessions.
      *
      * @param cookie persistent cookie, used to track long sessions (stay in the system option)
      * @return optional of User, or empty if not found
@@ -63,7 +66,7 @@ public class UserDao {
     }
 
     /**
-     * Finds user by email
+     * Finds user by email. This method is called when user is logging in.
      *
      * @param email user's email
      * @return optional of User, or empty if not found
@@ -71,6 +74,17 @@ public class UserDao {
      */
     public Optional<User> findByEmail(String email) throws DataAccessException {
         return find(email, FIND_BY_EMAIL_QUERY);
+    }
+
+    /**
+     * Finds user by id. This method is called when user is updating his profile info
+     *
+     * @param userId user's ID
+     * @return optional of User, or empty if not found
+     * @throws DataAccessException is thrown when a database error occurs
+     */
+    public Optional<User> findById(String userId) throws DataAccessException {
+        return find(userId, FIND_BY_ID_QUERY);
     }
 
     /**
@@ -138,6 +152,7 @@ public class UserDao {
                 int dbID = resSet.getInt(ConstTableUser.ID);
                 String dbName = resSet.getString(ConstTableUser.NAME);
                 String dbEmail = resSet.getString(ConstTableUser.EMAIL);
+                String dbCookie = resSet.getString(ConstTableUser.COOKIE);
 
                 Blob hashBlob = resSet.getBlob(ConstTableUser.HASH);
                 int hashLength = (int) hashBlob.length();
@@ -149,6 +164,7 @@ public class UserDao {
 
                 user = new User(dbName, dbEmail, dbHash, dbSalt);
                 user.setId(dbID);
+                user.setUniqueCookie(dbCookie);
                 result = Optional.of(user);
             }
 
@@ -167,7 +183,7 @@ public class UserDao {
      * @return true if the database has been updated successfully, false otherwise
      * @throws DataAccessException is thrown when a database error occurs
      */
-    private boolean executeUpdateUser(User user, String query) throws DataAccessException {
+    private boolean executeUpdateUser(User user, String query, boolean isSave) throws DataAccessException {
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
@@ -176,6 +192,10 @@ public class UserDao {
             prepStatement.setBlob(3, new SerialBlob(user.getSalt()));
             prepStatement.setString(4, user.getUniqueCookie());
             prepStatement.setString(5, user.getEmail());
+
+            if (!isSave) {
+                prepStatement.setInt(6, user.getId());
+            }
 
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
         } catch (SQLException e) {

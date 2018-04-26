@@ -2,6 +2,7 @@ package by.khlebnikov.bartender.service;
 
 import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
+import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
@@ -39,11 +40,41 @@ public class UserService {
      * @return Optional of a User if he has been found, empty Optional otherwise
      * @throws ServiceException is thrown in case of an error in the underlying code
      */
-    public Optional<User> findUser(String email) throws ServiceException {
+    public Optional<User> findUserByEmail(String email) throws ServiceException {
         try {
             return userDao.findByEmail(email);
         } catch (DataAccessException e) {
             throw new ServiceException("Email: " + email, e);
+        }
+    }
+
+    /**
+     * Finds a user by persistent (long-session) cookie
+     *
+     * @param cookieId persistent cookie's ID
+     * @return Optional of a User if he has been found, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public Optional<User> findUserByCookie(String cookieId) throws ServiceException {
+        try {
+            return userDao.findByCookie(cookieId);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Cookie: " + cookieId, e);
+        }
+    }
+
+    /**
+     * Finds a user by ID
+     *
+     * @param userId user's ID
+     * @return Optional of a User if he has been found, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public Optional<User> findUserById(String userId) throws ServiceException {
+        try {
+            return userDao.findById(userId);
+        } catch (DataAccessException e) {
+            throw new ServiceException("User id: " + userId, e);
         }
     }
 
@@ -91,21 +122,6 @@ public class UserService {
         }
 
         return userOpt;
-    }
-
-    /**
-     * Finds a user by persistent (long-session) cookie
-     *
-     * @param cookieId persistent cookie's ID
-     * @return Optional of a User if he has been found, empty Optional otherwise
-     * @throws ServiceException is thrown in case of an error in the underlying code
-     */
-    public Optional<User> findUserByCookie(String cookieId) throws ServiceException {
-        try {
-            return userDao.findByCookie(cookieId);
-        } catch (DataAccessException e) {
-            throw new ServiceException("Cookie: " + cookieId, e);
-        }
     }
 
     /**

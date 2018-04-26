@@ -71,7 +71,7 @@ public class ConfirmEmailCommand implements Command {
 
         try {
             /*check if registration data is valid in case front end doesn't check it*/
-            alreadyRegistered = service.findUser(email).isPresent();
+            alreadyRegistered = service.findUserByEmail(email).isPresent();
             awaitingConfirmation = service.isProspectRegistered(email);
 
             /*if user is not registered yet and not awaiting confirmation and all input data is correct*/

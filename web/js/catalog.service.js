@@ -141,7 +141,24 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(response.data);
+                    return response.data;
+                });
+                return promise2;
+            }
+
+            self.updateUser = function (user, updateType) {
+                var path = 'http://localhost:8080/webapi/user/' + user.id + '?update=' + updateType;
+                console.log("update user: " + path);
+                var promise1 = $http.put(path, user);
+                var promise2 = promise1.then(function (response) {
+
+                    return response.data;
+
+                }, function (response) {
+
+                    throw "NOT UPDATED: " + response.data;
+
                 });
                 return promise2;
             }

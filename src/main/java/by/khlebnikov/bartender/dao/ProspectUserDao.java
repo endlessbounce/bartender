@@ -32,9 +32,6 @@ public class ProspectUserDao {
      * @throws DataAccessException is thrown when a database error occurs
      */
     public boolean save(ProspectUser prospectUser) throws DataAccessException {
-        boolean result;
-        int updated = 0;
-
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(SAVE_QUERY)
         ) {
@@ -44,13 +41,11 @@ public class ProspectUserDao {
             prepStatement.setBlob(4, new SerialBlob(prospectUser.getSalt()));
             prepStatement.setLong(5, prospectUser.getExpiration());
             prepStatement.setLong(6, prospectUser.getCode());
-            updated = prepStatement.executeUpdate();
-            result = updated == Constant.EQUALS_1;
-        } catch (SQLException e) {
-            throw new DataAccessException("Database response: " + updated, e);
-        }
 
-        return result;
+            return prepStatement.executeUpdate() == Constant.EQUALS_1;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**

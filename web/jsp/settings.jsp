@@ -64,25 +64,56 @@
 
             <%--NAME--%>
             <div class="tab-pane fade show active" id="chName" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                <form ng-submit="set.updateProfile('name')">
+                    <div class="form-group">
+                        <label for="name"><fmt:message key="settings.change.name.enter"/></label>
+                        <input type="text"
+                               ng-model="set.user.name"
+                               class="form-control"
+                               id="name"
+                               maxlength="50"
+                               minlength="3"
+                               aria-describedby="newName"
+                               placeholder="<fmt:message key="settings.change.namenew"/>"
+                               required>
+                        <small id="operationFailure1" class="form-text text-danger" ng-show="set.operationFailure"
+                               style="display: none;">
+                            <fmt:message key="settings.update.failure"/>
+                        </small>
+                    </div>
 
-                <div class="m-2">
-                    <h4 class="font-weight-light mb-3"><fmt:message key="settings.change.name.enter"/></h4>
-                </div>
-
-                <div class="m-2">
-
-                </div>
+                    <button type="submit" class="btn btn-primary">
+                        <fmt:message key="settings.button"/>
+                    </button>
+                </form>
             </div>
 
             <%--EMAIL--%>
             <div class="tab-pane fade" id="chEmail" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                <div class="m-2">
-                    <h4 class="font-weight-light mb-3"><fmt:message key="settings.change.emial.enter"/></h4>
-                </div>
+                <form ng-submit="set.updateProfile('email')">
+                    <div class="form-group">
+                        <label for="name"><fmt:message key="settings.change.emial.enter"/></label>
+                        <input type="text"
+                               ng-model="set.user.email"
+                               class="form-control"
+                               id="email"
+                               maxlength="50"
+                               minlength="7"
+                               aria-describedby="newEmail"
+                               placeholder="<fmt:message key="settings.change.emailnew"/>"
+                               required>
+                        <small id="operationFailure2" class="form-text text-danger" ng-show="set.operationFailure">
+                            <fmt:message key="settings.update.failure"/>
+                        </small>
+                        <small id="operationSuccess1" class="form-text" ng-show="set.operationSuccess">
+                            <fmt:message key="settings.update.success"/>
+                        </small>
+                    </div>
 
-                <div class="m-2">
-
-                </div>
+                    <button type="submit" class="btn btn-primary">
+                        <fmt:message key="settings.button"/>
+                    </button>
+                </form>
             </div>
 
             <%--PASSWORD--%>
@@ -119,15 +150,17 @@
                     <fmt:message key="settings.delete.button"/>
                 </button>
                 <small id="operationFailure" class="form-text" ng-show="set.operationFailure">
-                    <fmt:message key="settings.delete.failure"/>
+                    <fmt:message key="settings.update.failure"/>
                 </small>
 
                 <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel"><fmt:message key="settings.delete.sure.title"/></h5>
+                                <h5 class="modal-title" id="exampleModalLabel"><fmt:message
+                                        key="settings.delete.sure.title"/></h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -139,7 +172,8 @@
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <fmt:message key="settings.delete.button.close"/>
                                 </button>
-                                <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="set.deleteProfile()">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal"
+                                        ng-click="set.deleteProfile()">
                                     <fmt:message key="settings.delete.button"/>
                                 </button>
                             </div>
