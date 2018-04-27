@@ -147,8 +147,8 @@
                 return promise2;
             }
 
-            self.updateUser = function (user, updateType) {
-                var path = 'http://localhost:8080/webapi/user/' + user.id + '?update=' + updateType;
+            self.updateUser = function (user, updateType, pswdPart) {
+                var path = 'http://localhost:8080/webapi/user/' + user.id + '?update=' + updateType + pswdPart;
                 console.log("update user: " + path);
                 var promise1 = $http.put(path, user);
                 var promise2 = promise1.then(function (response) {

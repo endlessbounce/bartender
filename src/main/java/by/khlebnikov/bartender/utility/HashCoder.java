@@ -22,6 +22,9 @@ import java.util.Random;
  */
 public class HashCoder {
 
+    // Constants ----------------------------------------------------------------------------------
+    private static final String FACTORY = "PBKDF2WithHmacSHA1";
+
     // Vars ---------------------------------------------------------------------------------------
     private static Logger logger = LogManager.getLogger();
     private Random random = new SecureRandom();
@@ -56,7 +59,7 @@ public class HashCoder {
         Arrays.fill(password, Character.MIN_VALUE);
 
         try {
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            SecretKeyFactory skf = SecretKeyFactory.getInstance(FACTORY);
             hashKey = Optional.of(skf.generateSecret(spec).getEncoded());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             logger.catching(e);

@@ -2,8 +2,6 @@ package by.khlebnikov.bartender.resource;
 
 import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstParameter;
-import by.khlebnikov.bartender.constant.ConstQueryCocktail;
-import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.entity.User;
@@ -11,6 +9,7 @@ import by.khlebnikov.bartender.exception.ResourceException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.CocktailService;
 import by.khlebnikov.bartender.service.UserService;
+import by.khlebnikov.bartender.utility.HashCoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -258,23 +257,26 @@ public class UserResource {
     }
 
     /**
-     * Updates created by a user cocktail
+     * Updates user's email, password, or name.
      *
-     * @param userId     user's ID
-     * @param cocktailId cocktail's ID
-     * @param uriInfo    info of URI to get request parameters from
-     * @param cocktail   cocktail to update
-     * @throws ResourceException
+     * @param userId  user's ID
+     * @param uriInfo URI info
+     * @param user    JSON object of user
+     * @throws ResourceException is thrown in case of internal exception
      */
     @PUT
     @Path("/{userId}")
     public void updateUser(
             @PathParam("userId") int userId,
-            @Context UriInfo uriInfo,
-            User user) throws ResourceException {
+            @Context UriInfo uriInfo, User user) throws ResourceException {
         MultivaluedMap params = uriInfo.getQueryParameters();
-        boolean isNameChanged = false;
-        boolean isUpdated;
+        String oldPassword;
+        String newPassword;
+        boolean isNameChanging = false;
+        boolean isPswdChanging = false;
+        boolean isEmailChanging = false;
+        boolean hashMatch;
+        boolean isUpdated = false;
         String value;
 
         try {
@@ -289,22 +291,43 @@ public class UserResource {
                     switch (value) {
                         case ConstParameter.NAME:
                             oldUser.setName(user.getName());
-                            isNameChanged = true;
+                            isNameChanging = true;
                             break;
                         case ConstParameter.PASSWORD:
+                            HashCoder hashCoder = new HashCoder();
+                            oldPassword = (String) params.getFirst(ConstParameter.PASSWORD);
+                            newPassword = (String) params.getFirst(ConstParameter.NEW_PASSWORD);
+
+                            hashMatch = hashCoder.isExpectedPassword(oldPassword.toCharArray(),
+                                    oldUser.getSalt(),
+                                    oldUser.getHashKey());
+
+                            if (hashMatch) {
+                                byte[] salt = hashCoder.getNextSalt();
+                                Optional<byte[]> hashOpt = hashCoder.hash(newPassword.toCharArray(), salt);
+
+                                if (hashOpt.isPresent()) {
+                                    oldUser.setHashKey(hashOpt.get());
+                                    oldUser.setSalt(salt);
+                                    isPswdChanging = true;
+                                }
+                            }
 
                             break;
                         case ConstParameter.EMAIL:
                             oldUser.setEmail(user.getEmail());
+                            isEmailChanging = true;
                             break;
                     }
                 }
+                
+                if (isEmailChanging || isNameChanging || isPswdChanging) {
+                    isUpdated = userService.updateUser(oldUser);
+                }
 
-                isUpdated = userService.updateUser(oldUser);
-
-                if (isNameChanged && isUpdated) {
+                if (isNameChanging && isUpdated) {
                     httpRequest.getSession().setAttribute(ConstAttribute.USER_NAME, user.getName());
-                } else if(!isUpdated){
+                } else if (!isUpdated) {
                     throw new ResourceException("User wasn't updated: " + user);
                 }
             }

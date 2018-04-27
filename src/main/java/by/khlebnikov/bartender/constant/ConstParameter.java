@@ -13,6 +13,7 @@ public final class ConstParameter {
     public static final String CONFIRMATION = "confirmation";
     public static final String NAME = "name";
     public static final String PASSWORD = "password";
+    public static final String NEW_PASSWORD = "newpassword";
     public static final String TRUE = "true";
     public static final String STAY_LOGGED = "logged";
     public static final String USER = "user";

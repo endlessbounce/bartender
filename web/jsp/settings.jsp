@@ -118,29 +118,65 @@
 
             <%--PASSWORD--%>
             <div class="tab-pane fade" id="chPassword" role="tabpanel" aria-labelledby="v-pills-messages-tab">
-                <div class="m-2">
-                    <h4 class="font-weight-light mb-3"><fmt:message key="settings.change.password.old"/></h4>
-                </div>
 
-                <div class="m-2">
+                <form ng-submit="set.updateProfile('password')">
+                    <div class="form-group">
+                        <label for="oldPswd"><fmt:message key="settings.change.password.old"/></label>
+                        <input type="password"
+                               ng-model="set.oldPassword"
+                               class="form-control"
+                               id="oldPswd"
+                               maxlength="32"
+                               minlength="7"
+                               aria-describedby="oldPassword"
+                               placeholder="<fmt:message key="settings.change.password.old.enter"/>"
+                               required>
+                    </div>
 
-                </div>
+                    <div class="form-group">
+                        <label for="pswd"><fmt:message key="settings.change.password.new"/></label>
+                        <input type="password"
+                               ng-model="set.password"
+                               ng-change="set.checkPasswords()"
+                               class="form-control"
+                               id="pswd"
+                               maxlength="32"
+                               minlength="7"
+                               aria-describedby="password"
+                               placeholder="<fmt:message key="settings.change.password.new.enter"/>"
+                               required>
+                    </div>
 
-                <div class="m-2">
-                    <h4 class="font-weight-light mb-3"><fmt:message key="settings.change.password.new"/></h4>
-                </div>
+                    <div class="form-group">
+                        <label for="newPswd"><fmt:message key="settings.change.password.newrepeat.enter"/></label>
+                        <input type="password"
+                               ng-model="set.passwordConfirm"
+                               ng-change="set.checkPasswords()"
+                               class="form-control"
+                               id="newPswd"
+                               maxlength="32"
+                               minlength="7"
+                               aria-describedby="newPassword"
+                               placeholder="<fmt:message key="settings.change.password.newrepeat"/>"
+                               required>
+                        <small id="operationFailure3" class="form-text text-danger" ng-show="set.operationFailure">
+                            <fmt:message key="settings.update.failure.pswd"/>
+                        </small>
+                        <small id="pswdMismatch" class="form-text text-danger" ng-show="set.passwordsDontMatch">
+                            <fmt:message key="settings.update.pswdmismath"/>
+                        </small>
+                        <small id="operationSuccess2" class="form-text" ng-show="set.operationSuccess">
+                            <fmt:message key="settings.update.success"/>
+                        </small>
+                    </div>
 
-                <div class="m-2">
+                    <button type="submit" class="btn btn-primary">
+                        <fmt:message key="settings.button"/>
+                    </button>
+                </form>
 
-                </div>
 
-                <div class="m-2">
-                    <h4 class="font-weight-light mb-3"><fmt:message key="settings.change.password.newrepeat"/></h4>
-                </div>
 
-                <div class="m-2">
-
-                </div>
             </div>
 
             <%--DELETE--%>

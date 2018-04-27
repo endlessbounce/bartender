@@ -15,9 +15,10 @@
                 uniqueCookie: ''
             }
 
+            self.oldPassword = '';
             self.password = '';
             self.passwordConfirm = '';
-            self.passwordMatch = false;
+            self.passwordsDontMatch = false;
 
             self.operationFailure = false;
             self.operationSuccess = false;
@@ -33,6 +34,7 @@
             self.clean = function () {
                 self.operationFailure = false;
                 self.operationSuccess = false;
+                self.passwordsDontMatch = false;
             }
 
             self.deleteProfile = function () {
@@ -49,7 +51,16 @@
 
             self.updateProfile = function (parameter) {
                 self.clean();
-                restService.updateUser(self.user, parameter).then(
+
+                var pswdPart = '';
+
+                if(parameter == 'password' && self.passwordsDontMatch == true){
+                    return;
+                }else if (parameter == 'password' && self.passwordsDontMatch == false){
+                    pswdPart = '&password=' + self.oldPassword + '&newpassword=' + self.password;
+                }
+
+                restService.updateUser(self.user, parameter, pswdPart).then(
                     function () {
                         /* to update the name in the navBar reload the page */
                         if (parameter == 'name') {
@@ -57,11 +68,26 @@
                         }
 
                         self.operationSuccess = true;
+
                     },
                     function () {
                         self.operationFailure = true;
                     }
                 );
+
+            }
+
+            self.checkPasswords = function () {
+
+                if(self.password == self.passwordConfirm){
+                    self.passwordsDontMatch = false;
+                    document.getElementById("pswd").style.borderColor = "#ced4da";
+                    document.getElementById("newPswd").style.borderColor = "#ced4da";
+                } else {
+                    self.passwordsDontMatch = true;
+                    document.getElementById("pswd").style.borderColor = "red";
+                    document.getElementById("newPswd").style.borderColor = "red";
+                }
             }
         });
 })();

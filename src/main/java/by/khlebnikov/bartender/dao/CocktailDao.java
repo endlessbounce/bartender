@@ -173,7 +173,6 @@ public class CocktailDao {
                 portion.setIngredientName(resultSet.getString(ingredientName));
                 portion.setAmount(resultSet.getString(ingredientAmount));
                 ingredientList.add(portion);
-                logger.debug("Portion found: " + portion);
             }
 
         } catch (SQLException e) {
