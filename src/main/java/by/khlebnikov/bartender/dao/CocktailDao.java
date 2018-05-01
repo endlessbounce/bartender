@@ -347,7 +347,9 @@ public class CocktailDao {
                 }
 
                 cocktailSaved = Constant.EQUALS_1 == prepStCocktail.executeUpdate();
-                combinationSaved = isUpdate ? updatePortion(cocktail, prepStComb) : savePortion(cocktail, statement, prepStComb);
+                combinationSaved = isUpdate
+                        ? updatePortion(cocktail, prepStComb)
+                        : savePortion(cocktail, statement, prepStComb);
 
                 connection.commit();
             } catch (SQLException e) {

@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Utility class to convert received from users images from a string form to a file
  */
-public class Converter {
+public class ImageConverter {
 
     // Actions ------------------------------------------------------------------------------------
 

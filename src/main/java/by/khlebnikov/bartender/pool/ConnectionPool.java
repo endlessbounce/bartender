@@ -47,6 +47,7 @@ public final class ConnectionPool {
         try {
             Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
+            /*is not handled as we don't really have a choice in case of failure*/
             logger.catching(e);
         }
     }

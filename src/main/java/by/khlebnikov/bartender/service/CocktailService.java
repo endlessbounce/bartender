@@ -8,7 +8,7 @@ import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.entity.Cocktail;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
-import by.khlebnikov.bartender.utility.Converter;
+import by.khlebnikov.bartender.utility.ImageConverter;
 import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -220,7 +220,7 @@ public class CocktailService {
             if (!stringOk) {
                 cocktail.setUri(Constant.DEFAULT_COCKTAIL);
             } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
-                cocktail.setUri(Converter.convertBase64ToImage(uri, relativePath));
+                cocktail.setUri(ImageConverter.convertBase64ToImage(uri, relativePath));
             }
 
             logger.debug("imparting cocktail to DAO: " + cocktail + ", Query type: " + queryType);

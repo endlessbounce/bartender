@@ -34,34 +34,20 @@ public class QueryBuilder {
      *
      * @param drinkTypeSelected true if the user has selected a drink type, false otherwise
      * @param baseDrinkSelected true if the user has selected a base drink, false otherwise
-     * @param optionNum number of selected ingredients
-     * @param language current locale of the user
+     * @param optionNum         number of selected ingredients
+     * @param language          current locale of the user
      * @return query according to the request of the user
      */
     public static String build(boolean drinkTypeSelected, boolean baseDrinkSelected,
                                int optionNum, String language) {
-        StringBuilder query = new StringBuilder();
-        String groupPart;
-        String basePart;
-        String subQueryPart1;
-        String subQueryPart2;
-        String subQueryPart3;
+        boolean isEnglish = ConstLocale.EN.equals(language);
 
-        if (ConstLocale.EN.equals(language)) {
-            query.append(ALL_INGRED_QUERY);
-            groupPart = GROUP_PART;
-            basePart = BASE_PART;
-            subQueryPart1 = SUBQUERY_PART_1;
-            subQueryPart2 = SUBQUERY_PART_2;
-            subQueryPart3 = SUBQUERY_PART_3;
-        } else {
-            query.append(ALL_INGRED_QUERY_LANG);
-            groupPart = GROUP_PART_LANG;
-            basePart = BASE_PART_LANG;
-            subQueryPart1 = SUBQUERY_PART_1_LANG;
-            subQueryPart2 = SUBQUERY_PART_2_LANG;
-            subQueryPart3 = SUBQUERY_PART_3_LANG;
-        }
+        StringBuilder query = isEnglish ? new StringBuilder(ALL_INGRED_QUERY) : new StringBuilder(ALL_INGRED_QUERY_LANG);
+        String groupPart = isEnglish ? GROUP_PART : GROUP_PART_LANG;
+        String basePart = isEnglish ? BASE_PART : BASE_PART_LANG;
+        String subQueryPart1 = isEnglish ? SUBQUERY_PART_1 : SUBQUERY_PART_1_LANG;
+        String subQueryPart2 = isEnglish ? SUBQUERY_PART_2 : SUBQUERY_PART_2_LANG;
+        String subQueryPart3 = isEnglish ? SUBQUERY_PART_3 : SUBQUERY_PART_3_LANG;
 
         if (drinkTypeSelected) {
             query.append(groupPart);
