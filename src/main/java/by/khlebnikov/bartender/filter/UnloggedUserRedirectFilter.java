@@ -5,6 +5,7 @@ import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
 import by.khlebnikov.bartender.utility.CookieHandler;
+import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,12 +55,11 @@ public class UnloggedUserRedirectFilter implements Filter {
         boolean inSession = ((HttpServletRequest) request).getSession().getAttribute(ConstAttribute.USER_NAME) != null;
         boolean prohibitedRequest;
 
-        logger.debug("persistentUser user: " + persistentUser);
-        logger.debug("inSession user: " + inSession);
+        logger.debug("persistentUser user: " + persistentUser + "\ninSession user: " + inSession);
 
         if (!persistentUser && !inSession) {
             String action = request.getParameter(ConstParameter.COMMAND);
-            if (action != null && !action.isEmpty()) {
+            if (Validator.checkString(action)) {
                 try {
                     CommandType commandType = CommandType.valueOf(action.toUpperCase());
 

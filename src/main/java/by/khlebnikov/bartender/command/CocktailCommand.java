@@ -40,23 +40,37 @@ public class CocktailCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request) throws CommandException {
+        boolean isCreated = false;
+        return processRequest(request, isCreated, QueryType.FIND, ConstPage.COCKTAIL);
+    }
+
+    /**
+     * Finds a cocktail created by user, or a classic one from the catalog. Search is based on the
+     * queryType parameter, isCreated parameter defines whether the cocktail has been created or a
+     * classic one.
+     *
+     * @param request HttpServletRequest
+     * @param isCreated true if it has been created by a user, false for classic cocktail from app's catalog
+     * @param queryType type of query (find a classic or created by user cocktail)
+     * @param cocktailPage page to a classic or created by user cocktail
+     * @return the path to a cocktail's page
+     * @throws CommandException if an exception on lower levels happens
+     */
+    public String processRequest(HttpServletRequest request, boolean isCreated, QueryType queryType, String cocktailPage)
+            throws CommandException {
         int cocktailId = Integer.parseInt(request.getParameter(ConstParameter.ID));
         String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
-        boolean isCreated = false;
-        String page;
-
         Optional<Cocktail> cocktailOpt;
+        String page = cocktailPage;
 
         try {
-            cocktailOpt = cocktailService.find(QueryType.FIND, cocktailId, language, isCreated);
+            cocktailOpt = cocktailService.find(queryType, cocktailId, language, isCreated);
         } catch (ServiceException e) {
-            throw new CommandException(e);
+            throw new CommandException("Cocktail not found.", e);
         }
 
         if (cocktailOpt.isPresent()) {
             request.setAttribute(ConstParameter.COCKTAIL, cocktailOpt.get());
-            page = ConstPage.COCKTAIL;
-
             logger.debug("chosen cocktail: " + cocktailOpt.get());
         } else {
             request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.COCKTAIL_NOT_FOUND);
@@ -65,5 +79,4 @@ public class CocktailCommand implements Command {
 
         return page;
     }
-
 }

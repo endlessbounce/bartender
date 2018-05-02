@@ -75,11 +75,10 @@ public class LoggedCookieFilter implements Filter {
             boolean case1 = userLoggedIn && browserRestarted;
             boolean case2 = userLoggedIn && !browserRestarted && serverRestarted;
 
-            logger.debug("case1: " + case1);
-            logger.debug("case2: " + case2);
+            logger.debug("case1: " + case1 + "\ncase2: " + case2);
 
             if (case1 || case2) {
-                Optional<User> userOpt = null;
+                Optional<User> userOpt;
                 try {
                     userOpt = new UserService().findUserByCookie(loggedCookieOpt.get().getValue());
 

@@ -189,9 +189,7 @@ public final class ConnectionPool {
                 }
                 connection.closeConnection();
             } catch (SQLException e) {
-                /*Just making a log because it doesn't make sense to throw an exception
-                * when the app is being shut down or server restarts.
-                * Moreover, there's no special handling for such exceptions on the higher layers*/
+                /*There's no need in special handling for such exceptions in case of redeploy*/
                 logger.catching(e);
             }
 

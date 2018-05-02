@@ -44,12 +44,8 @@ public class Validator {
         if (!checkString(name)) {
             message = MessageType.INCORRECT_NAME;
             valid = false;
-        } else if (!checkString(email)) {
-            message = MessageType.INCORRECT_EMAIL;
-            valid = false;
-        } else if (!checkString(password)) {
-            message = MessageType.INCORRECT_PASSWORD;
-            valid = false;
+        } else if (!checkLoginData(email, password, request)) {
+            return false;
         } else if (!checkString(confirmation)) {
             message = MessageType.INCORRECT_CONFIRMATION;
             valid = false;

@@ -55,11 +55,7 @@ public class RegisterActionCommand implements Command {
                 success = service.saveUser(userOpt.get());
             }
 
-            if (success) {
-                messageType = MessageType.REGISTRATION_SUCCESS;
-            } else {
-                messageType = MessageType.REGISTRATION_ERROR;
-            }
+            messageType = success ? MessageType.REGISTRATION_SUCCESS : MessageType.REGISTRATION_ERROR;
 
             service.deleteProspectUser(email);
         } catch (ServiceException e) {
