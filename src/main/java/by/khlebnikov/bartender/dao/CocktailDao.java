@@ -297,17 +297,15 @@ public class CocktailDao {
      */
     private boolean executeUpdateCocktail(int userId, int cocktailId, String query)
             throws DataAccessException {
-        int updated = 0;
         try (Connection connection = ConnectionPool.getInstance().getConnection();
              PreparedStatement prepStatement = connection.prepareStatement(query)
         ) {
             prepStatement.setInt(1, cocktailId);
             prepStatement.setInt(2, userId);
-            updated = prepStatement.executeUpdate();
+            return prepStatement.executeUpdate() == Constant.EQUALS_1;
         } catch (SQLException e) {
-            throw new DataAccessException("BD is updated: " + updated, e);
+            throw new DataAccessException("Failed to update.", e);
         }
-        return updated == Constant.EQUALS_1;
     }
 
     /**

@@ -23,6 +23,6 @@ public class UserCocktailCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) throws CommandException {
         boolean isCreated = true;
-        return new CocktailCommand().processRequest(request, isCreated, QueryType.FIND_CREATED, ConstPage.USER_COCKTAIL);
+        return new CocktailCommand().processRequest(request, isCreated);
     }
 }

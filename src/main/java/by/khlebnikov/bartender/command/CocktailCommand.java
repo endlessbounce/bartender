@@ -41,27 +41,26 @@ public class CocktailCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) throws CommandException {
         boolean isCreated = false;
-        return processRequest(request, isCreated, QueryType.FIND, ConstPage.COCKTAIL);
+        return processRequest(request, isCreated);
     }
 
     /**
-     * Finds a cocktail created by user, or a classic one from the catalog. Search is based on the
+     * Finds a cocktail created by user, or a classic one from the catalog. SQL query is based on the
      * queryType parameter, isCreated parameter defines whether the cocktail has been created or a
      * classic one.
      *
-     * @param request HttpServletRequest
-     * @param isCreated true if it has been created by a user, false for classic cocktail from app's catalog
-     * @param queryType type of query (find a classic or created by user cocktail)
-     * @param cocktailPage page to a classic or created by user cocktail
+     * @param request      HttpServletRequest
+     * @param isCreated    true if it has been created by a user, false for classic cocktail from app's catalog
      * @return the path to a cocktail's page
      * @throws CommandException if an exception on lower levels happens
      */
-    public String processRequest(HttpServletRequest request, boolean isCreated, QueryType queryType, String cocktailPage)
+    public String processRequest(HttpServletRequest request, boolean isCreated)
             throws CommandException {
         int cocktailId = Integer.parseInt(request.getParameter(ConstParameter.ID));
         String language = (String) request.getSession().getAttribute(ConstAttribute.CHOSEN_LANGUAGE);
+        String page = isCreated ? ConstPage.USER_COCKTAIL : ConstPage.COCKTAIL;
+        QueryType queryType = isCreated ? QueryType.FIND_CREATED : QueryType.FIND;
         Optional<Cocktail> cocktailOpt;
-        String page = cocktailPage;
 
         try {
             cocktailOpt = cocktailService.find(queryType, cocktailId, language, isCreated);
