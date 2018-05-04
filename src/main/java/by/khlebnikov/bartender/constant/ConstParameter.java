@@ -6,8 +6,6 @@ package by.khlebnikov.bartender.constant;
 public final class ConstParameter {
 
     // Constants ----------------------------------------------------------------------------------
-    public static final String CODE_REQ = "&code=";
-    public static final String EMAIL_REQ = "&email=";
     public static final String LOCALE = "locale";
     public static final String COMMAND = "command";
     public static final String CONFIRMATION = "confirmation";

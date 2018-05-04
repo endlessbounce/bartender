@@ -13,7 +13,8 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Class to render to a user the form to setting a new password
+ * Class to render to a user the form to setting a new password after the user
+ * has followed the link on his email
  */
 public class SetPasswordCommand implements Command {
 
@@ -42,22 +43,20 @@ public class SetPasswordCommand implements Command {
     public String execute(HttpServletRequest request) throws CommandException {
         String page = ConstPage.SET_PASSWORD;
         String confirmationCode = request.getParameter(ConstParameter.CODE);
-        String email = request.getParameter(ConstParameter.EMAIL);
         boolean correctUser = false;
 
         try {
-            correctUser = service.isResettingUser(email, confirmationCode);
-            /*attach user's email to the session for further use by SetPasswordActionCommand
-            * (it will be looking for a user by this email)*/
-            request.getSession().setAttribute(ConstParameter.EMAIL, email);
+            correctUser = service.isResettingUser(confirmationCode);
 
             if (!correctUser) {
                 page = ConstPage.RESULT;
                 request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
-                logger.debug("attempt to change password from email " + email + " providing incorrect code");
+                logger.debug("Incorrect confirmation code: " + confirmationCode);
+            } else {
+                /* attach the code to the session for further use by SetPasswordActionCommand */
+                request.getSession().setAttribute(ConstParameter.CODE, confirmationCode);
             }
 
-            service.deleteProspectUser(email);
         } catch (ServiceException e) {
             throw new CommandException("User was trying to change password: " + correctUser, e);
         }

@@ -3,6 +3,7 @@ package by.khlebnikov.bartender.command;
 import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
- * Class to reset users' passwords (update records in the database)
+ * Class to reset users' passwords (update records in the database) - receives new password
  */
 public class SetPasswordActionCommand implements Command {
 
@@ -42,14 +43,19 @@ public class SetPasswordActionCommand implements Command {
     @Override
     public String execute(HttpServletRequest request) throws CommandException {
         String page = ConstPage.RESULT;
-        String email = (String) request.getSession().getAttribute(ConstParameter.EMAIL);
+        String confirmationCode = (String) request.getSession().getAttribute(ConstParameter.CODE);
         String password = request.getParameter(ConstParameter.PASSWORD);
         String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
-        boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, email, password, confirmation, request);
+        boolean correctInput = Validator.checkRegistrationData(ConstParameter.USER, ConstParameter.EMAIL, password, confirmation, request);
+        Optional<User> userOpt = Optional.empty();
         User user = null;
 
         try {
-            Optional<User> userOpt = service.findUserByEmail(email);
+            Optional<ProspectUser> prospectUserOpt = service.findProspectByCode(confirmationCode);
+
+            if(prospectUserOpt.isPresent()){
+                userOpt = service.findUserByEmail(prospectUserOpt.get().getEmail());
+            }
 
             if (correctInput && userOpt.isPresent()) {
                 byte[] salt = hashCoder.getNextSalt();
@@ -63,8 +69,9 @@ public class SetPasswordActionCommand implements Command {
                     user.setHashKey(hashKey);
                     user.setSalt(salt);
                     service.updateUser(user);
+                    service.deleteProspectUser(confirmationCode);
 
-                    request.getSession().removeAttribute(ConstParameter.EMAIL);
+                    request.getSession().removeAttribute(ConstParameter.CODE);
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.PASSWORD_CHANGED);
                 } else {
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);

@@ -7,6 +7,7 @@ import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
+import by.khlebnikov.bartender.mail.LetterType;
 import by.khlebnikov.bartender.mail.Mailer;
 import by.khlebnikov.bartender.reader.PropertyReader;
 import by.khlebnikov.bartender.service.UserService;
@@ -56,18 +57,10 @@ public class ConfirmEmailCommand implements Command {
         String email = request.getParameter(ConstParameter.EMAIL);
         String password = request.getParameter(ConstParameter.PASSWORD);
         String confirmation = request.getParameter(ConstParameter.CONFIRMATION);
-
+        String code = CodeGenerator.uniqueId();
         boolean correctInput = Validator.checkRegistrationData(name, email, password, confirmation, request);
         boolean alreadyRegistered = false;
         boolean awaitingConfirmation = false;
-        long code = CodeGenerator.generateCode();
-
-        String emailPropertyPath = request.getServletContext().getRealPath(Constant.EMAIL_PROPERTY_PATH);
-        String locale = (String) request.getSession().getAttribute(ConstParameter.LOCALE);
-        String subject = PropertyReader.getMessageProperty("message.lettersubject", locale);
-        String message = PropertyReader.getMessageProperty("message.confirmation", locale) +
-                ConstParameter.EMAIL_REQ + email +
-                ConstParameter.CODE_REQ + code;
 
         try {
             /*check if registration data is valid in case front end doesn't check it*/
@@ -87,10 +80,7 @@ public class ConfirmEmailCommand implements Command {
                     service.saveProspectUser(new ProspectUser(name, email, hashKey, salt,
                             TimeGenerator.expirationTime(), code));
 
-                    /*send a letter to user with confirmation link*/
-                    Properties properties = new Properties();
-                    properties.load(new FileInputStream(emailPropertyPath));
-                    Mailer.sendEmail(email, subject, message, properties);
+                    Mailer.sendEmail(email, request, code, LetterType.REGISTRATION);
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.EMAIL_SENT);
                 } else {
                     request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.HASH_ERROR);

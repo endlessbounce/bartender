@@ -3,13 +3,14 @@ package by.khlebnikov.bartender.command;
 import by.khlebnikov.bartender.constant.ConstAttribute;
 import by.khlebnikov.bartender.constant.ConstPage;
 import by.khlebnikov.bartender.constant.ConstParameter;
+import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.tag.MessageType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import by.khlebnikov.bartender.utility.TimeGenerator;
+import by.khlebnikov.bartender.validator.Validator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -20,7 +21,6 @@ import java.util.Optional;
 public class RegisterActionCommand implements Command {
 
     // Vars ---------------------------------------------------------------------------------------
-    private static Logger logger = LogManager.getLogger();
     private UserService service;
 
     // Constructors -------------------------------------------------------------------------------
@@ -40,30 +40,36 @@ public class RegisterActionCommand implements Command {
      */
     @Override
     public String execute(HttpServletRequest request) throws CommandException {
-        Optional<User> userOpt;
-        MessageType messageType;
+        String confirmationCode = request.getParameter(ConstParameter.CODE);
         boolean success = false;
 
-        String confirmationCode = request.getParameter(ConstParameter.CODE);
-        String email = request.getParameter(ConstParameter.EMAIL);
-
         try {
-            /*if user was trying to register, get his data and register him*/
-            userOpt = service.checkProspectUser(email, confirmationCode);
+            if (Validator.checkString(confirmationCode)) {
+                /*if user was trying to register, get his data and register him*/
+                Optional<ProspectUser> prospectUserOpt = service.findProspectByCode(confirmationCode);
 
-            if (userOpt.isPresent()) {
-                success = service.saveUser(userOpt.get());
+                if (prospectUserOpt.isPresent()) {
+                    ProspectUser prospectUser = prospectUserOpt.get();
+
+                    if (prospectUser.getExpiration() > TimeGenerator.currentTime()) {
+                        success = service.saveUser(new User(prospectUser.getName(),
+                                prospectUser.getEmail(),
+                                prospectUser.getHashKey(),
+                                prospectUser.getSalt()));
+                    }
+                }
             }
 
-            messageType = success ? MessageType.REGISTRATION_SUCCESS : MessageType.REGISTRATION_ERROR;
+            MessageType messageType = success
+                    ? MessageType.REGISTRATION_SUCCESS
+                    : MessageType.REGISTRATION_ERROR;
+            request.setAttribute(ConstAttribute.MESSAGE_TYPE, messageType);
 
-            service.deleteProspectUser(email);
+            service.deleteProspectUser(confirmationCode);
         } catch (ServiceException e) {
-            throw new CommandException("Registration is successful: " + success, e);
+            throw new CommandException("Registration result: " + success, e);
         }
 
-        request.setAttribute(ConstAttribute.MESSAGE_TYPE, messageType);
-        logger.debug("message: " + messageType);
         return ConstPage.RESULT;
     }
 }

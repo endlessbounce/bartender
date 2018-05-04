@@ -10,16 +10,6 @@ import java.util.UUID;
 public class CodeGenerator {
 
     // Actions ------------------------------------------------------------------------------------
-
-    /**
-     * Generates a numeric code used for mail verification
-     *
-     * @return generated code
-     */
-    public static long generateCode() {
-        return (long) ((Math.random() + 1) * Constant.MULTIPLIER);
-    }
-
     /**
      * Generates a random unique ID
      *

@@ -1,15 +1,12 @@
 package by.khlebnikov.bartender.service;
 
-import by.khlebnikov.bartender.constant.Constant;
 import by.khlebnikov.bartender.dao.ProspectUserDao;
-import by.khlebnikov.bartender.dao.QueryType;
 import by.khlebnikov.bartender.dao.UserDao;
 import by.khlebnikov.bartender.entity.ProspectUser;
 import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.utility.HashCoder;
-import by.khlebnikov.bartender.utility.TimeGenerator;
 import by.khlebnikov.bartender.validator.Validator;
 
 import java.util.Optional;
@@ -79,6 +76,21 @@ public class UserService {
     }
 
     /**
+     * Checks if this prospect user has appealed for registration
+     *
+     * @param confirmationCode confirmation code that has been send to this prospect user via email
+     * @return Optional of a User if the prospect was trying to register, empty Optional otherwise
+     * @throws ServiceException is thrown in case of an error in the underlying code
+     */
+    public Optional<ProspectUser> findProspectByCode(String confirmationCode) throws ServiceException {
+        try {
+            return prospectUserDao.findByCode(confirmationCode);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Confirmation code: " + confirmationCode, e);
+        }
+    }
+
+    /**
      * Updates a user
      *
      * @param user to update
@@ -128,31 +140,18 @@ public class UserService {
      * Checks if a user is the correct user that was trying to change his password.
      * Compares code that was sent to him via email to the one stored into the database.
      *
-     * @param email            user's email
      * @param confirmationCode code that was sent to this user via email to confirm a password reset
      * @return true if the user is correct, false otherwise
      * @throws ServiceException is thrown in case of an error in the underlying code
      */
-    public boolean isResettingUser(String email, String confirmationCode) throws ServiceException {
-        String dbCode = Constant.EMPTY;
-        Optional<ProspectUser> userOpt;
-
-        if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
-            return false;
-        }
-
+    public boolean isResettingUser(String confirmationCode) throws ServiceException {
         try {
-            userOpt = prospectUserDao.find(email);
+            return Validator.checkString(confirmationCode)
+                    ? prospectUserDao.findByCode(confirmationCode).isPresent()
+                    : false;
         } catch (DataAccessException e) {
-            throw new ServiceException("Checked email: " + email + ",\n confirmation code: " + confirmationCode, e);
+            throw new ServiceException("Confirmation code: " + confirmationCode, e);
         }
-
-        if (userOpt.isPresent()) {
-            ProspectUser user = userOpt.get();
-            dbCode = String.valueOf(user.getCode());
-        }
-
-        return confirmationCode.equals(dbCode);
     }
 
     /**
@@ -186,59 +185,23 @@ public class UserService {
     }
 
     /**
-     * Checks if this prospect user has appealed for registration and registration time is not expired
-     *
-     * @param email            email of the prospect user
-     * @param confirmationCode confirmation code that has been send to this prospect user via email
-     * @return Optional of a User if the prospect was trying to register, empty Optional otherwise
-     * @throws ServiceException is thrown in case of an error in the underlying code
-     */
-    public Optional<User> checkProspectUser(String email, String confirmationCode) throws ServiceException {
-        Optional<User> result = Optional.empty();
-        Optional<ProspectUser> userOpt;
-
-        if (!Validator.checkString(email) || !Validator.checkString(confirmationCode)) {
-            return result;
-        }
-        try {
-            userOpt = prospectUserDao.find(email);
-        } catch (DataAccessException e) {
-            throw new ServiceException("Checked email: " + email + ",\n confirmation code: " + confirmationCode, e);
-        }
-
-        if (userOpt.isPresent()) {
-            ProspectUser user = userOpt.get();
-            String code = String.valueOf(user.getCode());
-            long currentTime = TimeGenerator.currentTime();
-
-            if (confirmationCode.equals(code) && user.getExpiration() > currentTime) {
-                result = Optional.of(new User(user.getName(),
-                        user.getEmail(),
-                        user.getHashKey(),
-                        user.getSalt()));
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Deletes prospect user from the database
      *
-     * @param email of the prospect user
+     * @param confirmationCode confirmation code of the prospect user sent from email
      * @return true if the prospect has been deleted successfully, false otherwise
      * @throws ServiceException is thrown in case of an error in the underlying code
      */
-    public boolean deleteProspectUser(String email) throws ServiceException {
+    public boolean deleteProspectUser(String confirmationCode) throws ServiceException {
         try {
-            return prospectUserDao.delete(email);
+            return prospectUserDao.delete(confirmationCode);
         } catch (DataAccessException e) {
-            throw new ServiceException("Deleting by email: " + email, e);
+            throw new ServiceException("Deleting by confirmation code: " + confirmationCode, e);
         }
     }
 
     /**
      * Deletes a user from the database and all his data
+     *
      * @param userId of the user
      * @return true if the operation succeeded and false otherwise
      * @throws ServiceException is thrown in case of an error in the underlying code
@@ -254,15 +217,15 @@ public class UserService {
     /**
      * Checks if such prospect user is registered
      *
-     * @param email email of a prospect user
+     * @param email prospect's email
      * @return true if the prospect user is registered, false otherwise
      * @throws ServiceException is thrown in case of an error in the underlying code
      */
     public boolean isProspectRegistered(String email) throws ServiceException {
         try {
-            return prospectUserDao.find(email).isPresent();
+            return prospectUserDao.findByEmail(email).isPresent();
         } catch (DataAccessException e) {
-            throw new ServiceException("Checking by email: " + email, e);
+            throw new ServiceException("Checking prospect by email: " + email, e);
         }
     }
 

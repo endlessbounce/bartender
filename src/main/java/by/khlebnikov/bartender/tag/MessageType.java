@@ -20,6 +20,7 @@ public enum MessageType {
     AWAITING_CONFIRMATION("message.awaitingconfirmation"),
     USER_NOT_REGISTERED("message.invalidemail"),
     RESET_LINK_SENT("message.resetlinksent"),
+    LINK_ALREADY_SENT("message.alreadysent"),
     MAIL_ERROR("message.mailerror"),
     HASH_ERROR("message.hasherror"),
     INCORRECT_USER("message.incorrectuser"),

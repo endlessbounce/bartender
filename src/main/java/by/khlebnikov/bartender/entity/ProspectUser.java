@@ -20,13 +20,13 @@ public class ProspectUser implements Serializable {
     private byte[] hashKey;
     private byte[] salt;
     private long expiration;
-    private long code;
+    private String code;
 
     // Constructors -------------------------------------------------------------------------------
     public ProspectUser() {
     }
 
-    public ProspectUser(String name, String email, byte[] hashKey, byte[] salt, long expiration, long code) {
+    public ProspectUser(String name, String email, byte[] hashKey, byte[] salt, long expiration, String code) {
         this.name = name;
         this.email = email;
         this.hashKey = hashKey;
@@ -76,11 +76,11 @@ public class ProspectUser implements Serializable {
         this.expiration = expiration;
     }
 
-    public long getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(long code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
@@ -118,6 +118,7 @@ public class ProspectUser implements Serializable {
      *
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         return "ProspectUser{" +
                 "name='" + name + '\'' +
