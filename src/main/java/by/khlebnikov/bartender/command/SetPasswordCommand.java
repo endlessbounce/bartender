@@ -7,6 +7,7 @@ import by.khlebnikov.bartender.exception.CommandException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.service.UserService;
 import by.khlebnikov.bartender.tag.MessageType;
+import by.khlebnikov.bartender.validator.Validator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,21 +46,26 @@ public class SetPasswordCommand implements Command {
         String confirmationCode = request.getParameter(ConstParameter.CODE);
         boolean correctUser = false;
 
-        try {
-            correctUser = service.isResettingUser(confirmationCode);
+        if (Validator.checkString(confirmationCode)) {
 
-            if (!correctUser) {
-                page = ConstPage.RESULT;
-                request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
-                logger.debug("Incorrect confirmation code: " + confirmationCode);
-            } else {
+            try {
+                correctUser = service.findProspectByCode(confirmationCode)
+                        .isPresent();
+
+                if (!correctUser) {
+                    page = ConstPage.RESULT;
+                    request.setAttribute(ConstAttribute.MESSAGE_TYPE, MessageType.INCORRECT_USER);
+                    logger.debug("Incorrect confirmation code: " + confirmationCode);
+                } else {
                 /* attach the code to the session for further use by SetPasswordActionCommand */
-                request.getSession().setAttribute(ConstParameter.CODE, confirmationCode);
-            }
+                    request.getSession().setAttribute(ConstParameter.CODE, confirmationCode);
+                }
 
-        } catch (ServiceException e) {
-            throw new CommandException("User was trying to change password: " + correctUser, e);
+            } catch (ServiceException e) {
+                throw new CommandException("User was trying to change password: " + correctUser, e);
+            }
         }
+
 
         return page;
     }

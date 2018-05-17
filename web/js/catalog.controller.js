@@ -168,7 +168,7 @@
                     }
                 }
 
-                console.log("recourse path" + buildPath);
+                console.log("recourse path: " + buildPath);
                 return buildPath;
             }
 

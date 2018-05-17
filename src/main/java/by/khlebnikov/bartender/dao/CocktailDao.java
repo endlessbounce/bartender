@@ -436,10 +436,11 @@ public class CocktailDao {
     }
 
     /**
-     * Read cocktails from ResultSet
+     * Read cocktails from ResultSet.
      *
      * @param resSet   ResultSet of a query
      * @param language current language of a user
+     * @param isCreated indicates whether a cocktail is a classic one or a user-created one
      * @return mapped to object cocktail
      * @throws SQLException is thrown when a database error occurs
      */

@@ -1,0 +1,67 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="ProjectTest" verbose="1" >
+    <test name="CocktailServiceTest">
+        <classes>
+
+            <class name="test.khlebnikov.bartender.service.CocktailServiceTest">
+                <methods>
+                    <include name="saveCreatedEn" />
+                    <include name="saveCreatedRu" />
+                    <include name="updateCreatedEn" />
+                    <include name="updateCreatedRu" />
+                    <include name="executeUpdateCocktailSaveFav" />
+                    <include name="findFavourite" />
+                    <include name="findCreated" />
+                    <include name="findAllFavourite" />
+                    <include name="findAllCreated" />
+                    <include name="executeUpdateCocktailDeleteFav" />
+                    <include name="executeUpdateCocktailDeleteCreated" />
+                    <include name="findAllMatchingEn" />
+                    <include name="findAllMatchingRu" />
+                </methods>
+            </class>
+
+        </classes>
+    </test>
+
+    <test name="UserServiceTest">
+        <classes>
+
+            <class name="test.khlebnikov.bartender.service.UserServiceTest">
+                <methods>
+                    <include name="testSaveUser" />
+                    <include name="testSaveProspectUser" />
+                    <include name="testFindUserByEmail" />
+                    <include name="testFindUserById" />
+                    <include name="testFindUserByCookie" />
+                    <include name="testFindProspectByCode" />
+                    <include name="testCheckUser" />
+                    <include name="testUpdateUser" />
+                    <include name="testIsProspectRegistered" />
+                    <include name="testDeleteProspectUser" />
+                    <include name="testDeleteUser" />
+                    <include name="testIsFavouriteCocktail" />
+                </methods>
+            </class>
+
+        </classes>
+    </test>
+
+    <test name="CatalogServiceTest">
+        <classes>
+
+            <class name="test.khlebnikov.bartender.service.CatalogServiceTest">
+                <methods>
+                    <include name="findFormDataIngredient" />
+                    <include name="findFormDataIngredientRu" />
+                    <include name="findFormDataGroup" />
+                    <include name="findFormDataGroupRu" />
+                    <include name="findFormDataBase" />
+                    <include name="findFormDataBaseRu" />
+                </methods>
+            </class>
+
+        </classes>
+    </test>
+</suite>

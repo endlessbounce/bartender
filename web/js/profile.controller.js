@@ -352,6 +352,7 @@
             self.cleanCreateSection = function () {
                 if (self.editMode) {
                     document.getElementById("editCocktail").classList.remove('active');
+                    self.editMode = false;
                 } else {
                     document.getElementById("newCocktail").classList.remove('active');
                 }

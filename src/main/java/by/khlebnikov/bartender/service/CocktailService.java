@@ -199,7 +199,8 @@ public class CocktailService {
     // Helper methods ------------------------------------------------------------------------
 
     /**
-     * Executes save or update operation over given created cocktail
+     * Executes save or update operation over given created cocktail.
+     * Uri of a cocktail may be empty or may contain an uploaded BASE64 image
      *
      * @param userId      user's ID
      * @param queryType   type of query (save or update)
@@ -211,15 +212,14 @@ public class CocktailService {
      */
     private boolean executeUpdateCocktail(int userId, QueryType queryType, Cocktail cocktail, MultivaluedMap params, HttpServletRequest httpRequest)
             throws ServiceException {
-        String relativePath = httpRequest.getServletContext().getRealPath(Constant.EMPTY);
         String language = (String) params.getFirst(ConstParameter.LOCALE);
         String uri = cocktail.getUri();
-        boolean stringOk = Validator.checkString(uri);
 
         try {
-            if (!stringOk) {
+            if (!Validator.checkString(uri)) {
                 cocktail.setUri(Constant.DEFAULT_COCKTAIL);
             } else if (uri.startsWith(Constant.BASE64_START) && uri.contains(Constant.BASE64)) {
+                String relativePath = httpRequest.getServletContext().getRealPath(Constant.EMPTY);
                 cocktail.setUri(ImageConverter.convertBase64ToImage(uri, relativePath));
             }
 
@@ -234,7 +234,7 @@ public class CocktailService {
                     return false;
             }
         } catch (DataAccessException | IOException e) {
-            throw new ServiceException("Query type: " + queryType + ",\n language" + language +
+            throw new ServiceException("Query type: " + queryType + ",\n language: " + language +
                     ",\n cocktail:" + cocktail, e);
         }
     }

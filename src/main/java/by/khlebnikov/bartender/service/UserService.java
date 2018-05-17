@@ -137,24 +137,6 @@ public class UserService {
     }
 
     /**
-     * Checks if a user is the correct user that was trying to change his password.
-     * Compares code that was sent to him via email to the one stored into the database.
-     *
-     * @param confirmationCode code that was sent to this user via email to confirm a password reset
-     * @return true if the user is correct, false otherwise
-     * @throws ServiceException is thrown in case of an error in the underlying code
-     */
-    public boolean isResettingUser(String confirmationCode) throws ServiceException {
-        try {
-            return Validator.checkString(confirmationCode)
-                    ? prospectUserDao.findByCode(confirmationCode).isPresent()
-                    : false;
-        } catch (DataAccessException e) {
-            throw new ServiceException("Confirmation code: " + confirmationCode, e);
-        }
-    }
-
-    /**
      * Saves user to the database
      *
      * @param user to save to the database

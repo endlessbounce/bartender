@@ -16,7 +16,7 @@ public class TimeGenerator {
      * @return expiration time as a number
      */
     public static long expirationTime() {
-        return Calendar.getInstance().getTimeInMillis() / Constant.TO_SECONDS + Constant.TIME_TO_CONFIRM;
+        return currentTime() + Constant.TIME_TO_CONFIRM;
     }
 
     /**

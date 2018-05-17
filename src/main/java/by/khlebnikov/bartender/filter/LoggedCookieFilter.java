@@ -40,7 +40,7 @@ public class LoggedCookieFilter implements Filter {
     }
 
     /**
-     * Defines if it's needed to restore logged in condition of the user after browser or server restart.
+     * Defines if it's needed to restore logged-in condition of the user after browser or server restarts.
      *
      * @param request
      * @param response
