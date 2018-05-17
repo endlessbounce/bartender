@@ -7,7 +7,6 @@ import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.exception.ServiceException;
 import by.khlebnikov.bartender.utility.HashCoder;
-import by.khlebnikov.bartender.validator.Validator;
 
 import java.util.Optional;
 

@@ -65,7 +65,7 @@ public class CocktailServiceTest {
 
     @Test
     public void findFavourite() throws Exception {
-        Assert.assertTrue(service.find(QueryType.FIND, 9, "EN", false)
+        Assert.assertTrue(service.find(QueryType.FIND, FAVOURITE_ID, "EN", false)
                 .isPresent());
     }
 

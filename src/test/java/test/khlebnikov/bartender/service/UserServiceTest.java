@@ -7,12 +7,7 @@ import by.khlebnikov.bartender.utility.CodeGenerator;
 import by.khlebnikov.bartender.utility.HashCoder;
 import by.khlebnikov.bartender.utility.TimeGenerator;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
-import java.util.Optional;
-
-import static org.testng.Assert.*;
 
 public class UserServiceTest {
     private UserService userService = new UserService();
@@ -53,12 +48,11 @@ public class UserServiceTest {
 
     @Test
     public void testFindUserByEmail() throws Exception {
-        Optional<User> optUser = userService.findUserByEmail(userEmail);
-        boolean found = optUser.isPresent();
-        if (found) {
-            userId = optUser.get().getId();
-        }
-        Assert.assertTrue(found);
+        userId = userService.findUserByEmail(userEmail)
+                .map(User::getId)
+                .orElse(0);
+
+        Assert.assertNotEquals(userId, 0);
     }
 
     @Test
@@ -109,6 +103,7 @@ public class UserServiceTest {
 
     @Test
     public void testIsFavouriteCocktail() throws Exception {
+        Assert.assertFalse(userService.isFavouriteCocktail(userId, 1));
     }
 
 }
