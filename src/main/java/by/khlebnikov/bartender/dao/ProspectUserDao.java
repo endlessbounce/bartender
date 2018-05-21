@@ -44,7 +44,7 @@ public class ProspectUserDao {
             prepStatement.setString(6, prospectUser.getCode());
 
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException(e);
         }
     }
@@ -84,7 +84,7 @@ public class ProspectUserDao {
         ) {
             prepStatement.setString(1, confirmationCode);
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException(e);
         }
     }
@@ -128,7 +128,7 @@ public class ProspectUserDao {
                 result = Optional.of(prospectUser);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("Found prospect user: " + prospectUser, e);
         }
 

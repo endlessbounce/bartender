@@ -8,14 +8,24 @@ import java.util.concurrent.Executor;
 /**
  * Proxy class to wrap around the Connection instance
  */
-public class ProxyConnection implements Connection{
+public class ProxyConnection implements Connection {
 
     // Vars ---------------------------------------------------------------------------------------
     private Connection connection;
+    private long operationStartTime;
 
     // Constructors -------------------------------------------------------------------------------
     ProxyConnection(Connection connection) {
         this.connection = connection;
+    }
+
+    // Getters and Setters ------------------------------------------------------------------------
+    public long getOperationStartTime() {
+        return operationStartTime;
+    }
+
+    public void setOperationStartTime(long operationStartTime) {
+        this.operationStartTime = operationStartTime;
     }
 
     // Actions ------------------------------------------------------------------------------------
@@ -94,9 +104,10 @@ public class ProxyConnection implements Connection{
 
     /**
      * Closes Connection
+     *
      * @see java.sql.Connection#close()
      */
-    void closeConnection() throws SQLException{
+    void closeConnection() throws SQLException {
         connection.close();
     }
 

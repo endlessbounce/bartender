@@ -7,8 +7,6 @@ import by.khlebnikov.bartender.entity.User;
 import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.pool.ConnectionPool;
 import by.khlebnikov.bartender.reader.PropertyReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
@@ -100,7 +98,7 @@ public class UserDao {
         ) {
             prepStatement.setInt(1, userId);
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException(e);
         }
     }
@@ -123,7 +121,7 @@ public class UserDao {
             resultSet.next();
 
             return resultSet.getInt(1) == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException(e);
         }
     }
@@ -168,7 +166,7 @@ public class UserDao {
                 result = Optional.of(user);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("User found: " + user, e);
         }
 
@@ -198,7 +196,7 @@ public class UserDao {
             }
 
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("User updated: " + user, e);
         }
     }

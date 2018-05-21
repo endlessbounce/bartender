@@ -12,6 +12,9 @@ import org.testng.annotations.Test;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class CocktailServiceTest {
     private static final int USER_ID = 60;
@@ -21,7 +24,7 @@ public class CocktailServiceTest {
     @Test
     public void saveCreatedEn() throws Exception {
         Assert.assertTrue(processCreated("EN",
-                "Test1 name",
+                generateName(),
                 "Liqueur",
                 "Bahama Mama Tropical Drinks",
                 "honey liqueur"
@@ -31,17 +34,17 @@ public class CocktailServiceTest {
     @Test
     public void saveCreatedRu() throws Exception {
         Assert.assertTrue(processCreated("RU",
-                "Test2Ru name",
+                generateName(),
                 "Смеси",
                 "Старинные коктейли",
                 "яблочный сок",
                 "save"));
     }
 
-    @Test
+    @Test(threadPoolSize = 2, invocationCount = 5, timeOut = 10000)
     public void updateCreatedEn() throws Exception {
         Assert.assertTrue(processCreated("EN",
-                "Test1 name updated",
+                generateName(),
                 "Liqueur",
                 "Bahama Mama Tropical Drinks",
                 "honey liqueur",
@@ -51,7 +54,7 @@ public class CocktailServiceTest {
     @Test
     public void updateCreatedRu() throws Exception {
         Assert.assertTrue(processCreated("RU",
-                "Test2Ru name updated",
+                generateName(),
                 "Смеси",
                 "Старинные коктейли",
                 "яблочный сок",
@@ -169,5 +172,12 @@ public class CocktailServiceTest {
                 .orElse(new Cocktail())
                 .getId();
 
+    }
+
+    private String generateName() {
+        return new Random().ints(97, 122)
+                .limit(10)
+                .mapToObj(i -> String.valueOf((char) i))
+                .collect(Collectors.joining());
     }
 }

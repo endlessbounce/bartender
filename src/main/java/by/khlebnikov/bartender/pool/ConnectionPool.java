@@ -1,8 +1,8 @@
 package by.khlebnikov.bartender.pool;
 
 import by.khlebnikov.bartender.constant.ConstDatabase;
-import by.khlebnikov.bartender.exception.DataAccessException;
 import by.khlebnikov.bartender.reader.PropertyReader;
+import by.khlebnikov.bartender.utility.TimeGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,13 +10,16 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Connection pool singleton class. Serves connections for the application.
+ * Connection test.khlebnikov.bartender.service.pool singleton class. Serves connections for the application.
  */
 public final class ConnectionPool {
 
@@ -30,32 +33,63 @@ public final class ConnectionPool {
     private static final int POOL_SIZE = 10;
 
     // Vars ---------------------------------------------------------------------------------------
+    /*time that connections are given to execute SQL queries*/
+    private static int connectionTimeLimit = 10;
+    /*timeout that a thread must wait between attempts to get a connection*/
+    private static int timeout = 2;
+    private static int driverLoadAttempt = 5;
     private static Logger logger = LogManager.getLogger();
     private static ReentrantLock lock = new ReentrantLock();
     private static ConnectionPool instance;
     private static AtomicBoolean isPoolCreated = new AtomicBoolean(false);
+    private static Condition waitForConnection = lock.newCondition();
 
     // Constructors -------------------------------------------------------------------------------
 
     /**
-     * Private constructor for a singleton pool
+     * Private constructor for a singleton test.khlebnikov.bartender.service.pool.
+     * There are 5 attempts that are given to try to load the driver
      */
     private ConnectionPool() {
         if (instance != null) {
             throw new RuntimeException("Already initialized.");
         }
-        try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
+
+        while (driverLoadAttempt-- != 0) {
+            try {
+                Class.forName(DRIVER);
+                driverLoadAttempt = 0;
+            } catch (ClassNotFoundException e) {
             /*is not handled as we don't really have a choice in case of failure*/
-            logger.catching(e);
+                logger.error("failed to load driver at attempt #" + driverLoadAttempt, e);
+            }
         }
     }
 
+    // Getters & Setters --------------------------------------------------------------------------
+
+    public static int getConnectionTimeLimit() {
+        return connectionTimeLimit;
+    }
+
+    public static void setConnectionTimeLimit(int sec) {
+        ConnectionPool.connectionTimeLimit = sec;
+    }
+
+    public static int getTimeout() {
+        return timeout;
+    }
+
+    public static void setTimeout(int sec) {
+        ConnectionPool.timeout = sec;
+    }
+
+    // Actions ------------------------------------------------------------------------------------
+
     /**
-     * Returns this instance of the pool
+     * Returns this instance of the test.khlebnikov.bartender.service.pool
      *
-     * @return the instance of the pool
+     * @return the instance of the test.khlebnikov.bartender.service.pool
      */
     public static ConnectionPool getInstance() {
 
@@ -75,28 +109,41 @@ public final class ConnectionPool {
     }
 
     /**
-     * Returns new connection.
+     * Returns new connection. If there are idle connections in the IDLE_CONNECTIONS list - returns one from it.
+     * If there are no idle connections, but ACTIVE_CONNECTIONS list isn't full - create a new connection.
+     * If there are no free connections and can't create a new one, wait for 2 seconds for a connection
+     * to appear. 5 attempts are given to wait and check for an idle connection, otherwise check if there
+     * are connections that have been busy for a longer period of time than the allowed limit.
+     * (calls findOverdueConnection() method).
      *
-     * @return
+     * @return ProxyConnection
      * @throws SQLException if thrown, will be handled in the DAO layer
      */
-    public ProxyConnection getConnection() throws SQLException {
+    public ProxyConnection getConnection() throws SQLException, InterruptedException {
         ProxyConnection connection = null;
+        int attempt = 5;
 
-        while (connection == null) {
+        while (connection == null && attempt-- != 0) {
             lock.lock();
             try {
                 if (!IDLE_CONNECTIONS.isEmpty()) {
                     connection = IDLE_CONNECTIONS.remove(0);
                 } else if (ACTIVE_CONNECTIONS.size() < POOL_SIZE) {
-                    connection = new ProxyConnection(DriverManager.getConnection(URL, USER, PASSWORD));
-                    ACTIVE_CONNECTIONS.add(connection);
+                    connection = createConnection();
+                } else {
+
+                    if (attempt != 0) {
+                        waitForConnection.await(timeout, TimeUnit.SECONDS);
+                    } else {//claim overdue connection
+                        connection = findOverdueConnection();
+                    }
                 }
             } finally {
                 lock.unlock();
             }
         }
 
+        connection.setOperationStartTime(TimeGenerator.currentTime());
         return connection;
     }
 
@@ -111,10 +158,7 @@ public final class ConnectionPool {
         try {
             ACTIVE_CONNECTIONS.remove(connection);
             if (connection.isValid(0)) {
-                if (!connection.getAutoCommit()) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                }
+                rollbackChanges(connection);
             }
             IDLE_CONNECTIONS.add(connection);
         } finally {
@@ -194,5 +238,60 @@ public final class ConnectionPool {
             }
 
         }
+    }
+
+    /**
+     * In case if all available connections are busy and wait timeout is elapsed,
+     * an attempt to find on overdue connection is done. If such a connection is found,
+     * its changes are rollbacked and it is removed from the ACTIVE_CONNECTIONS list,
+     * so a new connection can be created.
+     * This overdue connection is closed in case it's broken.
+     *
+     * @throws SQLException
+     */
+    private ProxyConnection findOverdueConnection() throws SQLException {
+        long currentTime = TimeGenerator.currentTime();
+
+        lock.lock();
+        try {
+
+            ProxyConnection overdueConnection = ACTIVE_CONNECTIONS.stream()
+                    .filter(con -> (currentTime - con.getOperationStartTime()) > connectionTimeLimit)
+                    .sorted(Comparator.comparing(ProxyConnection::getOperationStartTime).reversed())
+                    .findFirst()
+                    .orElseThrow(() -> new SQLException("Unable to create or find a free connection."));
+
+            rollbackChanges(overdueConnection);
+            ACTIVE_CONNECTIONS.remove(overdueConnection);
+            overdueConnection.closeConnection();
+            return createConnection();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Rollbacks all changes for a given connection
+     *
+     * @param connection ProxyConnection
+     * @throws SQLException
+     */
+    private void rollbackChanges(ProxyConnection connection) throws SQLException {
+        if (!connection.getAutoCommit()) {
+            connection.rollback();
+            connection.setAutoCommit(true);
+        }
+    }
+
+    /**
+     * Creates new ProxyConnection
+     *
+     * @return ProxyConnection
+     * @throws SQLException
+     */
+    private ProxyConnection createConnection() throws SQLException {
+        ProxyConnection connection = new ProxyConnection(DriverManager.getConnection(URL, USER, PASSWORD));
+        ACTIVE_CONNECTIONS.add(connection);
+        return connection;
     }
 }

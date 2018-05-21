@@ -1,7 +1,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ProjectTest" verbose="1" >
-    <test name="CocktailServiceTest">
+    <test name="CocktailService">
         <classes>
 
             <class name="test.khlebnikov.bartender.service.CocktailServiceTest">
@@ -25,7 +25,7 @@
         </classes>
     </test>
 
-    <test name="UserServiceTest">
+    <test name="UserService">
         <classes>
 
             <class name="test.khlebnikov.bartender.service.UserServiceTest">
@@ -48,7 +48,7 @@
         </classes>
     </test>
 
-    <test name="CatalogServiceTest">
+    <test name="CatalogService">
         <classes>
 
             <class name="test.khlebnikov.bartender.service.CatalogServiceTest">
@@ -59,6 +59,24 @@
                     <include name="findFormDataGroupRu" />
                     <include name="findFormDataBase" />
                     <include name="findFormDataBaseRu" />
+                </methods>
+            </class>
+
+        </classes>
+    </test>
+
+    <test name="Pool">
+        <classes>
+
+            <class name="test.khlebnikov.bartender.pool.ConnectionPoolTest">
+                <methods>
+                    <include name="getInstance" />
+                    <include name="getConnectionPos" />
+                    <include name="getConnectionTimeoutPos" />
+                    <include name="getConnectionTimeoutNeg" />
+                    <include name="releaseConnection" />
+                    <include name="closeAll" />
+                    <include name="deregisterDriver" />
                 </methods>
             </class>
 

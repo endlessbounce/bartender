@@ -87,7 +87,7 @@ public class CatalogDao {
             }
 
             logger.debug("Form data read: " + result);
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("Form data found: " + result, e);
         }
 

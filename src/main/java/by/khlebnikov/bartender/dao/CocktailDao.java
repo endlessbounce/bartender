@@ -125,7 +125,7 @@ public class CocktailDao {
             while (resSet.next()) {
                 result.add(mapCocktailToObject(resSet, language, isCreated));
             }
-        } catch (SQLException | UnsupportedEncodingException e) {
+        } catch (SQLException | UnsupportedEncodingException | InterruptedException e) {
             throw new DataAccessException("Cocktails found: " + result +
                     ",\n query: " + query, e);
         }
@@ -175,7 +175,7 @@ public class CocktailDao {
                 ingredientList.add(portion);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("Find ingredients for a cocktail with: cocktail id: " + cocktailId +
                     ", found ingredients: " + ingredientList + ", is created : " + isCreated + ", query: " + query, e);
         }
@@ -276,7 +276,7 @@ public class CocktailDao {
             while (resSet.next()) {
                 selectedCocktail.add(mapCocktailToObject(resSet, language, isCreated));
             }
-        } catch (SQLException | UnsupportedEncodingException e) {
+        } catch (SQLException | UnsupportedEncodingException | InterruptedException e) {
             throw new DataAccessException("Find by id: " + id +
                     ", chosen language: " + language +
                     ", created by user cocktail: " + isCreated +
@@ -303,7 +303,7 @@ public class CocktailDao {
             prepStatement.setInt(1, cocktailId);
             prepStatement.setInt(2, userId);
             return prepStatement.executeUpdate() == Constant.EQUALS_1;
-        } catch (SQLException e) {
+        } catch (SQLException | InterruptedException e) {
             throw new DataAccessException("Failed to update.", e);
         }
     }
@@ -431,15 +431,15 @@ public class CocktailDao {
         deleted = updated == Constant.EQUALS_1;
         saved = savePortion(cocktail, null, prepStCombination);
 
-        logger.debug("deleted and saved: " + deleted + " " + saved);
+        logger.debug("update portion meth: deleted and saved: " + deleted + " " + saved);
         return deleted && saved;
     }
 
     /**
      * Read cocktails from ResultSet.
      *
-     * @param resSet   ResultSet of a query
-     * @param language current language of a user
+     * @param resSet    ResultSet of a query
+     * @param language  current language of a user
      * @param isCreated indicates whether a cocktail is a classic one or a user-created one
      * @return mapped to object cocktail
      * @throws SQLException is thrown when a database error occurs

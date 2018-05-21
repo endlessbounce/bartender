@@ -26,7 +26,7 @@ public class ApplicationListener implements ServletContextListener {
     }
 
     /**
-     * Closes all connections in the pool and deregisters JDBC driver
+     * Closes all connections in the test.khlebnikov.bartender.service.pool and deregisters JDBC driver
      *
      * @param event
      */
