@@ -52,7 +52,7 @@ public class HashCoder {
      */
     public Optional<byte[]> hash(char[] password, byte[] salt) {
         Optional<byte[]> hashKey = Optional.empty();
-        /*get password-based encryption key*/
+        /*get password-based specification for generation of a key*/
         PBEKeySpec spec = new PBEKeySpec(password, salt, Constant.ITERATIONS, Constant.KEY_LENGTH);
 
         /*destroy password*/
@@ -79,23 +79,11 @@ public class HashCoder {
      * @return true if the given password and salt match the hashed value, false otherwise
      */
     public boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
-        boolean equals = true;
-        Optional<byte[]> passwordHashOpt = hash(password, salt);
-        byte[] passwordHash = passwordHashOpt.orElse(new byte[0]);
+        byte[] passwordHash = hash(password, salt).orElse(new byte[0]);
 
         /*destroy password*/
         Arrays.fill(password, Character.MIN_VALUE);
 
-        if (passwordHash.length != expectedHash.length) {
-            equals = false;
-        } else {
-            for (int i = 0; i < passwordHash.length; i++) {
-                if (passwordHash[i] != expectedHash[i]) {
-                    equals = false;
-                }
-            }
-        }
-
-        return equals;
+        return Arrays.equals(passwordHash, expectedHash);
     }
 }

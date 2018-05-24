@@ -113,26 +113,12 @@ public class UserService {
      * @throws ServiceException is thrown in case of an error in the underlying code
      */
     public Optional<User> checkUser(String email, String password) throws ServiceException {
-        Optional<User> userOpt;
-
         try {
-            userOpt = userDao.findByEmail(email);
+            return userDao.findByEmail(email)
+                    .filter(u -> hashCoder.isExpectedPassword(password.toCharArray(), u.getSalt(), u.getHashKey()));
         } catch (DataAccessException e) {
             throw new ServiceException("Looking for user with: " + email + ",\n password: " + password, e);
         }
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            boolean hashMatch = hashCoder.isExpectedPassword(password.toCharArray(),
-                    user.getSalt(),
-                    user.getHashKey());
-
-            if (!hashMatch) {
-                userOpt = Optional.empty();
-            }
-        }
-
-        return userOpt;
     }
 
     /**

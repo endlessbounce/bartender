@@ -1,7 +1,5 @@
 package by.khlebnikov.bartender.utility;
 
-import by.khlebnikov.bartender.constant.Constant;
-
 import java.util.UUID;
 
 /**
