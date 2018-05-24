@@ -94,7 +94,7 @@
 
                 <%--cocktail card--%>
                 <div class="card float-left m-2" style="width: 16rem;"
-                     dir-paginate="card in cat.cocktails | filter: {name: '${text}'} | itemsPerPage: cat.showPages track by $index">
+                     dir-paginate="card in cat.cocktails | filter: {name: '${e:forHtmlContent(text)}'} | itemsPerPage: cat.showPages track by $index">
                     <img class="card-img-top" ng-src="${ pageContext.request.contextPath }{{card.uri}}"
                          alt="Card image cap">
                     <div class="card-body">

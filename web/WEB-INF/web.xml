@@ -4,12 +4,13 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
+    <!--add the package of exception mapper for Jersey in param-value for packages-->
     <servlet>
         <servlet-name>Jersey Web Application</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>by.khlebnikov.bartender.resource</param-value>
+            <param-value>by.khlebnikov.bartender.resource;by.khlebnikov.bartender.exception</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

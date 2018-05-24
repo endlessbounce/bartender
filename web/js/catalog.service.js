@@ -45,7 +45,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(JSON.stringify(response.data))
                 });
                 return promise2;
             };
@@ -55,7 +55,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(JSON.stringify(response.data))
                 });
                 return promise2;
             };
@@ -66,7 +66,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    throw response.data;
+                    throw JSON.stringify(response.data);
                 });
                 return promise2;
             };
@@ -77,7 +77,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    throw response.data;
+                    throw JSON.stringify(response.data);
                 });
                 return promise2;
             }
@@ -87,7 +87,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(JSON.stringify(response.data))
                 });
                 return promise2;
             };
@@ -99,7 +99,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(JSON.stringify(response.data))
                 });
                 return promise2;
             };
@@ -114,7 +114,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log(response.data)
+                    console.log(JSON.stringify(response.data))
                 });
                 return promise2;
             };
@@ -129,7 +129,7 @@
                 var promise2 = promise1.then(function (response) {
                     return response.data;
                 }, function (response) {
-                    console.log("ERROR: " + response.data);
+                    console.log("ERROR: " + JSON.stringify(response.data));
                 });
                 return promise2;
             };
@@ -142,7 +142,7 @@
                     return response.data;
                 }, function (response) {
                     console.log(response.data);
-                    return response.data;
+                    return JSON.stringify(response.data);
                 });
                 return promise2;
             }
@@ -157,7 +157,7 @@
 
                 }, function (response) {
 
-                    throw "NOT UPDATED: " + response.data;
+                    throw "NOT UPDATED: " + JSON.stringify(response.data);
 
                 });
                 return promise2;

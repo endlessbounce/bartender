@@ -1,7 +1,7 @@
 <%@ include file="../WEB-INF/jspf/imports.jspf" %>
 <html ng-app="catalog">
 <head>
-    <title>${cocktail.name}</title>
+    <title>${e:forHtmlContent(cocktail.name)}</title>
     <%@ include file="../WEB-INF/jspf/headcontent.jspf" %>
 </head>
 <body>
@@ -19,17 +19,17 @@
         <li class="breadcrumb-item"><a href="/controller?command=profile"><fmt:message key="crumb.profile"/></a></li>
         <li class="breadcrumb-item"><a href="/controller?command=profile&section=created"><fmt:message
                 key="crumb.usercocktail"/></a></li>
-        <li class="breadcrumb-item active" aria-current="page">${cocktail.name}</li>
+        <li class="breadcrumb-item active" aria-current="page">${e:forHtmlContent(cocktail.name)}</li>
     </ol>
 </nav>
 
 <div class="container mt-3" ng-controller="UserCocktailCtrl as ctrl" ng-init="ctrl.init('${userID}')">
     <div class="row">
-        <h2 class="font-weight-light">${cocktail.name}</h2>
+        <h2 class="font-weight-light">${e:forHtmlContent(cocktail.name)}</h2>
     </div>
 
     <div class="row">
-        <h4 class="font-weight-light mb-3">${cocktail.slogan}</h4>
+        <h4 class="font-weight-light mb-3">${e:forHtmlContent(cocktail.slogan)}</h4>
     </div>
 
     <div class="row">
@@ -38,7 +38,7 @@
 
                 <%--IIMAGE--%>
                 <div class="row">
-                    <img src="${ pageContext.request.contextPath }${cocktail.uri}" class="img-fluid img-thumbnail"
+                    <img src="${ pageContext.request.contextPath }${e:forHtmlContent(cocktail.uri)}" class="img-fluid img-thumbnail"
                          alt="Responsive image">
                 </div>
 
@@ -64,8 +64,8 @@
             <div class="container">
                 <div class="row mb-3">
                     <h6 class="font-weight-light">
-                        <fmt:message key="cocktail.type"/> ${cocktail.type},
-                        <fmt:message key="cocktail.base"/> ${cocktail.baseDrink}
+                        <fmt:message key="cocktail.type"/> ${e:forHtmlContent(cocktail.type)},
+                        <fmt:message key="cocktail.base"/> ${e:forHtmlContent(cocktail.baseDrink)}
                     </h6>
                 </div>
 
@@ -77,9 +77,9 @@
                 <div class="row mb-3" style="width: 100%;">
                     <ol class="list-group">
                         <c:forEach items="${cocktail.ingredientList}" var="component" varStatus="loop">
-                            <li class="list-group-item font-italic">${component.ingredientName}
+                            <li class="list-group-item font-italic">${e:forHtmlContent(component.ingredientName)}
                                 <c:if test="${component.amount != null}">
-                                    : ${component.amount}
+                                    : ${e:forHtmlContent(component.amount)}
                                 </c:if>
                             </li>
                         </c:forEach>
@@ -93,7 +93,7 @@
 
                 <%--RECIPE--%>
                 <div class="row">
-                    <p class="font-italic">${cocktail.recipe}</p>
+                    <p class="font-italic">${e:forHtmlContent(cocktail.recipe)}</p>
                 </div>
             </div>
 
